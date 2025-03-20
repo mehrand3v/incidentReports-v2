@@ -1,2 +1,68 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 217.2 91.2% 11.8%;
+        --foreground: 0 0% 100%;
+
+        --card: 222.2 47.4% 17.8%;
+        --card-foreground: 0 0% 100%;
+
+        --popover: 222.2 47.4% 17.8%;
+        --popover-foreground: 0 0% 100%;
+
+        --primary: 198.6 88.7% 48.4%;
+        --primary-foreground: 0 0% 100%;
+
+        --secondary: 222.2 47.4% 17.8%;
+        --secondary-foreground: 0 0% 100%;
+
+        --muted: 217.2 32.6% 26.8%;
+        --muted-foreground: 215 20.2% 90.2%;
+
+        --accent: 35.5 92.1% 50.2%;
+        --accent-foreground: 0 0% 100%;
+
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 100%;
+
+        --success: 142.1 70.6% 45.3%;
+        --success-foreground: 0 0% 100%;
+
+        --warning: 24.6 95% 53.1%;
+        --warning-foreground: 0 0% 100%;
+
+        --border: 240 5.9% 90%;
+        --input: 240 5.9% 90%;
+        --ring: 240 3.7% 15.9%;
+
+        --radius: 0.5rem;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-muted/30;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-primary/70 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary;
+}
