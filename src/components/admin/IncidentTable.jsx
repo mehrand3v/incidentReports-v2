@@ -401,7 +401,6 @@ const IncidentTable = ({
     //   </Dialog>
     //   </div>
 
-   
     <div className="relative overflow-hidden rounded-lg border border-slate-700 bg-slate-800">
       <div className="overflow-x-auto shadow-md">
         <Table className="w-full text-sm text-left text-gray-300">
@@ -457,7 +456,7 @@ const IncidentTable = ({
                               : type === "robbery"
                               ? "bg-red-700 text-white"
                               : type === "beer-run"
-                              ? "bg-amber-600 text-white"
+                              ? "bg-orange-800 text-white"
                               : type === "property-damage"
                               ? "bg-blue-600 text-white"
                               : type === "injury"
@@ -508,11 +507,30 @@ const IncidentTable = ({
                       : "Pending"}
                   </span>
                 </TableCell>
-                <TableCell className="px-6 py-4 text-gray-300 whitespace-nowrap">
+                {/* <TableCell className="px-6 py-4 text-gray-300 whitespace-nowrap">
                   {incident.policeReport || "N/A"}
                 </TableCell>
                 <TableCell className="px-6 py-4 font-mono text-gray-300 whitespace-nowrap">
                   {incident.caseNumber || "N/A"}
+                </TableCell> */}
+                <TableCell className="px-6 py-4 whitespace-nowrap">
+                  {incident.policeReport ? (
+                    <span className="text-blue-300 font-medium">
+                      {incident.policeReport}
+                    </span>
+                  ) : (
+                    <span className="text-red-400 font-medium">N/A</span>
+                  )}
+                </TableCell>
+
+                <TableCell className="px-6 py-4 font-mono whitespace-nowrap">
+                  {incident.caseNumber ? (
+                    <span className="text-green-400 font-semibold">
+                      {incident.caseNumber}
+                    </span>
+                  ) : (
+                    <span className="text-red-400 font-medium">N/A</span>
+                  )}
                 </TableCell>
                 <TableCell className="px-6 py-4">
                   <div className="flex items-center justify-center space-x-1">
