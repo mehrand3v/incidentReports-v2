@@ -8,15 +8,39 @@ import { ALL_INCIDENT_TYPES } from "../constants/incidentTypes";
  * @param {string} formatString - Format string to use
  * @returns {string} Formatted date string or 'N/A' if invalid
  */
-export const formatDate = (date, formatString = "MM/dd/yyyy h:mm a") => {
-  if (!date) return "N/A";
+// src/utils/formatters.js
+export const formatDate = (date, formatString = 'MM/dd/yyyy h:mm a') => {
+  if (!date) return 'N/A';
 
   try {
-    const dateObj = date instanceof Date ? date : new Date(date);
-    return format(dateObj, formatString);
+    // Handle Firestore timestamp objects
+    if (date && typeof date === 'object' && date.toDate) {
+      return format(date.toDate(), formatString);
+    }
+
+    // Handle date objects
+    if (date instanceof Date) {
+      return format(date, formatString);
+    }
+
+    // If it's a number (timestamp in milliseconds)
+    if (typeof date === 'number') {
+      return format(new Date(date), formatString);
+    }
+
+    // If it's a string, attempt to parse it
+    if (typeof date === 'string') {
+      // Check if it's a valid date string
+      const parsedDate = new Date(date);
+      if (!isNaN(parsedDate.getTime())) {
+        return format(parsedDate, formatString);
+      }
+    }
+
+    return 'Invalid Date';
   } catch (error) {
     console.error("Error formatting date:", error);
-    return "Invalid Date";
+    return 'Invalid Date';
   }
 };
 
