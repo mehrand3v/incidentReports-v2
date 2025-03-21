@@ -1,7 +1,15 @@
 // src/components/shared/Footer.jsx
 import React from "react";
 import { Link } from "react-router-dom";
-import { AlertTriangle, Shield, HelpCircle, ArrowUp } from "lucide-react";
+import {
+  AlertTriangle,
+  Shield,
+  HelpCircle,
+  ArrowUp,
+  Twitter,
+  Facebook,
+  Linkedin,
+} from "lucide-react";
 
 const Footer = () => {
   const scrollToTop = () => {
@@ -12,31 +20,43 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-slate-900 text-gray-300 shadow-inner pt-6 pb-4 mt-auto">
+    <footer className="bg-slate-900 text-gray-300 shadow-inner pt-4 pb-2 mt-auto relative">
+      {/* Back to top button - positioned absolute at the top right */}
+      <div className="absolute -top-4 right-4 md:right-8">
+        <button
+          onClick={scrollToTop}
+          className="flex items-center justify-center bg-blue-800 hover:bg-blue-700 text-white rounded-full w-8 h-8 shadow-lg"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="h-4 w-4" />
+        </button>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          {/* Logo and copyright */}
-          <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
-            <div className="flex items-center mb-2">
-              <AlertTriangle className="h-6 w-6 text-amber-500 mr-2" />
-              <span className="text-lg font-bold text-blue-400">
+        {/* 2-column layout on mobile, 4-column layout on larger screens */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          {/* Logo and copyright - spans 2 columns on mobile, 1 column on larger screens */}
+          <div className="col-span-2 md:col-span-1 flex flex-col items-center md:items-start mb-3 md:mb-0">
+            <div className="flex items-center mb-1">
+              <AlertTriangle className="h-5 w-5 text-amber-500 mr-1" />
+              <span className="text-base font-bold text-blue-400">
                 SafeReport
               </span>
             </div>
-            <p className="text-xs text-gray-400">
-              &copy; {new Date().getFullYear()} SafeReport. All rights reserved.
+            <p className="text-xs text-gray-400 text-center md:text-left">
+              &copy; {new Date().getFullYear()} SafeReport
             </p>
           </div>
 
-          {/* Quick links */}
-          <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
-            <h3 className="text-sm font-semibold text-blue-400 mb-2">
+          {/* Quick links - spans 1 column on mobile, 1 column on larger screens */}
+          <div className="flex flex-col items-center md:items-start">
+            <h3 className="text-xs font-semibold text-blue-400 mb-1">
               Quick Links
             </h3>
-            <ul className="text-sm space-y-1">
+            <ul className="text-xs space-y-1">
               <li>
                 <Link to="/" className="text-gray-400 hover:text-white">
-                  Report an Incident
+                  Report Incident
                 </Link>
               </li>
               <li>
@@ -44,26 +64,23 @@ const Footer = () => {
                   to="/check-status"
                   className="text-gray-400 hover:text-white"
                 >
-                  Check Report Status
+                  Check Status
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/admin/login"
-                  className="text-gray-400 hover:text-white"
-                >
+                <Link to="/login" className="text-gray-400 hover:text-white">
                   Admin Portal
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Support */}
-          <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
-            <h3 className="text-sm font-semibold text-blue-400 mb-2">
+          {/* Support - spans 1 column on mobile, 1 column on larger screens */}
+          <div className="flex flex-col items-center md:items-start">
+            <h3 className="text-xs font-semibold text-blue-400 mb-1">
               Support
             </h3>
-            <ul className="text-sm space-y-1">
+            <ul className="text-xs space-y-1">
               <li>
                 <Link
                   to="/help"
@@ -85,16 +102,34 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Back to top */}
-          <div className="flex flex-col items-center">
-            <button
-              onClick={scrollToTop}
-              className="flex items-center text-blue-400 hover:text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-md p-1"
-              aria-label="Scroll to top"
-            >
-              <ArrowUp className="h-4 w-4 mr-1" />
-              <span className="text-sm">Back to top</span>
-            </button>
+          {/* Social media - spans 2 columns on mobile, 1 column on larger screens */}
+          <div className="col-span-2 md:col-span-1 flex flex-col items-center md:items-start">
+            <h3 className="text-xs font-semibold text-blue-400 mb-1">
+              Connect
+            </h3>
+            <div className="flex space-x-3">
+              <a
+                href="#"
+                className="text-gray-400 hover:text-blue-400"
+                aria-label="Twitter"
+              >
+                <Twitter className="h-4 w-4" />
+              </a>
+              <a
+                href="#"
+                className="text-gray-400 hover:text-blue-400"
+                aria-label="Facebook"
+              >
+                <Facebook className="h-4 w-4" />
+              </a>
+              <a
+                href="#"
+                className="text-gray-400 hover:text-blue-400"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="h-4 w-4" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
