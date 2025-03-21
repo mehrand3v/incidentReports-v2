@@ -1,8 +1,5 @@
-// tailwind.config.js
-import { fontFamily } from "tailwindcss/defaultTheme";
-
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   darkMode: ["class"],
   content: [
     "./pages/**/*.{js,jsx}",
@@ -21,70 +18,56 @@ export default {
     },
     extend: {
       colors: {
-        border: "hsl(240 5.9% 90%)",
-        input: "hsl(240 5.9% 90%)",
-        ring: "hsl(240 3.7% 15.9%)",
-        background: "#0F172A", // Dark background
-        foreground: "#FFFFFF", // White text
+        // Make sure slate colors are explicitly defined
+        slate: {
+          50: "#f8fafc",
+          100: "#f1f5f9",
+          200: "#e2e8f0",
+          300: "#cbd5e1",
+          400: "#94a3b8",
+          500: "#64748b",
+          600: "#475569",
+          700: "#334155",
+          800: "#1e293b",
+          900: "#0f172a",
+          950: "#020617",
+        },
+        // Your other custom colors...
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#0EA5E9", // Teal
-          foreground: "#FFFFFF",
+          DEFAULT: "rgb(var(--color-primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "#1E293B", // Dark blue
-          foreground: "#FFFFFF",
-        },
-        accent: {
-          DEFAULT: "#F59E0B", // Amber
-          foreground: "#FFFFFF",
+          DEFAULT: "rgb(var(--color-secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
-          DEFAULT: "#EF4444", // Red
-          foreground: "#FFFFFF",
-        },
-        success: {
-          DEFAULT: "#22C55E", // Green
-          foreground: "#FFFFFF",
-        },
-        warning: {
-          DEFAULT: "#F97316", // Orange
-          foreground: "#FFFFFF",
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
-          DEFAULT: "#334155", // Slate 700
-          foreground: "#E2E8F0",
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
         },
-        card: {
-          DEFAULT: "#1E293B", // Dark blue (secondary)
-          foreground: "#FFFFFF",
+        accent: {
+          DEFAULT: "rgb(var(--color-accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
-          DEFAULT: "#1E293B", // Dark blue (secondary)
-          foreground: "#FFFFFF",
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
       },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-      fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
-      },
-      keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-      },
+      // Rest of your configuration...
     },
   },
   plugins: [require("tailwindcss-animate")],
