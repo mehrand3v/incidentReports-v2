@@ -1,6 +1,6 @@
 // src/components/admin/IncidentTable.jsx
 import React, { useState } from "react";
-import { Eye, Pencil, Trash2, ChevronFirst, ChevronLast } from "lucide-react";
+import { Eye, Pencil, Trash2, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -401,6 +401,7 @@ const IncidentTable = ({
     //   </Dialog>
     //   </div>
 
+   
     <div className="relative overflow-hidden rounded-lg border border-slate-700 bg-slate-800">
       <div className="overflow-x-auto shadow-md">
         <Table className="w-full text-sm text-left text-gray-300">
@@ -481,10 +482,10 @@ const IncidentTable = ({
                 <TableCell className="px-6 py-4 text-gray-300">
                   <Button
                     variant="link"
-                    className="text-blue-400 p-0 h-auto hover:text-blue-300 hover:underline text-left w-full cursor-pointer"
+                    className="text-cyan-400 p-0 h-auto hover:text-cyan-300 hover:underline text-left w-full cursor-pointer justify-start"
                     onClick={() => handleViewDetails(incident)}
                   >
-                    <div className="max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap text-left">
+                    <div className="max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
                       {formatDetails(incident.details, 30) ||
                         "No details provided"}
                     </div>
@@ -567,11 +568,11 @@ const IncidentTable = ({
               <PaginationItem>
                 <PaginationLink
                   onClick={() => handlePageChange(1)}
-                  className={
+                  className={`transition-all duration-200 cursor-pointer ${
                     currentPage === 1
                       ? "opacity-50 cursor-not-allowed"
-                      : "text-blue-400 hover:text-blue-300"
-                  }
+                      : "text-blue-400 hover:text-blue-300 hover:bg-slate-700"
+                  }`}
                   disabled={currentPage === 1}
                 >
                   <ChevronFirst className="h-4 w-4" />
@@ -582,11 +583,11 @@ const IncidentTable = ({
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                  className={
+                  className={`transition-all duration-200 cursor-pointer ${
                     currentPage === 1
                       ? "opacity-50 cursor-not-allowed"
-                      : "text-blue-400 hover:text-blue-300"
-                  }
+                      : "text-blue-400 hover:text-blue-300 hover:bg-slate-700"
+                  }`}
                   disabled={currentPage === 1}
                 />
               </PaginationItem>
@@ -616,11 +617,11 @@ const IncidentTable = ({
                       <PaginationLink
                         onClick={() => handlePageChange(pageNum)}
                         isActive={currentPage === pageNum}
-                        className={
+                        className={`transition-all duration-200 cursor-pointer ${
                           currentPage === pageNum
-                            ? "bg-blue-700"
-                            : "text-gray-300 hover:text-white"
-                        }
+                            ? "bg-blue-700 text-white hover:bg-blue-600"
+                            : "text-gray-300 hover:text-white hover:bg-slate-700"
+                        }`}
                       >
                         {pageNum}
                       </PaginationLink>
@@ -645,11 +646,11 @@ const IncidentTable = ({
                   onClick={() =>
                     handlePageChange(Math.min(totalPages, currentPage + 1))
                   }
-                  className={
+                  className={`transition-all duration-200 cursor-pointer ${
                     currentPage === totalPages
                       ? "opacity-50 cursor-not-allowed"
-                      : "text-blue-400 hover:text-blue-300"
-                  }
+                      : "text-blue-400 hover:text-blue-300 hover:bg-slate-700"
+                  }`}
                   disabled={currentPage === totalPages}
                 />
               </PaginationItem>
@@ -658,11 +659,11 @@ const IncidentTable = ({
               <PaginationItem>
                 <PaginationLink
                   onClick={() => handlePageChange(totalPages)}
-                  className={
+                  className={`transition-all duration-200 cursor-pointer ${
                     currentPage === totalPages
                       ? "opacity-50 cursor-not-allowed"
-                      : "text-blue-400 hover:text-blue-300"
-                  }
+                      : "text-blue-400 hover:text-blue-300 hover:bg-slate-700"
+                  }`}
                   disabled={currentPage === totalPages}
                 >
                   <ChevronLast className="h-4 w-4" />
@@ -759,7 +760,7 @@ const IncidentTable = ({
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    className="border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white"
+                    className="border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white transition-colors duration-200"
                     onClick={() => {
                       const newStatus =
                         selectedIncident.status === "complete"
@@ -776,7 +777,7 @@ const IncidentTable = ({
                   </Button>
 
                   <Button
-                    className="bg-blue-700 hover:bg-blue-600 text-white"
+                    className="bg-blue-700 hover:bg-blue-600 text-white transition-colors duration-200"
                     onClick={() => {
                       onEditPoliceReport &&
                         onEditPoliceReport(selectedIncident);
@@ -790,7 +791,7 @@ const IncidentTable = ({
                 {isSuperAdmin && (
                   <Button
                     variant="destructive"
-                    className="bg-red-800 hover:bg-red-700 text-white"
+                    className="bg-red-800 hover:bg-red-700 text-white transition-colors duration-200"
                     onClick={() => {
                       onDeleteIncident && onDeleteIncident(selectedIncident);
                       handleCloseDetails();
