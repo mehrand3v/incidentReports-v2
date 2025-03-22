@@ -1,6 +1,14 @@
 // src/components/admin/FilterBar.jsx
 import React, { useState } from "react";
-import { Search, Filter, X, Calendar, RefreshCw } from "lucide-react";
+import {
+  Search,
+  Filter,
+  X,
+  Calendar,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,10 +40,31 @@ const FilterBar = ({
   onExportExcel,
 }) => {
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: filters.startDate ? new Date(filters.startDate) : null,
     endDate: filters.endDate ? new Date(filters.endDate) : null,
   });
+
+  // Handle exports with auto-close
+  const handleExportPdf = () => {
+    onExportPdf();
+    setIsExportOpen(false);
+  };
+
+  const handleExportExcel = () => {
+    onExportExcel();
+    setIsExportOpen(false);
+  };
+
+  // Format date to string
+  const formatDate = (date) => {
+    if (!date) return "";
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
 
   // Handle input change
   const handleInputChange = (e) => {
@@ -44,10 +73,9 @@ const FilterBar = ({
   };
 
   // Handle select change
-    const handleSelectChange = (name, value) => {
-      const filterValue = value === "all" ? "" : value;
+  const handleSelectChange = (name, value) => {
+    const filterValue = value === "all" ? "" : value;
     onFilterChange({ [name]: filterValue });
-
   };
 
   // Handle date range selection
@@ -90,9 +118,9 @@ const FilterBar = ({
 
   return (
     <div className="space-y-4 mb-6">
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="flex flex-wrap items-end gap-2 md:gap-3">
         {/* Store Number Filter */}
-        <div className="w-full md:w-auto">
+        <div className="w-full sm:w-64 md:w-72 lg:w-80 flex-shrink-0">
           <Label htmlFor="storeNumber" className="text-gray-300 mb-1 block">
             Store Number
           </Label>
@@ -102,7 +130,7 @@ const FilterBar = ({
               id="storeNumber"
               name="storeNumber"
               placeholder="Search by store #"
-              className="bg-slate-700 border-slate-600 text-white pl-9 w-full md:w-auto"
+              className="bg-slate-700 border-slate-600 text-white pl-9 w-full"
               value={filters.storeNumber || ""}
               onChange={handleInputChange}
             />
@@ -110,7 +138,7 @@ const FilterBar = ({
         </div>
 
         {/* Incident Type Filter */}
-        <div className="w-full md:w-auto">
+        <div className="w-full sm:w-auto flex-shrink-0">
           <Label htmlFor="incidentType" className="text-gray-300 mb-1 block">
             Incident Type
           </Label>
@@ -120,7 +148,7 @@ const FilterBar = ({
           >
             <SelectTrigger
               id="incidentType"
-              className="bg-slate-700 border-slate-600 text-white w-full md:w-48"
+              className="bg-slate-700 border-slate-600 text-white w-full sm:w-44"
             >
               <SelectValue placeholder="Any type" />
             </SelectTrigger>
@@ -136,7 +164,7 @@ const FilterBar = ({
         </div>
 
         {/* Status Filter */}
-        <div className="w-full md:w-auto">
+        <div className="w-full sm:w-auto flex-shrink-0">
           <Label htmlFor="status" className="text-gray-300 mb-1 block">
             Status
           </Label>
@@ -146,7 +174,7 @@ const FilterBar = ({
           >
             <SelectTrigger
               id="status"
-              className="bg-slate-700 border-slate-600 text-white w-full md:w-40"
+              className="bg-slate-700 border-slate-600 text-white w-full sm:w-36"
             >
               <SelectValue placeholder="Any status" />
             </SelectTrigger>
@@ -158,8 +186,8 @@ const FilterBar = ({
           </Select>
         </div>
 
-        {/* Date Range Filter */}
-        <div className="w-full md:w-auto">
+        {/* Date Range Filter - IMPROVED */}
+        <div className="w-full sm:w-auto flex-shrink-0">
           <Label htmlFor="dateRange" className="text-gray-300 mb-1 block">
             Date Range
           </Label>
@@ -168,94 +196,151 @@ const FilterBar = ({
               <Button
                 id="dateRange"
                 variant="outline"
-                className="bg-slate-700 border-slate-600 text-white w-full md:w-60 justify-start"
+                className="bg-slate-700 border-slate-600 text-white w-full sm:w-52 justify-start cursor-pointer"
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 {dateRange.startDate && dateRange.endDate ? (
                   <span>
-                    {format(dateRange.startDate, "MMM d, yyyy")} -{" "}
-                    {format(dateRange.endDate, "MMM d, yyyy")}
+                    {formatDate(dateRange.startDate)} -{" "}
+                    {formatDate(dateRange.endDate)}
                   </span>
                 ) : (
                   <span>Select date range</span>
                 )}
               </Button>
             </PopoverTrigger>
-            
-            <PopoverContent className="bg-slate-700 border-slate-600 text-white p-4 w-auto max-w-md">
-              <div className="grid gap-4">
-                <div className="space-y-1">
-                  <h4 className="font-medium text-sm text-blue-400">
-                    Date Range
-                  </h4>
-                  <p className="text-sm text-gray-400 mb-2">
-                    Select start and end dates for filtering
-                  </p>
-                </div>
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-xs text-gray-300">
+
+            <PopoverContent className="bg-slate-900 border-slate-700 shadow-xl text-white p-0 w-auto">
+              <div className="grid grid-cols-2 divide-x divide-slate-700">
+                {/* Start Date Calendar */}
+                <div className="p-3">
+                  <div className="mb-2 text-center">
+                    <h4 className="font-medium text-sm text-blue-400">
                       Start Date
                     </h4>
-                    <div className="bg-slate-800 rounded-md p-2">
-                      <CalendarComponent
-                        mode="single"
-                        selected={dateRange.startDate}
-                        onSelect={(date) =>
-                          handleDateRangeChange("startDate", date)
-                        }
-                        disabled={(date) =>
-                          dateRange.endDate ? date > dateRange.endDate : false
-                        }
-                        className="bg-slate-800 border-slate-600 text-white"
-                        classNames={{
-                          day_today: "bg-blue-900 text-white",
-                          day_selected: "bg-blue-600 text-white font-bold",
-                        }}
-                      />
-                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-xs text-gray-300">
+                  <div className="bg-slate-800 rounded-lg overflow-hidden">
+                    <CalendarComponent
+                      mode="single"
+                      selected={dateRange.startDate}
+                      onSelect={(date) =>
+                        handleDateRangeChange("startDate", date)
+                      }
+                      disabled={(date) =>
+                        dateRange.endDate ? date > dateRange.endDate : false
+                      }
+                      className="text-white border-0"
+                      classNames={{
+                        months:
+                          "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                        month: "space-y-4",
+                        caption:
+                          "flex justify-center pt-1 relative items-center px-2",
+                        caption_label: "text-sm font-medium text-blue-400",
+                        nav: "space-x-1 flex items-center",
+                        nav_button:
+                          "h-7 w-7 bg-slate-600 hover:bg-blue-700 rounded-md flex items-center justify-center",
+                        nav_button_previous: "absolute left-1",
+                        nav_button_next: "absolute right-1",
+                        table: "w-full border-collapse",
+                        head_row: "flex",
+                        head_cell: "text-slate-300 w-8 font-normal text-xs",
+                        row: "flex w-full mt-2",
+                        cell: "h-8 w-8 text-center text-sm relative p-0 focus-within:relative",
+                        day: "h-8 w-8 p-0 flex items-center justify-center rounded-md aria-selected:opacity-100 hover:bg-blue-700",
+                        day_range_end: "day-range-end",
+                        day_selected:
+                          "bg-blue-600 text-white hover:bg-blue-600 hover:text-white focus:bg-blue-600 focus:text-white",
+                        day_today: "bg-slate-600 text-white",
+                        day_outside: "opacity-50",
+                        day_disabled: "opacity-25 cursor-not-allowed",
+                        day_hidden: "invisible",
+                      }}
+                      components={{
+                        IconLeft: ({ ...props }) => (
+                          <ChevronLeft className="h-4 w-4" />
+                        ),
+                        IconRight: ({ ...props }) => (
+                          <ChevronRight className="h-4 w-4" />
+                        ),
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* End Date Calendar */}
+                <div className="p-3">
+                  <div className="mb-2 text-center">
+                    <h4 className="font-medium text-sm text-blue-400">
                       End Date
                     </h4>
-                    <div className="bg-slate-800 rounded-md p-2">
-                      <CalendarComponent
-                        mode="single"
-                        selected={dateRange.endDate}
-                        onSelect={(date) =>
-                          handleDateRangeChange("endDate", date)
-                        }
-                        disabled={(date) =>
-                          dateRange.startDate
-                            ? date < dateRange.startDate
-                            : false
-                        }
-                        className="bg-slate-800 border-slate-600 text-white"
-                        classNames={{
-                          day_today: "bg-blue-900 text-white",
-                          day_selected: "bg-blue-600 text-white font-bold",
-                        }}
-                      />
-                    </div>
+                  </div>
+                  <div className="bg-slate-800 rounded-lg overflow-hidden">
+                    <CalendarComponent
+                      mode="single"
+                      selected={dateRange.endDate}
+                      onSelect={(date) =>
+                        handleDateRangeChange("endDate", date)
+                      }
+                      disabled={(date) =>
+                        dateRange.startDate ? date < dateRange.startDate : false
+                      }
+                      className="text-white border-0"
+                      classNames={{
+                        months:
+                          "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                        month: "space-y-4",
+                        caption:
+                          "flex justify-center pt-1 relative items-center px-2",
+                        caption_label: "text-sm font-medium text-blue-400",
+                        nav: "space-x-1 flex items-center",
+                        nav_button:
+                          "h-7 w-7 bg-slate-600 hover:bg-blue-700 rounded-md flex items-center justify-center",
+                        nav_button_previous: "absolute left-1",
+                        nav_button_next: "absolute right-1",
+                        table: "w-full border-collapse",
+                        head_row: "flex",
+                        head_cell: "text-slate-300 w-8 font-normal text-xs",
+                        row: "flex w-full mt-2",
+                        cell: "h-8 w-8 text-center text-sm relative p-0 focus-within:relative",
+                        day: "h-8 w-8 p-0 flex items-center justify-center rounded-md aria-selected:opacity-100 hover:bg-blue-700",
+                        day_range_end: "day-range-end",
+                        day_selected:
+                          "bg-blue-600 text-white hover:bg-blue-600 hover:text-white focus:bg-blue-600 focus:text-white",
+                        day_today: "bg-slate-600 text-white",
+                        day_outside: "opacity-50",
+                        day_disabled: "opacity-25 cursor-not-allowed",
+                        day_hidden: "invisible",
+                      }}
+                      components={{
+                        IconLeft: ({ ...props }) => (
+                          <ChevronLeft className="h-4 w-4" />
+                        ),
+                        IconRight: ({ ...props }) => (
+                          <ChevronRight className="h-4 w-4" />
+                        ),
+                      }}
+                    />
                   </div>
                 </div>
-                <div className="flex justify-between pt-2">
-                  <Button
-                    variant="outline"
-                    className="border-slate-600 text-gray-300 hover:bg-slate-800 hover:text-white"
-                    onClick={clearDateRange}
-                  >
-                    Clear
-                  </Button>
-                  <Button
-                    className="bg-blue-700 hover:bg-blue-600 text-white"
-                    onClick={applyDateRange}
-                    disabled={!dateRange.startDate || !dateRange.endDate}
-                  >
-                    Apply Filter
-                  </Button>
-                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-between p-3 border-t border-slate-700 bg-slate-800">
+                <Button
+                  variant="outline"
+                  className="border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white cursor-pointer"
+                  onClick={clearDateRange}
+                >
+                  Clear
+                </Button>
+                <Button
+                  className="bg-blue-600 hover:bg-blue-500 text-white cursor-pointer"
+                  onClick={applyDateRange}
+                  disabled={!dateRange.startDate || !dateRange.endDate}
+                >
+                  Apply
+                </Button>
               </div>
             </PopoverContent>
           </Popover>
@@ -263,18 +348,50 @@ const FilterBar = ({
 
         {/* Reset Filters */}
         <Button
-          variant="ghost"
-          className="text-gray-300 hover:text-white hover:bg-slate-700"
+          variant="outline"
+          className="text-blue-300 hover:text-white border-blue-800 bg-blue-900/30 hover:bg-blue-800 cursor-pointer h-10"
           onClick={onResetFilters}
         >
           <RefreshCw className="h-4 w-4 mr-1" />
           Reset
         </Button>
+
+        {/* Export Dropdown */}
+        <div className="h-10">
+          <Popover open={isExportOpen} onOpenChange={setIsExportOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="text-purple-300 border-purple-800 bg-purple-900/30 hover:bg-purple-800 hover:text-white cursor-pointer h-10"
+              >
+                Export
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="bg-slate-800 border-slate-700 shadow-xl text-white p-0 w-auto">
+              <div className="flex flex-col">
+                <Button
+                  variant="ghost"
+                  className="justify-start rounded-none text-red-300 hover:bg-red-900/50 hover:text-white cursor-pointer"
+                  onClick={handleExportPdf}
+                >
+                  Export PDF
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="justify-start rounded-none text-green-300 hover:bg-green-900/50 hover:text-white cursor-pointer"
+                  onClick={handleExportExcel}
+                >
+                  Export Excel
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
       {/* Active Filters and Export Options */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 flex-grow">
           {Object.entries(filters).map(([key, value]) => {
             if (!value || key === "startDate" || key === "endDate") return null;
 
@@ -316,8 +433,8 @@ const FilterBar = ({
           {filters.startDate && filters.endDate && (
             <div className="flex items-center bg-blue-900 text-blue-200 text-sm rounded-full px-3 py-1">
               <span className="mr-1">
-                Date: {format(new Date(filters.startDate), "MM/dd/yyyy")} -{" "}
-                {format(new Date(filters.endDate), "MM/dd/yyyy")}
+                Date: {formatDate(new Date(filters.startDate))} -{" "}
+                {formatDate(new Date(filters.endDate))}
               </span>
               <button
                 onClick={() =>
@@ -330,24 +447,6 @@ const FilterBar = ({
               </button>
             </div>
           )}
-        </div>
-
-        {/* Export Buttons */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="text-sm border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white"
-            onClick={onExportPdf}
-          >
-            Export PDF
-          </Button>
-          <Button
-            variant="outline"
-            className="text-sm border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white"
-            onClick={onExportExcel}
-          >
-            Export Excel
-          </Button>
         </div>
       </div>
     </div>

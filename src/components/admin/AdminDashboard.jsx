@@ -166,24 +166,77 @@ const AdminDashboard = () => {
   };
 
   // Handle export PDF
-  const handleExportPdf = () => {
-    try {
-      downloadPdfReport(incidents, filters);
-      notification.success("PDF report downloaded");
-    } catch (error) {
-      notification.error("Failed to generate PDF report");
-    }
-  };
+ const handleExportPdf = () => {
+   try {
+     // Make sure incidents array is valid
+     if (!Array.isArray(incidents)) {
+       notification.error("Invalid incidents data for export");
+       return;
+     }
+
+     // Create a sanitized copy of the incidents to prevent date parsing issues
+     const sanitizedIncidents = incidents.map((incident) => {
+       // Create a new object with the same properties
+       const sanitized = { ...incident };
+
+       // Ensure timestamp is valid - add a default if missing or invalid
+       if (
+         !sanitized.timestamp ||
+         new Date(sanitized.timestamp).toString() === "Invalid Date"
+       ) {
+         sanitized.timestamp = new Date(); // Use current date as fallback
+       }
+
+       return sanitized;
+     });
+
+     // Pass the sanitized data to the export function
+     downloadPdfReport(sanitizedIncidents, filters);
+     notification.success("PDF report downloaded");
+   } catch (error) {
+     console.error("Export PDF error:", error);
+     notification.error(
+       "Failed to generate PDF report: " + (error.message || "Unknown error")
+     );
+   }
+ };
+
 
   // Handle export Excel
-  const handleExportExcel = () => {
-    try {
-      downloadExcelReport(incidents, filters);
-      notification.success("Excel report downloaded");
-    } catch (error) {
-      notification.error("Failed to generate Excel report");
-    }
-  };
+ const handleExportExcel = () => {
+   try {
+     // Make sure incidents array is valid
+     if (!Array.isArray(incidents)) {
+       notification.error("Invalid incidents data for export");
+       return;
+     }
+
+     // Create a sanitized copy of the incidents to prevent date parsing issues
+     const sanitizedIncidents = incidents.map((incident) => {
+       // Create a new object with the same properties
+       const sanitized = { ...incident };
+
+       // Ensure timestamp is valid - add a default if missing or invalid
+       if (
+         !sanitized.timestamp ||
+         new Date(sanitized.timestamp).toString() === "Invalid Date"
+       ) {
+         sanitized.timestamp = new Date(); // Use current date as fallback
+       }
+
+       return sanitized;
+     });
+
+     // Pass the sanitized data to the export function
+     downloadExcelReport(sanitizedIncidents, filters);
+     notification.success("Excel report downloaded");
+   } catch (error) {
+     console.error("Export Excel error:", error);
+     notification.error(
+       "Failed to generate Excel report: " + (error.message || "Unknown error")
+     );
+   }
+ };
 
   // Handle refresh data with loading state
   const handleRefreshData = async () => {
