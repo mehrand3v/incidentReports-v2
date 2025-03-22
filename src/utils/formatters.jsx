@@ -133,6 +133,7 @@ export const formatDetails = (details, maxLength = 100) => {
 
   return `${details.substring(0, maxLength)}...`;
 };
+// In your formatters.js file
 
 /**
  * Capitalize first letter of a string
