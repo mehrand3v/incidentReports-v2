@@ -10,7 +10,7 @@ import {
   FileText,
   RefreshCw,
   BarChart,
-  Shield,
+  Shield,QrCode
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import IncidentTable from "./IncidentTable";
@@ -35,9 +35,11 @@ import {
   downloadExcelReport,
 } from "../../utils/exportHelpers";
 import { useNotification } from "../../contexts/NotificationContext";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
-  // Get auth context
+  const navigate = useNavigate();
+    // Get auth context
   const { isSuperAdmin } = useAuth();
   const notification = useNotification();
 
@@ -268,6 +270,15 @@ const AdminDashboard = () => {
             >
               <FileText className="h-4 w-4 mr-2" />
               Reports
+            </Button>
+
+            <Button
+              variant="outline"
+              className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
+              onClick={() => navigate("/admin/qr-generator")}
+            >
+              <QrCode className="h-4 w-4 mr-2" />
+              Generate QR Codes
             </Button>
             <Button
               className="bg-blue-700 hover:bg-blue-600 text-white transition-all duration-200"

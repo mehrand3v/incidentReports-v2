@@ -25,7 +25,17 @@ import {
 import { createIncident } from "../../services/incident";
 import { logCustomEvent } from "../../services/analytics";
 
+
 const IncidentReportForm = () => {
+  // Get store number from URL if provided by QR code
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const storeParam = urlParams.get("store");
+
+    if (storeParam) {
+      setStoreNumber(storeParam);
+    }
+  }, []);
   // Form state
   const [storeNumber, setStoreNumber] = useState("");
   const [incidentTypes, setIncidentTypes] = useState([]);

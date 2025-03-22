@@ -68,3 +68,32 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     @apply bg-blue-600;
 }
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+.animation-fade-in {
+    animation: fadeIn 0.3s forwards;
+}
+
+.animation-fade-out {
+    animation: fadeOut 0.5s forwards 1.5s;
+}

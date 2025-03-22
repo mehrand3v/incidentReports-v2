@@ -11,6 +11,7 @@ import AdminLoginPage from "../pages/AdminLoginPage";
 import AdminDashboardPage from "../pages/AdminDashboardPage";
 import AdminReportsPage from "../pages/AdminReportsPage";
 import AdminSettingsPage from "../pages/AdminSettingsPage";
+import QRCodeGeneratorPage from "../pages/QRCodeGeneratorPage";
 
 // Employee pages
 import EmployeeReportPage from "../pages/EmployeeReportPage";
@@ -64,6 +65,15 @@ const routes = [
         element: (
           <AdminRoute requireSuperAdmin={true}>
             <AdminSettingsPage />
+          </AdminRoute>
+        ),
+      },
+      // In src/router/appRoutes.jsx, add this to the admin routes section
+      {
+        path: "qr-generator",
+        element: (
+          <AdminRoute>
+            <QRCodeGeneratorPage />
           </AdminRoute>
         ),
       },
