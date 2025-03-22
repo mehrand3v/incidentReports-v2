@@ -1,5 +1,5 @@
 // src/components/admin/IncidentTable.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Eye,
   Pencil,
@@ -57,6 +57,9 @@ const IncidentTable = ({
   // State for pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(25); // Adjust rows per page (increase for more density)
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1024
+  );
 
   // State for details modal
   const [selectedIncident, setSelectedIncident] = useState(null);
@@ -68,6 +71,66 @@ const IncidentTable = ({
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
+
+  // Update window width on resize for responsive design
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Calculate details text length based on screen size
+  const getDetailsLength = () => {
+    if (windowWidth >= 1920) return 90; // Large desktop
+    if (windowWidth >= 1440) return 70; // Desktop
+    if (windowWidth >= 1024) return 50; // Small desktop/large tablet
+    if (windowWidth >= 768) return 35; // Tablet
+    return 25; // Mobile
+  };
+
+  // Dynamic column widths based on screen size
+  const getColumnWidths = () => {
+    if (windowWidth >= 1440) {
+      return {
+        date: "12%",
+        store: "7%",
+        incident: "8%", // Reduced from 12% to 10%
+        details: "40%", // Increased from 38% to 40%
+        status: "7%",
+        police: "8%",
+        case: "8%",
+        actions: "8%",
+      };
+    } else if (windowWidth >= 1024) {
+      return {
+        date: "11%",
+        store: "7%",
+        incident: "7%", // Reduced from 11% to 9%
+        details: "34%", // Increased from 32% to 34%
+        status: "7%",
+        police: "9%",
+        case: "9%",
+        actions: "14%",
+      };
+    } else {
+      // Default for smaller screens
+      return {
+        date: "13%",
+        store: "8%",
+        incident: "8%",
+        details: "25%",
+        status: "8%",
+        police: "10%",
+        case: "10%",
+        actions: "18%",
+      };
+    }
+  };
+
+  const columnWidths = getColumnWidths();
 
   // Handle page change
   const handlePageChange = (page) => {
@@ -112,32 +175,43 @@ const IncidentTable = ({
 
   return (
     <div className="relative overflow-hidden rounded-lg border border-slate-700 bg-slate-800">
-      {/* Main table container with fixed layout to respect column widths */}
       <div
         className="overflow-x-auto shadow-md"
         style={{ tableLayout: "fixed" }}
       >
         <Table className="w-full text-xs text-left text-gray-300 border-collapse border-spacing-0 p-0 m-0">
           <colgroup>
-            <col style={{ width: "12%" }} />
-            <col style={{ width: "8%" }} />
-            <col style={{ width: "8%" }} />
-            <col style={{ width: "24%" }} />
-            <col style={{ width: "8%" }} />
-            <col style={{ width: "8%" }} />
-            <col style={{ width: "8%" }} />
-            <col style={{ width: "8%" }} />
+            <col style={{ width: columnWidths.date }} />
+            <col style={{ width: columnWidths.store }} />
+            <col style={{ width: columnWidths.incident }} />
+            <col style={{ width: columnWidths.details }} />
+            <col style={{ width: columnWidths.status }} />
+            <col style={{ width: columnWidths.police }} />
+            <col style={{ width: columnWidths.case }} />
+            <col style={{ width: columnWidths.actions }} />
           </colgroup>
           <TableHeader className="bg-slate-900">
             <TableRow className="h-6 border-b border-slate-700">
-              <TableHead className="px-0.5 py-1 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
+              <TableHead
+                className={`px-0.5 py-1 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium ${
+                  windowWidth >= 1440 ? "pl-2" : ""
+                }`}
+              >
                 Date
               </TableHead>
-              <TableHead className="px-0.5 py-1 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
+              <TableHead
+                className={`px-0.5 py-1 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium ${
+                  windowWidth >= 1440 ? "pl-2" : ""
+                }`}
+              >
                 Store #
               </TableHead>
-              <TableHead className="px-0.5 py-1 text-gray-200 uppercase text-2xs font-medium">
-                Incident Type
+              <TableHead
+                className={`px-0.5 py-1 text-gray-200 uppercase text-2xs font-medium ${
+                  windowWidth >= 1440 ? "pl-2" : ""
+                }`}
+              >
+                Incident
               </TableHead>
               <TableHead className="px-0.5 py-1 text-gray-200 uppercase text-2xs font-medium">
                 Details
@@ -162,13 +236,25 @@ const IncidentTable = ({
                 key={incident.id}
                 className="border-slate-700 hover:bg-slate-700 h-6"
               >
-                <TableCell className="px-0.5 py-0.5 text-gray-300 whitespace-nowrap text-xs">
+                <TableCell
+                  className={`px-0.5 py-0.5 text-gray-300 whitespace-nowrap text-xs ${
+                    windowWidth >= 1440 ? "pl-2" : ""
+                  }`}
+                >
                   {formatDate(incident.timestamp)}
                 </TableCell>
-                <TableCell className="px-0.5 py-0.5 font-mono text-amber-300 text-xs">
+                <TableCell
+                  className={`px-0.5 py-0.5 font-mono text-amber-300 text-xs ${
+                    windowWidth >= 1440 ? "pl-2" : ""
+                  }`}
+                >
                   {formatStoreNumber(incident.storeNumber)}
                 </TableCell>
-                <TableCell className="px-0.5 py-0.5 text-gray-300">
+                <TableCell
+                  className={`px-0.5 py-0.5 text-gray-300 ${
+                    windowWidth >= 1440 ? "pl-2" : ""
+                  }`}
+                >
                   <div className="flex flex-wrap gap-0.5">
                     {Array.isArray(incident.incidentTypes) ? (
                       incident.incidentTypes.map((type) => (
@@ -205,12 +291,18 @@ const IncidentTable = ({
                 <TableCell className="px-0.5 py-0.5 text-gray-300">
                   <Button
                     variant="link"
-                    className="text-cyan-400 p-0 h-auto hover:text-cyan-300 hover:underline text-left w-full cursor-pointer justify-start text-xs"
+                    className="text-cyan-400 p-0 h-auto hover:text-cyan-300 hover:underline text-left w-full cursor-pointer justify-start text-xs mx-0.5"
                     onClick={() => handleViewDetails(incident)}
                   >
-                    <div className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
-                      {formatDetails(incident.details, 25) ||
-                        "No details provided"}
+                    <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium pr-1">
+                      {incident.details
+                        ? incident.details.length > getDetailsLength()
+                          ? `${incident.details.substring(
+                              0,
+                              getDetailsLength()
+                            )}...`
+                          : incident.details
+                        : "No details provided"}
                     </div>
                   </Button>
                 </TableCell>
@@ -295,9 +387,9 @@ const IncidentTable = ({
         </Table>
       </div>
 
-      {/* Pagination - modified to be more compact */}
+      {/* Pagination - modified to be more compact with increased gap */}
       {totalPages > 1 && (
-        <div className="py-2 bg-slate-800 border-t border-slate-700">
+        <div className="py-2 bg-slate-800 border-t border-slate-700 mt-8">
           <Pagination className="justify-center">
             <PaginationContent>
               {/* First page button */}
