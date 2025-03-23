@@ -2,6 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Shield, HelpCircle, ArrowUp } from "lucide-react";
+import DevSignature from "./DevSignature";
 
 const SimplifiedFooter = () => {
   const scrollToTop = () => {
@@ -17,7 +18,7 @@ const SimplifiedFooter = () => {
       <div className="absolute -top-8 right-4 md:right-8">
         <button
           onClick={scrollToTop}
-          className="flex items-center justify-center bg-blue-800 hover:bg-blue-700 text-white rounded-full w-8 h-8 shadow-lg"
+          className="flex items-center justify-center bg-blue-800 hover:bg-blue-700 text-white rounded-full w-8 h-8 shadow-lg cursor-pointer"
           aria-label="Scroll to top"
         >
           <ArrowUp className="h-4 w-4" />
@@ -39,14 +40,14 @@ const SimplifiedFooter = () => {
             <div className="flex space-x-3 text-xs">
               <Link
                 to="/help"
-                className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded flex items-center"
+                className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded flex items-center cursor-pointer"
               >
                 <HelpCircle className="h-3 w-3 mr-1.5" />
                 Help Center
               </Link>
               <Link
                 to="/privacy"
-                className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded flex items-center"
+                className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded flex items-center cursor-pointer"
               >
                 <Shield className="h-3 w-3 mr-1.5" />
                 Privacy Policy
@@ -54,10 +55,15 @@ const SimplifiedFooter = () => {
             </div>
           </div>
 
-          {/* Copyright below */}
-          <p className="text-xs text-gray-400 text-left mt-1">
-            &copy; {new Date().getFullYear()} SafeReport
-          </p>
+          {/* Copyright below with dev signature */}
+          <div className="flex justify-between items-center mt-1">
+            <div className="flex items-center space-x-2">
+              <p className="text-xs text-gray-400">
+                &copy; {new Date().getFullYear()} SafeReport
+              </p>
+              <DevSignature />
+            </div>
+          </div>
         </div>
       </div>
     </footer>

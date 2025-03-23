@@ -2,6 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Shield, HelpCircle } from "lucide-react";
+import DevSignature from "./DevSignature";
 
 const BasicFooter = () => {
   return (
@@ -31,7 +32,7 @@ const BasicFooter = () => {
               {window.location.pathname !== "/privacy" && (
                 <Link
                   to="/privacy"
-                  className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded flex items-center"
+                  className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded flex items-center cursor-pointer"
                 >
                   <Shield className="h-3 w-3 mr-1.5" />
                   Privacy Policy
@@ -40,10 +41,15 @@ const BasicFooter = () => {
             </div>
           </div>
 
-          {/* Copyright below */}
-          <p className="text-xs text-gray-400 text-left mt-1">
-            &copy; {new Date().getFullYear()} SafeReport
-          </p>
+          {/* Copyright and dev signature */}
+          <div className="flex justify-between items-center mt-1">
+            <div className="flex items-center space-x-2">
+              <p className="text-xs text-gray-400">
+                &copy; {new Date().getFullYear()} SafeReport
+              </p>
+              <DevSignature />
+            </div>
+          </div>
         </div>
       </div>
     </footer>

@@ -67,6 +67,8 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      fontFamily: {
+        signature: ['"Dancing Script"', 'cursive']
       // Rest of your configuration...
     },
   },
