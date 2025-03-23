@@ -55,14 +55,9 @@ const SimplifiedFooter = () => {
             </div>
           </div>
 
-          {/* Copyright below with dev signature */}
-          <div className="flex justify-between items-center mt-1">
-            <div className="flex items-center space-x-2">
-              <p className="text-xs text-gray-400">
-                &copy; {new Date().getFullYear()} SafeReport
-              </p>
-              <DevSignature />
-            </div>
+          {/* Developer signature underneath logo */}
+          <div className="flex items-center mt-1">
+            <DevSignature />
           </div>
         </div>
       </div>
