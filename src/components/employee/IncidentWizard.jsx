@@ -182,12 +182,12 @@ const IncidentWizard = () => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 50 }}
           transition={{ duration: 0.3 }}
-          className="space-y-4 py-2"
+          className="space-y-2 py-1"
         >
           <div className="space-y-2">
             <Label
               htmlFor="store-number"
-              className={`text-base font-medium ${customStyles.textPrimary}`}
+              className={`text-xs font-medium ${customStyles.textPrimary}`}
             >
               Store Number
             </Label>
@@ -203,7 +203,7 @@ const IncidentWizard = () => {
                 setError("");
               }}
               className={cn(
-                "h-10 text-base sm:text-base text-sm",
+                "h-10 text-small sm:text-base text-sm",
                 customStyles.inputBackground,
                 customStyles.textPrimary,
                 customStyles.borderColor,
@@ -237,7 +237,7 @@ const IncidentWizard = () => {
     },
     {
       id: "incident-type",
-      title: "Incident Type",
+      title: "",
       description: "Select the type of incident that occurred",
       content: (
         <motion.div
@@ -247,7 +247,7 @@ const IncidentWizard = () => {
           transition={{ duration: 0.3 }}
           className="space-y-4 py-2"
         >
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             {mappedIncidentTypes.map((incident, index) => {
               const Icon = incident.icon;
               const isSelected = selectedIncidentType === incident.id;
@@ -273,21 +273,21 @@ const IncidentWizard = () => {
                     )}
                     aria-label={`Select ${incident.label}`}
                   >
-                    <div className="flex flex-col items-center justify-center p-3 h-full">
+                    <div className="flex flex-col items-center justify-center p-2 h-full">
                       <div
                         className={cn(
-                          "rounded-full p-2.5 mb-2",
+                          "rounded-full p-1.5 mb-1",
                           isSelected
                             ? "bg-white/20 text-white"
                             : `${incident.iconColor}`
                         )}
                       >
-                        <Icon className="h-8 w-8" />
+                        <Icon className="h-5 w-5" />
                       </div>
 
                       <span
                         className={cn(
-                          "text-sm font-medium text-center",
+                          "text-xs font-medium text-center",
                           isSelected ? "text-white" : customStyles.textPrimary
                         )}
                       >
@@ -365,7 +365,7 @@ const IncidentWizard = () => {
     },
     {
       id: "summary",
-      title: "Review Report",
+      title: "",
       description: "Review your incident report before submitting",
       content: (
         <motion.div
@@ -391,11 +391,11 @@ const IncidentWizard = () => {
                 <div
                   className={`flex justify-between pb-3 border-b ${customStyles.borderColor}`}
                 >
-                  <span className={`font-medium ${customStyles.textSecondary}`}>
+                  <span className={`font-sm ${customStyles.textSecondary}`}>
                     Store Number:
                   </span>
                   <span
-                    className={`font-mono text-lg ${customStyles.textPrimary}`}
+                    className={`font-mono text-sm ${customStyles.textPrimary}`}
                   >
                     {storeNumber}
                   </span>
@@ -416,7 +416,7 @@ const IncidentWizard = () => {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         className={cn(
-                          "flex items-center rounded-full px-4 py-2 text-white w-fit bg-gradient-to-r",
+                          "flex items-center rounded-full px-3 py-1 text-white w-fit bg-gradient-to-r",
                           mappedIncidentTypes.find(
                             (inc) => inc.id === selectedIncidentType
                           ).color
@@ -426,9 +426,9 @@ const IncidentWizard = () => {
                           mappedIncidentTypes.find(
                             (inc) => inc.id === selectedIncidentType
                           ).icon,
-                          { className: "h-8 w-8 mr-2" }
+                          { className: "h-3 w-3 mr-1" }
                         )}
-                        <span className="font-medium">
+                        <span className="font-medium text-xs">
                           {selectedIncident.label}
                         </span>
                       </motion.div>
@@ -601,7 +601,7 @@ const IncidentWizard = () => {
           </div>
         </div>
 
-        <CardContent className="pt-16 pb-4">
+        <CardContent className="pt-10 pb-0">
           <AnimatePresence mode="wait">
             <motion.div
               key={steps[currentStep].id}
@@ -615,7 +615,7 @@ const IncidentWizard = () => {
                 <h3 className={`font-bold text-lg ${customStyles.textPrimary}`}>
                   {steps[currentStep].title}
                 </h3>
-                <p className={`text-sm ${customStyles.textMuted}`}>
+                <p className={`text-xs ${customStyles.textMuted}`}>
                   {steps[currentStep].description}
                 </p>
               </div>
@@ -627,7 +627,7 @@ const IncidentWizard = () => {
         </CardContent>
 
         <CardFooter
-          className={`flex justify-between border-t ${customStyles.borderColor} py-4 px-4`}
+          className={`flex justify-between border-t ${customStyles.borderColor} py-2 px-4`}
         >
           <Button
             variant="outline"

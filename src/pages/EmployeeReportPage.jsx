@@ -13,7 +13,7 @@ const EmployeeReportPage = () => {
   const [infoExpanded, setInfoExpanded] = React.useState(false);
 
   return (
-    <div className="py-6">
+    <div className="pt-0 pb-6">
       {/* Remove the title and description text to save space */}
       <IncidentWizard />
 
