@@ -29,7 +29,7 @@ const SuccessDisplay = ({ caseNumber, onReset, onCheckStatus }) => {
 
   return (
     <div className="animate-fade-in-up">
-      <Card className="bg-slate-800 border-blue-600 shadow-xl shadow-blue-900/20 max-w-md mx-auto">
+      <Card className="bg-slate-800 border-blue-600 shadow-xl shadow-blue-900/20 max-w-md mx-auto !pt-0">
         <CardHeader className="bg-blue-900 rounded-t-lg pb-6">
           <div className="mx-auto bg-green-700 rounded-full p-3 w-16 h-16 flex items-center justify-center mb-3">
             <Check className="h-10 w-10 text-white" />

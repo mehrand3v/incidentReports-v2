@@ -59,7 +59,7 @@ const IncidentWizard = () => {
   // Clear error when inputs change
   useEffect(() => {
     setError("");
-  }, [storeNumber, selectedIncidentType]);
+  }, [storeNumber, selectedIncidentType, details]);
 
   // Get available incident types based on store number
   const incidentTypes = storeNumber
@@ -317,8 +317,8 @@ const IncidentWizard = () => {
     },
     {
       id: "details",
-      title: "Additional Details",
-      description: "Provide brief details about the incident",
+      title: "Details",
+      description: "",
       content: (
         <motion.div
           initial={{ opacity: 0, x: -50 }}
@@ -328,27 +328,37 @@ const IncidentWizard = () => {
           className="space-y-4 py-2"
         >
           <div className="space-y-2">
-            <Label
-              htmlFor="details"
-              className={`text-base font-medium ${customStyles.textPrimary}`}
-            >
-              Additional Details
-            </Label>
             <Textarea
               id="details"
               value={details}
               onChange={(e) => setDetails(e.target.value)}
               placeholder="Enter brief details about what happened"
               className={cn(
-                "min-h-32 text-base",
+                "min-h-32 text-base sm:text-base text-sm",
                 customStyles.inputBackground,
                 customStyles.textPrimary,
                 customStyles.borderColor,
                 customStyles.focusRing,
-                customStyles.focusBorder
+                customStyles.focusBorder,
+                "placeholder:text-gray-500 placeholder:text-xs sm:placeholder:text-sm",
+                error && !details.trim()
+                  ? "border-red-400 focus-visible:border-red-400 focus-visible:ring-red-400"
+                  : ""
               )}
               aria-label="Additional details"
             />
+            {error && !details.trim() && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+                className="text-sm text-red-500 flex items-center"
+                aria-live="polite"
+              >
+                <AlertCircle className="h-4 w-4 mr-1" />
+                {error}
+              </motion.p>
+            )}
           </div>
         </motion.div>
       ),
@@ -473,6 +483,11 @@ const IncidentWizard = () => {
 
     if (currentStep === 1 && !selectedIncidentType) {
       setError("Please select an incident type");
+      return false;
+    }
+
+    if (currentStep === 2 && !details.trim()) {
+      setError("Please enter details about the incident");
       return false;
     }
 
