@@ -5,20 +5,51 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-html {
-    height: 100% !important;
 
+/* Comprehensive mobile scroll and viewport fixing */
+html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    /* Prevent horizontal scrolling */
 }
 
 body {
     min-height: 100vh !important;
-
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    /* Prevent default mobile scrolling */
+    overflow: hidden;
+    overscroll-behavior-y: none;
+    /* Disable pull-to-refresh */
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scrolling on iOS */
 }
-@layer base {
-    html{
-        height:100%;
 
+#root {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    /* Allow scrolling within the content area */
+    overflow-x: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scrolling on iOS */
+}
+
+@layer base {
+    html {
+        height: 100%;
     }
+
     :root {
         --background: 217.2 91.2% 11.8%;
         --foreground: 0 0% 100%;
@@ -188,21 +219,31 @@ body {
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
     }
-  body {
-    @apply bg-background text-foreground;
+
+    body {
+        @apply bg-background text-foreground;
     }
 }
+
+/* Prevent zooming on input focus */
 input,
 textarea,
 select {
     font-size: 16px;
-    /* Minimum font size to prevent zoom on iOS */
+    /* Minimum font size to prevent auto-zoom */
+    max-width: 100%;
 }
 
 @media screen and (max-width: 768px) {
+
+    html,
+    body {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
 
     input,
     textarea,
