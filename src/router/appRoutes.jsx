@@ -68,7 +68,6 @@ const routes = [
           </AdminRoute>
         ),
       },
-      // In src/router/appRoutes.jsx, add this to the admin routes section
       {
         path: "qr-generator",
         element: (
@@ -78,6 +77,16 @@ const routes = [
         ),
       },
     ],
+  },
+
+  // Help and Privacy pages (standalone with their own layouts)
+  {
+    path: "/help",
+    element: <HelpPage />,
+  },
+  {
+    path: "/privacy",
+    element: <PrivacyPage />,
   },
 
   // Employee routes
@@ -97,14 +106,7 @@ const routes = [
         path: "check-status",
         element: <ReportStatusPage />,
       },
-      {
-        path: "help",
-        element: <HelpPage />,
-      },
-      {
-        path: "privacy",
-        element: <PrivacyPage />,
-      },
+      // Help and Privacy pages are moved out of EmployeeLayout
     ],
   },
 

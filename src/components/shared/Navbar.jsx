@@ -102,13 +102,15 @@ const Navbar = () => {
             )}
 
             {!isAdmin && isEmployeeReport && !currentUser && (
-              <Link to="/login">
-                <Button
-                  variant="outline"
-                  className="bg-blue-900 hover:bg-blue-800 text-white border-blue-700"
-                >
+              <Link
+                to="/login"
+                className="block text-white bg-blue-800 hover:bg-blue-700 px-3 py-2 rounded-md font-medium"
+                onClick={closeMenu}
+              >
+                <div className="flex items-center">
+                  <User className="h-5 w-5 mr-2" />
                   Admin Login
-                </Button>
+                </div>
               </Link>
             )}
 
@@ -217,7 +219,7 @@ const Navbar = () => {
             {!isAdmin && isEmployeeReport && !currentUser && (
               <Link
                 to="/login"
-                className="block text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium"
+                className="block text-white bg-blue-800 hover:bg-blue-700 px-3 py-2 rounded-md font-medium"
                 onClick={closeMenu}
               >
                 <div className="flex items-center">

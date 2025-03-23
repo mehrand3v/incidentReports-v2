@@ -18,7 +18,7 @@ import LoadingSpinner from "../components/shared/LoadingSpinner";
 import { useAuth } from "../hooks/useAuth";
 import { logPageView } from "../services/analytics";
 import Navbar from "../components/shared/Navbar";
-import Footer from "../components/shared/Footer";
+import LoginFooter from "../components/shared/LoginFooter";
 
 const AdminLoginPage = () => {
   // Form state
@@ -60,7 +60,7 @@ const AdminLoginPage = () => {
     <div className="flex flex-col min-h-screen bg-slate-800">
       <Navbar />
 
-      <main className="flex-grow flex items-center justify-center py-12 px-4">
+      <main className="flex-grow flex items-center justify-center py-8 px-4">
         <div className="max-w-md w-full">
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center p-3 bg-blue-900 rounded-full mb-4">
@@ -178,7 +178,7 @@ const AdminLoginPage = () => {
         </div>
       </main>
 
-      <Footer />
+      <LoginFooter />
     </div>
   );
 };
