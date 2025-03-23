@@ -4,23 +4,16 @@ import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../shared/Navbar";
 import Footer from "../shared/Footer";
 import SimplifiedFooter from "../shared/SimplifiedFooter";
-import LoginFooter from "../shared/LoginFooter";
 import { logPageView } from "../../services/analytics";
 
 const EmployeeLayout = () => {
   const location = useLocation();
 
-  // Check which page we're on to determine which footer to show
+  // Determine if we're on the report page (main page or /report path)
   const isReportPage =
     location.pathname === "/" || location.pathname === "/report";
-  const isLoginPage = location.pathname === "/login";
-
-  // Use LoginFooter for login page, SimplifiedFooter for report page, and regular Footer for other pages
-  const getFooter = () => {
-    if (isLoginPage) return <LoginFooter />;
-    if (isReportPage) return <SimplifiedFooter />;
-    return <Footer />;
-  };
+  const isHelpPage = location.pathname === "/help";
+  const isPrivacyPage = location.pathname === "/privacy";
 
   // Log page view
   useEffect(() => {
@@ -35,7 +28,9 @@ const EmployeeLayout = () => {
           <Outlet />
         </div>
       </main>
-      {getFooter()}
+      {!isReportPage && isHelpPage && <SimplifiedFooter />}
+      {!isReportPage && isPrivacyPage && <SimplifiedFooter />}
+      {!isReportPage && !isHelpPage && !isPrivacyPage && <Footer />}
     </div>
   );
 };

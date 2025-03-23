@@ -18,7 +18,7 @@ import LoadingSpinner from "../components/shared/LoadingSpinner";
 import { useAuth } from "../hooks/useAuth";
 import { logPageView } from "../services/analytics";
 import Navbar from "../components/shared/Navbar";
-import LoginFooter from "../components/shared/LoginFooter";
+// import LoginFooter from "../components/shared/LoginFooter";
 
 const AdminLoginPage = () => {
   // Form state
@@ -178,7 +178,7 @@ const AdminLoginPage = () => {
         </div>
       </main>
 
-      <LoginFooter />
+
     </div>
   );
 };

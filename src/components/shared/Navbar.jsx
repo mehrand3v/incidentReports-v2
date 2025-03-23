@@ -10,6 +10,7 @@ import {
   BarChart,
   Search,
   X,
+  HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../../hooks/useAuth";
@@ -89,6 +90,23 @@ const Navbar = () => {
                     Settings
                   </Link>
                 )}
+              </>
+            )}
+
+            {!isAdmin && (
+              <>
+                <Link
+                  to="/help"
+                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Help
+                </Link>
+                <Link
+                  to="/privacy"
+                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Privacy
+                </Link>
               </>
             )}
 
@@ -203,10 +221,35 @@ const Navbar = () => {
               </>
             )}
 
+            {!isAdmin && (
+              <>
+                <Link
+                  to="/help"
+                  className="block text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium"
+                  onClick={closeMenu}
+                >
+                  <div className="flex items-center">
+                    <HelpCircle className="h-5 w-5 mr-2" />
+                    Help
+                  </div>
+                </Link>
+                <Link
+                  to="/privacy"
+                  className="block text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium"
+                  onClick={closeMenu}
+                >
+                  <div className="flex items-center">
+                    <Shield className="h-5 w-5 mr-2" />
+                    Privacy
+                  </div>
+                </Link>
+              </>
+            )}
+
             {!isAdmin && !isEmployeeReport && (
               <Link
                 to="/"
-                className="block text-white bg-amber-700 hover:bg-amber-600 px-3 py-2 rounded-md font-medium !cursor-pointer"
+                className="block text-white bg-amber-700 hover:bg-amber-600 px-3 py-2 rounded-md font-medium cursor-pointer"
                 onClick={closeMenu}
               >
                 <div className="flex items-center">
