@@ -5,7 +5,12 @@
 @tailwind utilities;
 html{
     height:100%;
+
 }
+ html,body{
+    min-height:100% !important;
+ height:100% !important;
+ }
 :root {
     /* Custom color variables */
     --color-primary: 30, 64, 175;
