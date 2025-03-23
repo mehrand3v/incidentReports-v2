@@ -4,7 +4,7 @@ import { Shield, Lock, Eye, FileText, CheckCircle } from "lucide-react";
 import { logPageView } from "../services/analytics";
 import BackToReportButton from "../components/shared/BackToReportButton";
 import Navbar from "../components/shared/Navbar";
-import BasicFooter from "../components/shared/BasicFooter";
+
 
 const PrivacyPage = () => {
   // Log page view on component mount
@@ -152,7 +152,7 @@ const PrivacyPage = () => {
           <BackToReportButton />
         </div>
       </main>
-      <BasicFooter />
+
     </div>
   );
 };

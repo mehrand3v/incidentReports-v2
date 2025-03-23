@@ -2,8 +2,7 @@
 import React, { useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../shared/Navbar";
-import Footer from "../shared/Footer";
-import LoginFooter from "../shared/LoginFooter";
+
 import { useAuth } from "../../hooks/useAuth";
 import { logPageView } from "../../services/analytics";
 import LoadingSpinner from "../shared/LoadingSpinner";
@@ -35,7 +34,7 @@ const AdminLayout = () => {
         <div className="flex-grow flex items-center justify-center">
           <LoadingSpinner size="large" text="Loading Admin Dashboard..." />
         </div>
-        {isLoginPage ? <LoginFooter /> : <Footer />}
+
       </div>
     );
   }
@@ -48,7 +47,7 @@ const AdminLayout = () => {
           <Outlet />
         </div>
       </main>
-      {isLoginPage ? <LoginFooter /> : <Footer />}
+
     </div>
   );
 };

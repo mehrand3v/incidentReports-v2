@@ -11,7 +11,7 @@ import { AlertTriangle, Info, FileQuestion, HelpCircle } from "lucide-react";
 import { logPageView } from "../services/analytics";
 import BackToReportButton from "../components/shared/BackToReportButton";
 import Navbar from "../components/shared/Navbar";
-import BasicFooter from "../components/shared/BasicFooter";
+
 
 const HelpPage = () => {
   // Log page view on component mount
@@ -171,7 +171,7 @@ const HelpPage = () => {
           <BackToReportButton />
         </div>
       </main>
-      <BasicFooter />
+
     </div>
   );
 };

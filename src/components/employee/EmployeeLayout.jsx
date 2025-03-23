@@ -2,8 +2,7 @@
 import React, { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../shared/Navbar";
-import Footer from "../shared/Footer";
-import SimplifiedFooter from "../shared/SimplifiedFooter";
+
 import { logPageView } from "../../services/analytics";
 
 const EmployeeLayout = () => {
@@ -28,9 +27,7 @@ const EmployeeLayout = () => {
           <Outlet />
         </div>
       </main>
-      {!isReportPage && isHelpPage && <SimplifiedFooter />}
-      {!isReportPage && isPrivacyPage && <SimplifiedFooter />}
-      {!isReportPage && !isHelpPage && !isPrivacyPage && <Footer />}
+
     </div>
   );
 };
