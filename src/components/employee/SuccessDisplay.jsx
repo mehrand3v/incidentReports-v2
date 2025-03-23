@@ -63,13 +63,13 @@ const SuccessDisplay = ({ caseNumber, onReset, onCheckStatus }) => {
             </p>
           </div>
 
-          <div className="bg-slate-700 p-4 rounded-lg mb-3">
+          {/* <div className="bg-slate-700 p-4 rounded-lg mb-3">
             <p className="text-gray-300 text-sm">
               Your incident report has been submitted and will be reviewed by
               the appropriate personnel. You can check on the status of your
               report using the case number provided.
             </p>
-          </div>
+          </div> */}
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2 justify-between">
