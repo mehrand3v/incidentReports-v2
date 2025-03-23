@@ -26,7 +26,7 @@ const SimplifiedFooter = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col">
-          {/* Logo and copyright */}
+          {/* Logo and help links in one row */}
           <div className="flex flex-row justify-between items-center">
             <div className="flex items-center">
               <AlertTriangle className="h-5 w-5 text-amber-500 mr-1" />
@@ -35,20 +35,20 @@ const SimplifiedFooter = () => {
               </span>
             </div>
 
-            {/* Support links - aligned to match with SafeReport */}
-            <div className="flex space-x-4 text-xs">
+            {/* Support links styled as buttons */}
+            <div className="flex space-x-3 text-xs">
               <Link
                 to="/help"
-                className="text-gray-400 hover:text-white flex items-center"
+                className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded flex items-center"
               >
-                <HelpCircle className="h-3 w-3 mr-1" />
+                <HelpCircle className="h-3 w-3 mr-1.5" />
                 Help Center
               </Link>
               <Link
                 to="/privacy"
-                className="text-gray-400 hover:text-white flex items-center"
+                className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded flex items-center"
               >
-                <Shield className="h-3 w-3 mr-1" />
+                <Shield className="h-3 w-3 mr-1.5" />
                 Privacy Policy
               </Link>
             </div>

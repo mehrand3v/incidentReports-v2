@@ -92,12 +92,23 @@ const Navbar = () => {
               </>
             )}
 
-            {!isAdmin && (
-              <Link
-                to="/"
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Report Incident
+            {!isAdmin && !isEmployeeReport && (
+              <Link to="/">
+                <Button className="bg-amber-600 hover:bg-amber-500 text-white font-medium">
+                  <AlertTriangle className="h-4 w-4 mr-1" />
+                  Report Incident
+                </Button>
+              </Link>
+            )}
+
+            {!isAdmin && isEmployeeReport && !currentUser && (
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  className="bg-blue-900 hover:bg-blue-800 text-white border-blue-700"
+                >
+                  Admin Login
+                </Button>
               </Link>
             )}
 
@@ -190,15 +201,28 @@ const Navbar = () => {
               </>
             )}
 
-            {!isAdmin && (
+            {!isAdmin && !isEmployeeReport && (
               <Link
                 to="/"
-                className="block text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium"
+                className="block text-white bg-amber-700 hover:bg-amber-600 px-3 py-2 rounded-md font-medium"
                 onClick={closeMenu}
               >
                 <div className="flex items-center">
                   <AlertTriangle className="h-5 w-5 mr-2" />
                   Report Incident
+                </div>
+              </Link>
+            )}
+
+            {!isAdmin && isEmployeeReport && !currentUser && (
+              <Link
+                to="/login"
+                className="block text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium"
+                onClick={closeMenu}
+              >
+                <div className="flex items-center">
+                  <User className="h-5 w-5 mr-2" />
+                  Admin Login
                 </div>
               </Link>
             )}

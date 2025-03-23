@@ -1,8 +1,9 @@
 // src/components/admin/AdminLayout.jsx
 import React, { useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../shared/Navbar";
 import Footer from "../shared/Footer";
+import LoginFooter from "../shared/LoginFooter";
 import { useAuth } from "../../hooks/useAuth";
 import { logPageView } from "../../services/analytics";
 import LoadingSpinner from "../shared/LoadingSpinner";
@@ -10,6 +11,10 @@ import LoadingSpinner from "../shared/LoadingSpinner";
 const AdminLayout = () => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if we're on the login page
+  const isLoginPage = location.pathname === "/login";
 
   // Log page view
   useEffect(() => {
@@ -18,10 +23,10 @@ const AdminLayout = () => {
 
   // Redirect if not authenticated or not an admin
   useEffect(() => {
-    if (!loading && (!isAuthenticated || !isAdmin)) {
+    if (!loading && !isLoginPage && (!isAuthenticated || !isAdmin)) {
       navigate("/login");
     }
-  }, [isAuthenticated, isAdmin, loading, navigate]);
+  }, [isAuthenticated, isAdmin, loading, navigate, isLoginPage]);
 
   if (loading) {
     return (
@@ -30,7 +35,7 @@ const AdminLayout = () => {
         <div className="flex-grow flex items-center justify-center">
           <LoadingSpinner size="large" text="Loading Admin Dashboard..." />
         </div>
-        <Footer />
+        {isLoginPage ? <LoginFooter /> : <Footer />}
       </div>
     );
   }
@@ -43,7 +48,7 @@ const AdminLayout = () => {
           <Outlet />
         </div>
       </main>
-      <Footer />
+      {isLoginPage ? <LoginFooter /> : <Footer />}
     </div>
   );
 };
