@@ -14,7 +14,7 @@ const EmployeeReportPage = () => {
   }, []);
 
   return (
-    <div className="py-6">
+    <div className="py-1">
       <IncidentWizard />
 
       <div className="mt-2 text-center">

@@ -1,6 +1,24 @@
 // src/components/employee/IncidentWizard.jsx
 import React, { useState, useEffect } from "react";
 import {
+
+
+
+  ShoppingCart,
+
+
+
+
+
+
+  FileWarning,
+  PackageOpen,
+  Skull,
+  PersonStanding,
+  Paintbrush,
+
+} from "lucide-react";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -91,29 +109,35 @@ const IncidentWizard = () => {
   // Map incident types to the format expected by the IncidentWizard
   const mappedIncidentTypes = incidentTypes.map((type) => {
     // Get icon component based on the type.icon string
-    let icon;
-    switch (type.icon) {
-      case "ShoppingBag":
-        icon = ShoppingBag;
-        break;
-      case "AlertTriangle":
-        icon = AlertTriangle;
-        break;
-      case "Beer":
-        icon = Beer;
-        break;
-      case "Hammer":
-        icon = Hammer;
-        break;
-      case "Stethoscope":
-        icon = Stethoscope;
-        break;
-      case "User":
+  let icon;
+  switch (type.icon) {
+    case "ShoppingBag":
+      icon = ShoppingCart;
+      break;
+    case "AlertTriangle":
+      icon = FileWarning;
+      break;
+    case "Beer":
+      icon = PackageOpen;
+      break;
+    case "Hammer":
+      icon = Hammer;
+      break;
+    case "Stethoscope":
+      icon = Skull;
+      break;
+    case "User":
+      if (type.id === "skinny-hispanic") {
+        icon = PersonStanding;
+      } else if (type.id === "mr-pants") {
         icon = User;
-        break;
-      default:
-        icon = AlertCircle;
-    }
+      } else {
+        icon = User;
+      }
+      break;
+    default:
+      icon = AlertCircle;
+  }
 
     return {
       id: type.id,
@@ -131,7 +155,7 @@ const IncidentWizard = () => {
           : type.id === "injury"
           ? "from-rose-500 to-rose-600"
           : type.id === "mr-pants"
-          ? "from-indigo-500 to-indigo-600"
+          ? "from-green-500 to-green-600"
           : type.id === "skinny-hispanic"
           ? "from-sky-500 to-sky-600"
           : "from-gray-500 to-gray-600",
@@ -147,7 +171,7 @@ const IncidentWizard = () => {
           : type.id === "injury"
           ? "from-rose-600 to-rose-700"
           : type.id === "mr-pants"
-          ? "from-indigo-600 to-indigo-700"
+          ? "from-green-600 to-green-700"
           : type.id === "skinny-hispanic"
           ? "from-sky-600 to-sky-700"
           : "from-gray-600 to-gray-700",
@@ -163,7 +187,7 @@ const IncidentWizard = () => {
           : type.id === "injury"
           ? "text-rose-500"
           : type.id === "mr-pants"
-          ? "text-indigo-500"
+          ? "text-green-500"
           : type.id === "skinny-hispanic"
           ? "text-sky-500"
           : "text-gray-500",
@@ -247,7 +271,8 @@ const IncidentWizard = () => {
           transition={{ duration: 0.3 }}
           className="space-y-4 py-2"
         >
-          <div className="grid grid-cols-2 gap-2">
+
+          <div className="grid grid-cols-3 gap-1.5">
             {mappedIncidentTypes.map((incident, index) => {
               const Icon = incident.icon;
               const isSelected = selectedIncidentType === incident.id;
@@ -266,28 +291,28 @@ const IncidentWizard = () => {
                     type="button"
                     onClick={() => setSelectedIncidentType(incident.id)}
                     className={cn(
-                      "w-full rounded-lg transition-all duration-200 h-full border overflow-hidden",
+                      "w-full rounded-md transition-all duration-200 border overflow-hidden cursor-pointer",
                       isSelected
-                        ? `bg-gradient-to-b ${incident.color} shadow-md`
+                        ? `bg-gradient-to-b ${incident.color} shadow-sm`
                         : `${customStyles.secondaryBackground} ${customStyles.borderColor} hover:bg-slate-600`
                     )}
                     aria-label={`Select ${incident.label}`}
                   >
-                    <div className="flex flex-col items-center justify-center p-2 h-full">
+                    <div className="flex flex-col items-center justify-center p-1.5 h-full">
                       <div
                         className={cn(
-                          "rounded-full p-1.5 mb-1",
+                          "rounded-full p-1 mb-0.5",
                           isSelected
                             ? "bg-white/20 text-white"
                             : `${incident.iconColor}`
                         )}
                       >
-                        <Icon className="h-5 w-5" />
+                        <Icon className="h-6 w-6" />
                       </div>
 
                       <span
                         className={cn(
-                          "text-xs font-medium text-center",
+                          "text-xs font-medium text-center leading-tight",
                           isSelected ? "text-white" : customStyles.textPrimary
                         )}
                       >
@@ -299,7 +324,6 @@ const IncidentWizard = () => {
               );
             })}
           </div>
-
           {error && !selectedIncidentType && (
             <motion.p
               initial={{ opacity: 0, y: -10 }}
