@@ -26,14 +26,14 @@ import {
   Check,
   Stethoscope,
 } from "lucide-react";
-import { createIncident } from "../../services/incident";
-import { logCustomEvent } from "../../services/analytics";
-import { formatCaseNumber } from "../../utils/formatters";
+import { createIncident } from "@/services/incident";
+import { logCustomEvent } from "@/services/analytics";
+import { formatCaseNumber } from "@/utils/formatters";
 import {
   isValidStoreNumber,
   hasSelectedIncidentType,
-} from "../../utils/validators";
-import { getAvailableIncidentTypes } from "../../constants/incidentTypes";
+} from "@/utils/validators";
+import { getAvailableIncidentTypes } from "@/constants/incidentTypes";
 import SuccessDisplay from "./SuccessDisplay";
 
 const IncidentWizard = () => {
@@ -196,19 +196,20 @@ const IncidentWizard = () => {
               type="text"
               inputMode="numeric"
               pattern="[0-9]*"
-              placeholder="Enter 7-digit store number"
+              placeholder="Enter store # (7 digits)"
               value={storeNumber}
               onChange={(e) => {
                 setStoreNumber(e.target.value.replace(/\D/g, ""));
                 setError("");
               }}
               className={cn(
-                "h-12 text-lg",
+                "h-10 text-base sm:text-base text-sm",
                 customStyles.inputBackground,
                 customStyles.textPrimary,
                 customStyles.borderColor,
                 customStyles.focusRing,
                 customStyles.focusBorder,
+                "placeholder:text-gray-500 placeholder:text-xs sm:placeholder:text-sm",
                 error && !storeNumber.trim()
                   ? "border-red-400 focus-visible:border-red-400 focus-visible:ring-red-400"
                   : ""
