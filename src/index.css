@@ -5,11 +5,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- html,
- body {
-     min-height: 100% !important;
-     height: 100% !important;
- }
+html {
+    height: 100% !important;
+
+}
+
+body {
+    min-height: 100vh !important;
+
+}
 @layer base {
     html{
         height:100%;

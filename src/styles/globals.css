@@ -4,12 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 html{
-    height:100%;
+    height:100% !important;
 
 }
- html,body{
-    min-height:100% !important;
- height:100% !important;
+ body{
+    min-height:100vh !important;
+
  }
 :root {
     /* Custom color variables */
