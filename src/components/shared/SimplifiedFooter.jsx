@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Shield, HelpCircle, ArrowUp } from "lucide-react";
-import DevSignature from "./DevSignature";
+
 
 const SimplifiedFooter = () => {
   const scrollToTop = () => {
@@ -57,7 +57,7 @@ const SimplifiedFooter = () => {
 
           {/* Developer signature underneath logo */}
           <div className="flex items-center mt-1">
-            <DevSignature />
+
           </div>
         </div>
       </div>

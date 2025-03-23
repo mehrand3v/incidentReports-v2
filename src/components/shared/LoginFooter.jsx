@@ -1,7 +1,7 @@
 // src/components/shared/LoginFooter.jsx
 import React from "react";
 import { AlertTriangle } from "lucide-react";
-import DevSignature from "./DevSignature";
+
 
 const LoginFooter = () => {
   return (
@@ -15,7 +15,7 @@ const LoginFooter = () => {
               SafeReport
             </span>
           </div>
-          <DevSignature />
+
         </div>
       </div>
     </footer>

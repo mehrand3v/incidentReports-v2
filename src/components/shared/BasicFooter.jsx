@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Shield, HelpCircle } from "lucide-react";
-import DevSignature from "./DevSignature";
+
 
 const BasicFooter = () => {
   return (
@@ -42,9 +42,7 @@ const BasicFooter = () => {
           </div>
 
           {/* Developer signature underneath logo */}
-          <div className="flex items-start mt-1">
-            <DevSignature />
-          </div>
+
         </div>
       </div>
     </footer>
