@@ -206,7 +206,7 @@ const Navbar = () => {
             {!isAdmin && !isEmployeeReport && (
               <Link
                 to="/"
-                className="block text-white bg-amber-700 hover:bg-amber-600 px-3 py-2 rounded-md font-medium"
+                className="block text-white bg-amber-700 hover:bg-amber-600 px-3 py-2 rounded-md font-medium !cursor-pointer"
                 onClick={closeMenu}
               >
                 <div className="flex items-center">
@@ -219,7 +219,7 @@ const Navbar = () => {
             {!isAdmin && isEmployeeReport && !currentUser && (
               <Link
                 to="/login"
-                className="block text-white bg-blue-800 hover:bg-blue-700 px-3 py-2 rounded-md font-medium"
+                className="block text-white bg-blue-800 hover:bg-blue-700 px-3 py-2 rounded-md font-medium cursor-pointer"
                 onClick={closeMenu}
               >
                 <div className="flex items-center">

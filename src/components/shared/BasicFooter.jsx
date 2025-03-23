@@ -22,7 +22,7 @@ const BasicFooter = () => {
               {window.location.pathname !== "/help" && (
                 <Link
                   to="/help"
-                  className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded flex items-center"
+                  className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded flex items-center cursor-pointer"
                 >
                   <HelpCircle className="h-3 w-3 mr-1.5" />
                   Help Center

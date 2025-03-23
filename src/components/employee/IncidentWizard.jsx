@@ -366,90 +366,45 @@ const IncidentWizard = () => {
     {
       id: "summary",
       title: "",
-      description: "Review your incident report before submitting",
+      description: "",
       content: (
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 50 }}
           transition={{ duration: 0.3 }}
-          className="space-y-4 py-2"
+          className="space-y-2 py-1"
         >
-          <div className="space-y-4">
-            <div
-              className={`rounded-lg border ${customStyles.borderColor} overflow-hidden`}
-            >
-              <div
-                className={`${customStyles.secondaryBackground} px-4 py-3 border-b ${customStyles.borderColor}`}
-              >
-                <h3 className={`font-semibold ${customStyles.textPrimary}`}>
-                  Report Summary
-                </h3>
+          <div className="rounded-lg border bg-slate-700/50 border-slate-600 p-3">
+            <div className="grid grid-cols-2 gap-y-2 text-sm">
+              <div className="text-gray-400">Store Number:</div>
+              <div className="text-right font-mono text-white">
+                {storeNumber}
               </div>
 
-              <div className="p-4 space-y-4">
-                <div
-                  className={`flex justify-between pb-3 border-b ${customStyles.borderColor}`}
-                >
-                  <span className={`font-sm ${customStyles.textSecondary}`}>
-                    Store Number:
-                  </span>
+              <div className="text-gray-400">Incident Type:</div>
+              <div className="text-right">
+                {selectedIncident && (
                   <span
-                    className={`font-mono text-sm ${customStyles.textPrimary}`}
+                    className={`inline-flex items-center text-xs rounded-full px-2 py-0.5 bg-gradient-to-r ${
+                      mappedIncidentTypes.find(
+                        (inc) => inc.id === selectedIncidentType
+                      ).color
+                    } text-white`}
                   >
-                    {storeNumber}
+                    {selectedIncident.label}
                   </span>
-                </div>
-
-                <div className={`pb-3 border-b ${customStyles.borderColor}`}>
-                  <span
-                    className={`font-medium ${customStyles.textSecondary} block mb-2`}
-                  >
-                    Incident Type:
-                  </span>
-
-                  {selectedIncident &&
-                    mappedIncidentTypes.find(
-                      (inc) => inc.id === selectedIncidentType
-                    ) && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className={cn(
-                          "flex items-center rounded-full px-3 py-1 text-white w-fit bg-gradient-to-r",
-                          mappedIncidentTypes.find(
-                            (inc) => inc.id === selectedIncidentType
-                          ).color
-                        )}
-                      >
-                        {React.createElement(
-                          mappedIncidentTypes.find(
-                            (inc) => inc.id === selectedIncidentType
-                          ).icon,
-                          { className: "h-3 w-3 mr-1" }
-                        )}
-                        <span className="font-medium text-xs">
-                          {selectedIncident.label}
-                        </span>
-                      </motion.div>
-                    )}
-                </div>
-
-                {details && (
-                  <div>
-                    <span
-                      className={`font-medium ${customStyles.textSecondary} block mb-2`}
-                    >
-                      Additional Details:
-                    </span>
-                    <p
-                      className={`${customStyles.secondaryBackground} p-4 rounded-lg border ${customStyles.borderColor} ${customStyles.textSecondary} whitespace-pre-wrap text-sm`}
-                    >
-                      {details}
-                    </p>
-                  </div>
                 )}
               </div>
+
+              {details && (
+                <>
+                  <div className="text-gray-400 col-span-2 mt-1">Details:</div>
+                  <div className="col-span-2 bg-slate-800 p-2 rounded text-xs text-gray-300 max-h-24 overflow-auto">
+                    {details}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </motion.div>
