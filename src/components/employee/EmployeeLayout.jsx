@@ -1,11 +1,18 @@
 // src/components/employee/EmployeeLayout.jsx
 import React, { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../shared/Navbar";
 import Footer from "../shared/Footer";
+import SimplifiedFooter from "../shared/SimplifiedFooter";
 import { logPageView } from "../../services/analytics";
 
 const EmployeeLayout = () => {
+  const location = useLocation();
+
+  // Determine if we're on the report page (main page or /report path)
+  const isReportPage =
+    location.pathname === "/" || location.pathname === "/report";
+
   // Log page view
   useEffect(() => {
     logPageView("Employee Report Area");
@@ -19,7 +26,7 @@ const EmployeeLayout = () => {
           <Outlet />
         </div>
       </main>
-      <Footer />
+      {isReportPage ? <SimplifiedFooter /> : <Footer />}
     </div>
   );
 };
