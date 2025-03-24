@@ -76,7 +76,7 @@ const FilterBar = ({
     return `${month}/${day}/${year}`;
   };
 
-  // Handle input change
+  // Handle search input change (store number or details text)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     onFilterChange({ [name]: value });
@@ -140,7 +140,7 @@ const FilterBar = ({
             onClick={toggleFiltersVisibility}
             className="flex items-center justify-center h-8 px-3 text-xs font-medium transition-all rounded-full
             bg-slate-700/60 text-blue-400 border border-slate-600/50 hover:bg-slate-600 hover:text-blue-300 hover:border-blue-700/30
-            focus:outline-none focus:ring-2 focus:ring-blue-800/30 focus:ring-offset-2 focus:ring-offset-slate-800"
+            focus:outline-none focus:ring-2 focus:ring-blue-800/30 focus:ring-offset-2 focus:ring-offset-slate-800 cursor-pointer"
           >
             {isFiltersVisible ? (
               <>
@@ -160,19 +160,20 @@ const FilterBar = ({
       {/* Filter form - Always visible if toggle is hidden */}
       {(isFiltersVisible || hideToggleButton) && (
         <div className="flex flex-wrap items-end gap-2 md:gap-3">
-          {/* Store Number Filter */}
+          {/* Search Filter (Store Number & Details) */}
           <div className="w-full sm:w-64 md:w-72 lg:w-80 flex-shrink-0">
-            <Label htmlFor="storeNumber" className="text-gray-300 mb-1 block">
-              Store Number
+            <Label htmlFor="searchText" className="text-gray-300 mb-1 block">
+              Search (Store # or Details)
             </Label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                id="storeNumber"
-                name="storeNumber"
-                placeholder="Search by store #"
-                className="bg-slate-700 border-slate-600 text-white pl-9 w-full"
-                value={filters.storeNumber || ""}
+                id="searchText"
+                name="searchText"
+                placeholder="Search by store # or details text"
+                className="bg-slate-700 border-slate-600 text-white pl-9 w-full transition-colors
+                focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
+                value={filters.searchText || ""}
                 onChange={handleInputChange}
               />
             </div>
@@ -191,14 +192,24 @@ const FilterBar = ({
             >
               <SelectTrigger
                 id="incidentType"
-                className="bg-slate-700 border-slate-600 text-white w-full sm:w-44"
+                className="bg-slate-700 border-slate-600 text-white w-full sm:w-44 cursor-pointer
+                hover:bg-slate-600 transition-colors focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
               >
                 <SelectValue placeholder="Any type" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-700 border-slate-600 text-white">
-                <SelectItem value="all">All Types</SelectItem>
+              <SelectContent className="bg-slate-800 border-slate-600 text-white">
+                <SelectItem
+                  value="all"
+                  className="cursor-pointer hover:bg-blue-700/50 focus:bg-blue-800/60"
+                >
+                  All Types
+                </SelectItem>
                 {allIncidentTypes.map((type) => (
-                  <SelectItem key={type.id} value={type.id}>
+                  <SelectItem
+                    key={type.id}
+                    value={type.id}
+                    className="cursor-pointer hover:bg-blue-700/50 focus:bg-blue-800/60"
+                  >
                     {type.label}
                   </SelectItem>
                 ))}
@@ -217,14 +228,28 @@ const FilterBar = ({
             >
               <SelectTrigger
                 id="status"
-                className="bg-slate-700 border-slate-600 text-white w-full sm:w-36"
+                className="bg-slate-700 border-slate-600 text-white w-full sm:w-36 cursor-pointer
+                hover:bg-slate-600 transition-colors focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
               >
                 <SelectValue placeholder="Any status" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-700 border-slate-600 text-white">
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value={INCIDENT_STATUS.PENDING}>Pending</SelectItem>
-                <SelectItem value={INCIDENT_STATUS.COMPLETE}>
+              <SelectContent className="bg-slate-800 border-slate-600 text-white">
+                <SelectItem
+                  value="all"
+                  className="cursor-pointer hover:bg-blue-700/50 focus:bg-blue-800/60"
+                >
+                  All Statuses
+                </SelectItem>
+                <SelectItem
+                  value={INCIDENT_STATUS.PENDING}
+                  className="cursor-pointer hover:bg-blue-700/50 focus:bg-blue-800/60"
+                >
+                  Pending
+                </SelectItem>
+                <SelectItem
+                  value={INCIDENT_STATUS.COMPLETE}
+                  className="cursor-pointer hover:bg-blue-700/50 focus:bg-blue-800/60"
+                >
                   Complete
                 </SelectItem>
               </SelectContent>
@@ -241,7 +266,8 @@ const FilterBar = ({
                 <Button
                   id="dateRange"
                   variant="outline"
-                  className="bg-slate-700 border-slate-600 text-white w-full sm:w-52 justify-start cursor-pointer"
+                  className="bg-slate-700 border-slate-600 text-white w-full sm:w-52 justify-start cursor-pointer
+                  hover:bg-slate-600 transition-colors focus:border-blue-500 focus:ring-blue-500 focus:ring-1"
                 >
                   <Calendar className="mr-2 h-4 w-4" />
                   {dateRange.startDate && dateRange.endDate ? (
@@ -284,7 +310,7 @@ const FilterBar = ({
                           caption_label: "text-sm font-medium text-blue-400",
                           nav: "space-x-1 flex items-center",
                           nav_button:
-                            "h-7 w-7 bg-slate-600 hover:bg-blue-700 rounded-md flex items-center justify-center",
+                            "h-7 w-7 bg-slate-600 hover:bg-blue-700 rounded-md flex items-center justify-center cursor-pointer",
                           nav_button_previous: "absolute left-1",
                           nav_button_next: "absolute right-1",
                           table: "w-full border-collapse",
@@ -292,7 +318,7 @@ const FilterBar = ({
                           head_cell: "text-slate-300 w-8 font-normal text-xs",
                           row: "flex w-full mt-2",
                           cell: "h-8 w-8 text-center text-sm relative p-0 focus-within:relative",
-                          day: "h-8 w-8 p-0 flex items-center justify-center rounded-md aria-selected:opacity-100 hover:bg-blue-700",
+                          day: "h-8 w-8 p-0 flex items-center justify-center rounded-md aria-selected:opacity-100 hover:bg-blue-700 cursor-pointer",
                           day_range_end: "day-range-end",
                           day_selected:
                             "bg-blue-600 text-white hover:bg-blue-600 hover:text-white focus:bg-blue-600 focus:text-white",
@@ -342,7 +368,7 @@ const FilterBar = ({
                           caption_label: "text-sm font-medium text-blue-400",
                           nav: "space-x-1 flex items-center",
                           nav_button:
-                            "h-7 w-7 bg-slate-600 hover:bg-blue-700 rounded-md flex items-center justify-center",
+                            "h-7 w-7 bg-slate-600 hover:bg-blue-700 rounded-md flex items-center justify-center cursor-pointer",
                           nav_button_previous: "absolute left-1",
                           nav_button_next: "absolute right-1",
                           table: "w-full border-collapse",
@@ -350,7 +376,7 @@ const FilterBar = ({
                           head_cell: "text-slate-300 w-8 font-normal text-xs",
                           row: "flex w-full mt-2",
                           cell: "h-8 w-8 text-center text-sm relative p-0 focus-within:relative",
-                          day: "h-8 w-8 p-0 flex items-center justify-center rounded-md aria-selected:opacity-100 hover:bg-blue-700",
+                          day: "h-8 w-8 p-0 flex items-center justify-center rounded-md aria-selected:opacity-100 hover:bg-blue-700 cursor-pointer",
                           day_range_end: "day-range-end",
                           day_selected:
                             "bg-blue-600 text-white hover:bg-blue-600 hover:text-white focus:bg-blue-600 focus:text-white",
@@ -396,7 +422,8 @@ const FilterBar = ({
           {/* Reset Filters */}
           <Button
             variant="outline"
-            className="text-blue-300 hover:text-white border-blue-800 bg-blue-900/30 hover:bg-blue-800 cursor-pointer h-10"
+            className="text-blue-300 hover:text-white border-blue-800 bg-blue-900/30 hover:bg-blue-800 cursor-pointer h-10
+            focus:border-blue-600 focus:ring-blue-600 focus:ring-1"
             onClick={onResetFilters}
           >
             <RefreshCw className="h-4 w-4 mr-1" />
@@ -409,7 +436,8 @@ const FilterBar = ({
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="text-purple-300 border-purple-800 bg-purple-900/30 hover:bg-purple-800 hover:text-white cursor-pointer h-10"
+                  className="text-purple-300 border-purple-800 bg-purple-900/30 hover:bg-purple-800 hover:text-white cursor-pointer h-10
+                  focus:border-purple-600 focus:ring-purple-600 focus:ring-1"
                 >
                   Export
                 </Button>
@@ -440,8 +468,29 @@ const FilterBar = ({
       {/* Active Filters and Export Options - Always visible */}
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex flex-wrap items-center gap-2 flex-grow">
+          {/* Search text filter badge */}
+          {filters.searchText && (
+            <div className="flex items-center bg-blue-900 text-blue-200 text-sm rounded-full px-3 py-1">
+              <span className="mr-1">Search: {filters.searchText}</span>
+              <button
+                onClick={() => onFilterChange({ searchText: "" })}
+                className="text-blue-300 hover:text-white ml-1 cursor-pointer"
+                aria-label={`Remove search filter`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+
+          {/* Other filters badges */}
           {Object.entries(filters).map(([key, value]) => {
-            if (!value || key === "startDate" || key === "endDate") return null;
+            if (
+              !value ||
+              key === "startDate" ||
+              key === "endDate" ||
+              key === "searchText"
+            )
+              return null;
 
             let displayValue = value;
 
@@ -468,7 +517,7 @@ const FilterBar = ({
                 </span>
                 <button
                   onClick={() => onFilterChange({ [key]: "" })}
-                  className="text-blue-300 hover:text-white ml-1"
+                  className="text-blue-300 hover:text-white ml-1 cursor-pointer"
                   aria-label={`Remove ${key} filter`}
                 >
                   <X className="h-3 w-3" />
@@ -488,7 +537,7 @@ const FilterBar = ({
                 onClick={() =>
                   onFilterChange({ startDate: null, endDate: null })
                 }
-                className="text-blue-300 hover:text-white ml-1"
+                className="text-blue-300 hover:text-white ml-1 cursor-pointer"
                 aria-label="Remove date range filter"
               >
                 <X className="h-3 w-3" />

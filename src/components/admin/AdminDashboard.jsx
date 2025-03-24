@@ -22,12 +22,10 @@ import EditDialog from "./EditDialog";
 import DeleteDialog from "./DeleteDialog";
 import ReportExport from "./ReportExport";
 import SuperAdminControls from "./SuperAdminControls";
-import DashboardStats from "./DashboardStats";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import ErrorAlert from "../shared/ErrorAlert";
 import { useIncidents } from "../../hooks/useIncidents";
 import { useAuth } from "../../hooks/useAuth";
-import { getAdminStatistics } from "../../services/admin";
 import {
   updatePoliceReportNumber,
   updateIncidentStatus,
@@ -80,23 +78,39 @@ const AdminDashboard = () => {
   });
   const [loadingStats, setLoadingStats] = useState(true);
 
-  // Load statistics
-  useEffect(() => {
-    const loadStats = async () => {
-      try {
-        setLoadingStats(true);
-        const statistics = await getAdminStatistics();
-        setStats(statistics);
-      } catch (error) {
-        console.error("Error loading statistics:", error);
-        notification.error("Failed to load statistics");
-      } finally {
-        setLoadingStats(false);
-      }
-    };
+  // Calculate statistics from filtered incidents
+   useEffect(() => {
+     try {
+       setLoadingStats(true);
 
-    loadStats();
-  }, [incidents, notification]);
+       if (incidents && Array.isArray(incidents)) {
+         // Calculate statistics directly from the filtered incidents array
+         const pendingCount = incidents.filter(
+           (inc) => inc.status === "pending"
+         ).length;
+
+         const completedCount = incidents.filter(
+           (inc) => inc.status === "complete" || inc.status === "resolved"
+         ).length;
+
+         const missingPoliceReportCount = incidents.filter(
+           (inc) => !inc.policeReport || inc.policeReport === ""
+         ).length;
+
+         setStats({
+           pendingCount,
+           completedCount,
+           missingPoliceReportCount,
+           totalCount: incidents.length,
+         });
+       }
+     } catch (error) {
+       console.error("Error calculating statistics:", error);
+       notification.error("Failed to calculate statistics");
+     } finally {
+       setLoadingStats(false);
+     }
+   }, [incidents, notification]);
 
   // Toggle visibility functions
   const toggleStatsVisibility = () => {
@@ -441,7 +455,7 @@ const AdminDashboard = () => {
               />
 
               <StatCard
-                title="Missing Police #"
+                title="Missing Police Report #"
                 value={stats.missingPoliceReportCount}
                 icon={<AlertTriangle className="h-5 w-5 text-red-500" />}
                 loading={loadingStats}
@@ -489,7 +503,6 @@ const AdminDashboard = () => {
           </div>
         </TabsContent>
 
-        {/* Other Tab Content - NO CHANGES */}
         <TabsContent value="reports">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
             <div className="lg:col-span-2">
@@ -587,7 +600,7 @@ const AdminDashboard = () => {
   );
 };
 
-// Stat Card Component - Moved inside AdminDashboard.jsx
+// Stat Card Component - Inside AdminDashboard.jsx
 const StatCard = ({
   title,
   value,

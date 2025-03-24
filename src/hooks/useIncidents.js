@@ -30,7 +30,7 @@ export const useIncidents = (initialFilters = {}) => {
   }, []);
 
   // Fetch incidents when filters change or refresh is triggered
-  useEffect(() => {
+ useEffect(() => {
    const fetchIncidents = async () => {
      setLoading(true);
      setError(null);
@@ -38,6 +38,7 @@ export const useIncidents = (initialFilters = {}) => {
      try {
        const constraints = [];
 
+       // Apply firestore-compatible constraints first
        // Store number filter
        if (filters.storeNumber) {
          constraints.push(
@@ -71,39 +72,64 @@ export const useIncidents = (initialFilters = {}) => {
          constraints.push(where("timestamp", "<=", endTimestamp));
        }
 
-      const data = await getDocuments("incident-reports", constraints);
+       // Fetch all incidents with the applied constraints
+       const data = await getDocuments("incident-reports", constraints);
 
-      // Sort the data with robust timestamp handling
-      const sortedData = [...data].sort((a, b) => {
-        // Safely convert any timestamp format to a comparable number
-        const getTimestamp = (item) => {
-          if (!item || !item.timestamp) return 0;
+       // Sort incidents by timestamp in descending order (newest first)
+       const sortedData = [...data].sort((a, b) => {
+         // Get valid timestamps or 0 if invalid
+         const getValidDate = (timestamp) => {
+           try {
+             // Handle Firestore Timestamp objects
+             if (timestamp && typeof timestamp.toDate === "function") {
+               return timestamp.toDate().getTime();
+             }
 
-          try {
-            // For Firestore Timestamp objects
-            if (typeof item.timestamp.toDate === "function") {
-              return item.timestamp.toDate().getTime();
-            }
+             // Handle Date objects
+             if (timestamp instanceof Date) {
+               return timestamp.getTime();
+             }
 
-            // For JavaScript Date objects
-            if (item.timestamp instanceof Date) {
-              return item.timestamp.getTime();
-            }
+             // Try to parse as string
+             if (timestamp) {
+               const parsed = new Date(timestamp);
+               return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+             }
 
-            // Try parsing as a string
-            const parsed = new Date(item.timestamp);
-            return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
-          } catch (e) {
-            console.error("Error parsing timestamp", e);
-            return 0;
-          }
-        };
+             return 0;
+           } catch (e) {
+             console.error("Error parsing date:", e, timestamp);
+             return 0;
+           }
+         };
 
-        return getTimestamp(b) - getTimestamp(a); // Newest first
-      });
+         // Sort newest first
+         return getValidDate(b.timestamp) - getValidDate(a.timestamp);
+       });
 
-      setIncidents(sortedData);
+       // Apply client-side filtering for searchText if provided
+       let filteredData = sortedData;
 
+       if (filters.searchText && filters.searchText.trim() !== "") {
+         const searchText = filters.searchText.toLowerCase().trim();
+
+         filteredData = sortedData.filter((incident) => {
+           // Check if store number includes search text
+           const storeNumberMatch =
+             incident.storeNumber &&
+             incident.storeNumber.toString().includes(searchText);
+
+           // Check if details includes search text
+           const detailsMatch =
+             incident.details &&
+             incident.details.toLowerCase().includes(searchText);
+
+           // Return true if either match
+           return storeNumberMatch || detailsMatch;
+         });
+       }
+
+       setIncidents(filteredData);
      } catch (err) {
        console.error("Error fetching incidents:", err);
        setError("Failed to load incidents. Please try again.");
@@ -113,13 +139,13 @@ export const useIncidents = (initialFilters = {}) => {
      }
    };
 
-    if (isAuthenticated) {
-      fetchIncidents();
-    } else {
-      setIncidents([]);
-      setLoading(false);
-    }
-  }, [filters, refreshTrigger, isAuthenticated]);
+   if (isAuthenticated) {
+     fetchIncidents();
+   } else {
+     setIncidents([]);
+     setLoading(false);
+   }
+ }, [filters, refreshTrigger, isAuthenticated]);
 
   // Update filters
   const updateFilters = useCallback((newFilters) => {
