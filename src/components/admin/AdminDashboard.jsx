@@ -111,7 +111,21 @@ const AdminDashboard = () => {
        setLoadingStats(false);
      }
    }, [incidents, notification]);
+const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
 
+// Also add this useEffect to close the dropdown when clicking outside
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (mobileDropdownOpen) {
+      setMobileDropdownOpen(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, [mobileDropdownOpen]);
   // Toggle visibility functions
   const toggleStatsVisibility = () => {
     setStatsVisible(!statsVisible);
@@ -329,47 +343,136 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Content Tabs - Moved above the toggles */}
-      <Tabs
-        defaultValue="incidents"
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="mb-4"
-      >
-        <div className="overflow-x-auto">
-          <TabsList className="bg-slate-900 border-b-2 border-slate-700 w-full justify-start rounded-t-lg mb-0 p-0 h-auto">
-            <TabsTrigger
-              value="incidents"
-              className="data-[state=active]:bg-blue-700 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-medium py-3 px-6 rounded-tl-lg transition-all duration-200"
-            >
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4" />
-                Incidents
-                <Badge className="ml-1 bg-blue-800 text-white hover:bg-blue-700">
-                  {loading ? "..." : incidents.length}
-                </Badge>
-              </div>
-            </TabsTrigger>
-            <TabsTrigger
-              value="reports"
-              className="data-[state=active]:bg-blue-700 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-medium py-3 px-6 transition-all duration-200"
-            >
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Reports
-              </div>
-            </TabsTrigger>
-            {isSuperAdmin && (
-              <TabsTrigger
-                value="admin"
-                className="data-[state=active]:bg-blue-700 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-medium py-3 px-6 rounded-tr-lg transition-all duration-200"
+      {/* Main Content Tabs - Improved Mobile Design */}
+      <div className="mb-4">
+        {/* Mobile-friendly Tabs - Custom Dropdown */}
+        <div className="block sm:hidden">
+          <div className="bg-slate-900 rounded-t-lg p-2">
+            {/* Custom Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMobileDropdownOpen(!mobileDropdownOpen)}
+                className="w-full flex items-center justify-between py-2 px-3 bg-slate-800 border border-slate-700
+          text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
               >
-                <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4" />
-                  Admin Controls
+                {/* Show current tab label with icon */}
+                <div className="flex items-center">
+                  {activeTab === "incidents" && (
+                    <AlertTriangle className="h-4 w-4 mr-2" />
+                  )}
+                  {activeTab === "reports" && (
+                    <FileText className="h-4 w-4 mr-2" />
+                  )}
+                  {activeTab === "admin" && <Shield className="h-4 w-4 mr-2" />}
+
+                  {activeTab === "incidents" && (
+                    <span>Incidents ({incidents.length})</span>
+                  )}
+                  {activeTab === "reports" && <span>Reports</span>}
+                  {activeTab === "admin" && <span>Admin Controls</span>}
                 </div>
-              </TabsTrigger>
+
+                {/* Dropdown arrow */}
+                <ChevronDown
+                  className={`h-4 w-4 text-blue-400 transition-transform duration-200 ${
+                    mobileDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {/* Dropdown options */}
+              {mobileDropdownOpen && (
+                <div className="absolute z-10 mt-1 w-full rounded-md bg-slate-800 border border-slate-700 shadow-lg">
+                  <div className="py-1">
+                    <button
+                      onClick={() => {
+                        setActiveTab("incidents");
+                        setMobileDropdownOpen(false);
+                      }}
+                      className={`flex items-center w-full px-4 py-2 text-left text-white hover:bg-blue-700
+                ${activeTab === "incidents" ? "bg-blue-700" : ""}`}
+                    >
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                      Incidents ({incidents.length})
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab("reports");
+                        setMobileDropdownOpen(false);
+                      }}
+                      className={`flex items-center w-full px-4 py-2 text-left text-white hover:bg-blue-700
+                ${activeTab === "reports" ? "bg-blue-700" : ""}`}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Reports
+                    </button>
+
+                    {isSuperAdmin && (
+                      <button
+                        onClick={() => {
+                          setActiveTab("admin");
+                          setMobileDropdownOpen(false);
+                        }}
+                        className={`flex items-center w-full px-4 py-2 text-left text-white hover:bg-blue-700
+                  ${activeTab === "admin" ? "bg-blue-700" : ""}`}
+                      >
+                        <Shield className="h-4 w-4 mr-2" />
+                        Admin Controls
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Tabs */}
+        <div className="hidden sm:block">
+          <div className="flex bg-slate-900 rounded-t-lg overflow-hidden border-b-2 border-slate-700">
+            <button
+              onClick={() => setActiveTab("incidents")}
+              className={`flex items-center px-6 py-3 transition-all duration-200 cursor-pointer ${
+                activeTab === "incidents"
+                  ? "bg-blue-700 text-white shadow-md font-medium"
+                  : "text-gray-300 hover:bg-slate-800 hover:text-blue-300"
+              }`}
+            >
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Incidents
+              <Badge className="ml-2 bg-blue-800 text-white hover:bg-blue-700">
+                {loading ? "..." : incidents.length}
+              </Badge>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("reports")}
+              className={`flex items-center px-6 py-3 transition-all duration-200 cursor-pointer ${
+                activeTab === "reports"
+                  ? "bg-blue-700 text-white shadow-md font-medium"
+                  : "text-gray-300 hover:bg-slate-800 hover:text-blue-300"
+              }`}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Reports
+            </button>
+
+            {isSuperAdmin && (
+              <button
+                onClick={() => setActiveTab("admin")}
+                className={`flex items-center px-6 py-3 transition-all duration-200 cursor-pointer ${
+                  activeTab === "admin"
+                    ? "bg-blue-700 text-white shadow-md font-medium"
+                    : "text-gray-300 hover:bg-slate-800 hover:text-blue-300"
+                }`}
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Admin Controls
+              </button>
             )}
-          </TabsList>
+          </div>
         </div>
 
         {/* Toggle Button Bar */}
@@ -377,8 +480,8 @@ const AdminDashboard = () => {
           <button
             onClick={toggleStatsVisibility}
             className="flex items-center justify-center h-8 px-3 text-xs font-medium transition-all rounded-full
-            bg-slate-700/60 text-blue-400 border border-slate-600/50 hover:bg-slate-600 hover:text-blue-300 hover:border-blue-700/30
-            focus:outline-none focus:ring-2 focus:ring-blue-800/30 focus:ring-offset-2 focus:ring-offset-slate-800"
+      bg-slate-700/60 text-blue-400 border border-slate-600/50 hover:bg-slate-600 hover:text-blue-300 hover:border-blue-700/30
+      focus:outline-none focus:ring-2 focus:ring-blue-800/30 focus:ring-offset-2 focus:ring-offset-slate-800 cursor-pointer"
           >
             {statsVisible ? (
               <>
@@ -396,8 +499,8 @@ const AdminDashboard = () => {
           <button
             onClick={toggleFiltersVisibility}
             className="flex items-center justify-center h-8 px-3 text-xs font-medium transition-all rounded-full
-            bg-slate-700/60 text-blue-400 border border-slate-600/50 hover:bg-slate-600 hover:text-blue-300 hover:border-blue-700/30
-            focus:outline-none focus:ring-2 focus:ring-blue-800/30 focus:ring-offset-2 focus:ring-offset-slate-800"
+      bg-slate-700/60 text-blue-400 border border-slate-600/50 hover:bg-slate-600 hover:text-blue-300 hover:border-blue-700/30
+      focus:outline-none focus:ring-2 focus:ring-blue-800/30 focus:ring-offset-2 focus:ring-offset-slate-800 cursor-pointer"
           >
             {filtersVisible ? (
               <>
@@ -412,99 +515,104 @@ const AdminDashboard = () => {
             )}
           </button>
         </div>
+      </div>
 
-        {/* Conditional Content Areas */}
-        {statsVisible && (
-          <div className="mt-4 bg-slate-800 rounded-lg border border-slate-700 p-4 shadow-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <BarChart className="h-5 w-5 text-blue-400" />
-                Dashboard Statistics
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatCard
-                title="Total Incidents"
-                value={stats.totalCount}
-                icon={<BarChart className="h-5 w-5 text-blue-400" />}
-                loading={loadingStats}
-                bgColor="bg-blue-900/20"
-                borderColor="border-blue-800"
-                textColor="text-blue-300"
-              />
-
-              <StatCard
-                title="Pending"
-                value={stats.pendingCount}
-                icon={<Clock className="h-5 w-5 text-amber-500" />}
-                loading={loadingStats}
-                bgColor="bg-amber-900/20"
-                borderColor="border-amber-800"
-                textColor="text-amber-300"
-              />
-
-              <StatCard
-                title="Completed"
-                value={stats.completedCount}
-                icon={<CheckCircle2 className="h-5 w-5 text-green-500" />}
-                loading={loadingStats}
-                bgColor="bg-green-900/20"
-                borderColor="border-green-800"
-                textColor="text-green-300"
-              />
-
-              <StatCard
-                title="Missing Police Report #"
-                value={stats.missingPoliceReportCount}
-                icon={<AlertTriangle className="h-5 w-5 text-red-500" />}
-                loading={loadingStats}
-                bgColor="bg-red-900/20"
-                borderColor="border-red-800"
-                textColor="text-red-300"
-              />
-            </div>
+      {/* Content Areas - Keep these sections as they were */}
+      {statsVisible && (
+        <div className="mt-4 bg-slate-800 rounded-lg border border-slate-700 p-4 shadow-md">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <BarChart className="h-5 w-5 text-blue-400" />
+              Dashboard Statistics
+            </h2>
           </div>
-        )}
 
-        {filtersVisible && (
-          <div className="mt-4 bg-slate-800 rounded-lg border border-slate-700 p-4 shadow-md">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-md font-medium text-white flex items-center gap-2">
-                <Filter className="h-4 w-4 text-blue-400" />
-                Filter Incidents
-              </h3>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <StatCard
+              title="Total Incidents"
+              value={stats.totalCount}
+              icon={<BarChart className="h-5 w-5 text-blue-400" />}
+              loading={loadingStats}
+              bgColor="bg-blue-900/20"
+              borderColor="border-blue-800"
+              textColor="text-blue-300"
+            />
 
-            <FilterBar
-              filters={filters}
-              onFilterChange={updateFilters}
-              onResetFilters={resetFilters}
-              onExportPdf={handleExportPdf}
-              onExportExcel={handleExportExcel}
-              hideToggleButton={true}
+            <StatCard
+              title="Pending"
+              value={stats.pendingCount}
+              icon={<Clock className="h-5 w-5 text-amber-500" />}
+              loading={loadingStats}
+              bgColor="bg-amber-900/20"
+              borderColor="border-amber-800"
+              textColor="text-amber-300"
+            />
+
+            <StatCard
+              title="Completed"
+              value={stats.completedCount}
+              icon={<CheckCircle2 className="h-5 w-5 text-green-500" />}
+              loading={loadingStats}
+              bgColor="bg-green-900/20"
+              borderColor="border-green-800"
+              textColor="text-green-300"
+            />
+
+            <StatCard
+              title="Missing Police #"
+              value={stats.missingPoliceReportCount}
+              icon={<AlertTriangle className="h-5 w-5 text-red-500" />}
+              loading={loadingStats}
+              bgColor="bg-red-900/20"
+              borderColor="border-red-800"
+              textColor="text-red-300"
             />
           </div>
+        </div>
+      )}
+
+      {filtersVisible && (
+        <div className="mt-4 bg-slate-800 rounded-lg border border-slate-700 p-4 shadow-md">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-md font-medium text-white flex items-center gap-2">
+              <Filter className="h-4 w-4 text-blue-400" />
+              Filter Incidents
+            </h3>
+          </div>
+
+          <FilterBar
+            filters={filters}
+            onFilterChange={updateFilters}
+            onResetFilters={resetFilters}
+            onExportPdf={handleExportPdf}
+            onExportExcel={handleExportExcel}
+            hideToggleButton={true}
+          />
+        </div>
+      )}
+
+      {/* Content Display - Changed from TabsContent to conditional rendering */}
+      <div className="space-y-4 mt-4">
+        {activeTab === "incidents" && (
+          <>
+            {error && <ErrorAlert message={error} className="mb-4" />}
+
+            <div className="rounded-lg border border-slate-700 shadow-md overflow-hidden">
+              <IncidentTable
+                incidents={incidents}
+                loading={loading}
+                isSuperAdmin={isSuperAdmin}
+                onViewDetails={() => {}}
+                onEditPoliceReport={handleEditPoliceReport}
+                onUpdateStatus={handleUpdateStatus}
+                onDeleteIncident={handleDeleteIncident}
+              />
+            </div>
+          </>
         )}
 
-        <TabsContent value="incidents" className="space-y-4 mt-4">
-          {error && <ErrorAlert message={error} className="mb-4" />}
-
-          <div className="rounded-lg border border-slate-700 shadow-md overflow-hidden">
-            <IncidentTable
-              incidents={incidents}
-              loading={loading}
-              isSuperAdmin={isSuperAdmin}
-              onViewDetails={() => {}}
-              onEditPoliceReport={handleEditPoliceReport}
-              onUpdateStatus={handleUpdateStatus}
-              onDeleteIncident={handleDeleteIncident}
-            />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="reports">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+        {activeTab === "reports" && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <div className="bg-slate-800 border-slate-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 h-full">
                 <div className="bg-slate-900 border-b border-slate-700 p-4">
@@ -534,49 +642,47 @@ const AdminDashboard = () => {
               <ReportExport incidents={incidents} filters={filters} />
             </div>
           </div>
-        </TabsContent>
+        )}
 
-        {isSuperAdmin && (
-          <TabsContent value="admin">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
-              <div className="lg:col-span-2">
-                <div className="bg-slate-800 border-slate-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 h-full">
-                  <div className="bg-slate-900 border-b border-slate-700 p-4">
-                    <h3 className="text-white flex items-center gap-2 font-medium">
-                      <Shield className="h-5 w-5 text-blue-400" />
-                      Super Admin Features
-                    </h3>
-                  </div>
-                  <div className="p-4">
-                    <div className="text-center py-6">
-                      <div className="bg-amber-500/10 p-4 rounded-full inline-block mb-4">
-                        <AlertTriangle className="h-12 w-12 text-amber-500" />
-                      </div>
-                      <h3 className="text-xl font-medium text-white">
-                        Advanced Controls
-                      </h3>
-                      <p className="text-gray-400 mt-3 max-w-md mx-auto leading-relaxed">
-                        These controls allow super administrators to perform
-                        bulk operations and add incidents manually. Use with
-                        caution as some actions cannot be undone.
-                      </p>
+        {activeTab === "admin" && isSuperAdmin && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <div className="bg-slate-800 border-slate-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 h-full">
+                <div className="bg-slate-900 border-b border-slate-700 p-4">
+                  <h3 className="text-white flex items-center gap-2 font-medium">
+                    <Shield className="h-5 w-5 text-blue-400" />
+                    Super Admin Features
+                  </h3>
+                </div>
+                <div className="p-4">
+                  <div className="text-center py-6">
+                    <div className="bg-amber-500/10 p-4 rounded-full inline-block mb-4">
+                      <AlertTriangle className="h-12 w-12 text-amber-500" />
                     </div>
+                    <h3 className="text-xl font-medium text-white">
+                      Advanced Controls
+                    </h3>
+                    <p className="text-gray-400 mt-3 max-w-md mx-auto leading-relaxed">
+                      These controls allow super administrators to perform bulk
+                      operations and add incidents manually. Use with caution as
+                      some actions cannot be undone.
+                    </p>
                   </div>
                 </div>
               </div>
-
-              <div>
-                <SuperAdminControls
-                  onBulkDelete={handleBulkDelete}
-                  onBulkUpdateStatus={handleBulkUpdateStatus}
-                  onAddManualIncident={handleAddManualIncident}
-                  onDataRefresh={refreshData}
-                />
-              </div>
             </div>
-          </TabsContent>
+
+            <div>
+              <SuperAdminControls
+                onBulkDelete={handleBulkDelete}
+                onBulkUpdateStatus={handleBulkUpdateStatus}
+                onAddManualIncident={handleAddManualIncident}
+                onDataRefresh={refreshData}
+              />
+            </div>
+          </div>
         )}
-      </Tabs>
+      </div>
 
       {/* Edit Dialog */}
       <EditDialog
