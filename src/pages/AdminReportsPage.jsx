@@ -13,14 +13,17 @@ import {
   FileText,
   FileSpreadsheet,
   Calendar,
-  BarChart,
-  PieChart,
-  LineChart,
+  Activity,
+  Filter,
+  X,
+  Download,
+  Sliders,
 } from "lucide-react";
 import ReportExport from "../components/admin/ReportExport";
 import FilterBar from "../components/admin/FilterBar";
 import LoadingSpinner from "../components/shared/LoadingSpinner";
 import ErrorAlert from "../components/shared/ErrorAlert";
+import AnalyticsDashboard from "../components/admin/AnalyticsDashboard";
 import { useIncidents } from "../hooks/useIncidents";
 import { useAuth } from "../hooks/useAuth";
 import { downloadPdfReport, downloadExcelReport } from "../utils/exportHelpers";
@@ -30,6 +33,9 @@ const AdminReportsPage = () => {
   const { isAuthenticated, isAdmin } = useAuth();
   const { incidents, loading, error, filters, updateFilters, resetFilters } =
     useIncidents();
+
+  // Local state for filter controls visibility
+  const [showFilters, setShowFilters] = useState(false);
 
   // Log page view on component mount
   useEffect(() => {
@@ -46,6 +52,11 @@ const AdminReportsPage = () => {
     downloadExcelReport(incidents, filters);
   };
 
+  // Toggle filters visibility
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
   if (!isAuthenticated || !isAdmin) {
     return (
       <div className="py-6">
@@ -60,42 +71,115 @@ const AdminReportsPage = () => {
     );
   }
 
+  // Calculate active filter count for the badge
+  const activeFilterCount = Object.keys(filters).filter((key) => {
+    if (key === "startDate" || key === "endDate") {
+      return filters[key] && filters[key] !== "";
+    }
+    return filters[key];
+  }).length;
+
   return (
     <div className="space-y-6 py-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">
-          Reports & Analysis
-        </h1>
-        <p className="text-gray-400">
-          Generate custom reports and analyze incident data
-        </p>
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg p-4 sm:p-6 shadow-lg mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">
+              Reports & Analysis
+            </h1>
+            <p className="text-gray-400 mt-1 text-sm sm:text-base">
+              Generate custom reports and analyze incident data across all
+              locations
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <Button
+              className="bg-slate-700 hover:bg-slate-600 text-white"
+              variant="outline"
+              onClick={toggleFilters}
+              size="sm"
+            >
+              <Filter className="h-4 w-4 mr-1.5 text-blue-400" />
+              Filters
+              {activeFilterCount > 0 && (
+                <span className="ml-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full">
+                  {activeFilterCount}
+                </span>
+              )}
+            </Button>
+
+            <Button
+              className="bg-blue-700 hover:bg-blue-600 text-white"
+              onClick={handleExportPdf}
+              size="sm"
+              disabled={loading || incidents.length === 0}
+            >
+              <Download className="h-4 w-4 mr-1.5" />
+              Export PDF
+            </Button>
+          </div>
+        </div>
       </div>
 
       {error && <ErrorAlert message={error} className="mb-4" />}
 
-      <FilterBar
-        filters={filters}
-        onFilterChange={updateFilters}
-        onResetFilters={resetFilters}
-        onExportPdf={handleExportPdf}
-        onExportExcel={handleExportExcel}
-      />
+      {/* Filters Section (Collapsible) */}
+      {showFilters && (
+        <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-6 animate-in fade-in duration-300">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-md font-medium text-white flex items-center gap-2">
+              <Sliders className="h-4 w-4 text-blue-400" />
+              Data Filters
+            </h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleFilters}
+              className="text-gray-400 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <FilterBar
+            filters={filters}
+            onFilterChange={updateFilters}
+            onResetFilters={resetFilters}
+            onExportPdf={handleExportPdf}
+            onExportExcel={handleExportExcel}
+            hideToggleButton={true}
+          />
+        </div>
+      )}
 
-      <Tabs defaultValue="export">
+      <Tabs defaultValue="analytics">
         <TabsList className="bg-slate-800 border-b border-slate-700 w-full justify-start rounded-none mb-4">
-          <TabsTrigger
-            value="export"
-            className="data-[state=active]:bg-slate-700 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 rounded-none"
-          >
-            Export Reports
-          </TabsTrigger>
           <TabsTrigger
             value="analytics"
             className="data-[state=active]:bg-slate-700 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 rounded-none"
           >
+            <Activity className="h-4 w-4 mr-2 text-blue-400" />
             Analytics Dashboard
           </TabsTrigger>
+          <TabsTrigger
+            value="export"
+            className="data-[state=active]:bg-slate-700 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 rounded-none"
+          >
+            <FileText className="h-4 w-4 mr-2 text-green-400" />
+            Export Reports
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="analytics" className="space-y-6">
+          {loading && incidents.length === 0 ? (
+            <div className="flex justify-center py-12">
+              <LoadingSpinner size="large" text="Loading analytics data..." />
+            </div>
+          ) : (
+            <AnalyticsDashboard filters={filters} />
+          )}
+        </TabsContent>
 
         <TabsContent value="export" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -145,105 +229,6 @@ const AdminReportsPage = () => {
             <div>
               <ReportExport incidents={incidents} filters={filters} />
             </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="analytics">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="bg-slate-800 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <BarChart className="h-5 w-5 mr-2 text-blue-400" />
-                  Incident Distribution
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="flex justify-center py-12">
-                    <LoadingSpinner size="large" text="Loading analytics..." />
-                  </div>
-                ) : incidents.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-gray-400">
-                      No data available for analytics
-                    </p>
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-white">
-                      Analytics visualization coming soon
-                    </p>
-                    <p className="text-gray-400 text-sm mt-2">
-                      This feature will display charts showing incident
-                      distribution by type, store, and time
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="bg-slate-800 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <PieChart className="h-5 w-5 mr-2 text-blue-400" />
-                  Status Breakdown
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="flex justify-center py-12">
-                    <LoadingSpinner size="large" text="Loading analytics..." />
-                  </div>
-                ) : incidents.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-gray-400">
-                      No data available for analytics
-                    </p>
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-white">
-                      Analytics visualization coming soon
-                    </p>
-                    <p className="text-gray-400 text-sm mt-2">
-                      This feature will display the breakdown of incident
-                      statuses
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="bg-slate-800 border-slate-700 lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <LineChart className="h-5 w-5 mr-2 text-blue-400" />
-                  Incident Trends Over Time
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="flex justify-center py-12">
-                    <LoadingSpinner size="large" text="Loading analytics..." />
-                  </div>
-                ) : incidents.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-gray-400">
-                      No data available for analytics
-                    </p>
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-white">
-                      Analytics visualization coming soon
-                    </p>
-                    <p className="text-gray-400 text-sm mt-2">
-                      This feature will display incident trends over time
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
           </div>
         </TabsContent>
       </Tabs>
