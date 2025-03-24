@@ -1,27 +1,33 @@
 // src/router/appRoutes.jsx
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Navigate } from "react-router-dom";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
 
-// Layout components
+// Layout components (not lazy-loaded as they're likely small)
 import AdminLayout from "../components/admin/AdminLayout";
 import EmployeeLayout from "../components/employee/EmployeeLayout";
 
-// Admin pages
-import AdminLoginPage from "../pages/AdminLoginPage";
-import AdminDashboardPage from "../pages/AdminDashboardPage";
-import AdminReportsPage from "../pages/AdminReportsPage";
-import AdminSettingsPage from "../pages/AdminSettingsPage";
-import QRCodeGeneratorPage from "../pages/QRCodeGeneratorPage";
+// Lazy-loaded pages
+const AdminLoginPage = lazy(() => import("../pages/AdminLoginPage"));
+const AdminDashboardPage = lazy(() => import("../pages/AdminDashboardPage"));
+const AdminReportsPage = lazy(() => import("../pages/AdminReportsPage"));
+const AdminSettingsPage = lazy(() => import("../pages/AdminSettingsPage"));
+const QRCodeGeneratorPage = lazy(() => import("../pages/QRCodeGeneratorPage"));
 
-// Employee pages
-import EmployeeReportPage from "../pages/EmployeeReportPage";
-import ReportStatusPage from "../pages/ReportStatusPage";
+const EmployeeReportPage = lazy(() => import("../pages/EmployeeReportPage"));
+const ReportStatusPage = lazy(() => import("../pages/ReportStatusPage"));
 
-// Shared pages
-import NotFoundPage from "../pages/NotFoundPage";
-import UnauthorizedPage from "../pages/UnauthorizedPage";
-import HelpPage from "../pages/HelpPage";
-import PrivacyPage from "../pages/PrivacyPage";
+const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
+const UnauthorizedPage = lazy(() => import("../pages/UnauthorizedPage"));
+const HelpPage = lazy(() => import("../pages/HelpPage"));
+const PrivacyPage = lazy(() => import("../pages/PrivacyPage"));
+
+// Wrap lazy-loaded components with Suspense
+const LazyComponent = ({ Component }) => (
+  <Suspense fallback={<LoadingSpinner text="Loading page..." />}>
+    <Component />
+  </Suspense>
+);
 
 // Protected route wrapper
 const AdminRoute = ({ children, requireSuperAdmin = false }) => {
@@ -34,7 +40,7 @@ const routes = [
   // Admin routes
   {
     path: "/login",
-    element: <AdminLoginPage />,
+    element: <LazyComponent Component={AdminLoginPage} />,
   },
   {
     path: "/admin",
@@ -48,7 +54,7 @@ const routes = [
         path: "dashboard",
         element: (
           <AdminRoute>
-            <AdminDashboardPage />
+            <LazyComponent Component={AdminDashboardPage} />
           </AdminRoute>
         ),
       },
@@ -56,7 +62,7 @@ const routes = [
         path: "reports",
         element: (
           <AdminRoute>
-            <AdminReportsPage />
+            <LazyComponent Component={AdminReportsPage} />
           </AdminRoute>
         ),
       },
@@ -64,7 +70,7 @@ const routes = [
         path: "settings",
         element: (
           <AdminRoute requireSuperAdmin={true}>
-            <AdminSettingsPage />
+            <LazyComponent Component={AdminSettingsPage} />
           </AdminRoute>
         ),
       },
@@ -72,7 +78,7 @@ const routes = [
         path: "qr-generator",
         element: (
           <AdminRoute>
-            <QRCodeGeneratorPage />
+            <LazyComponent Component={QRCodeGeneratorPage} />
           </AdminRoute>
         ),
       },
@@ -82,11 +88,11 @@ const routes = [
   // Help and Privacy pages (standalone with their own layouts)
   {
     path: "/help",
-    element: <HelpPage />,
+    element: <LazyComponent Component={HelpPage} />,
   },
   {
     path: "/privacy",
-    element: <PrivacyPage />,
+    element: <LazyComponent Component={PrivacyPage} />,
   },
 
   // Employee routes
@@ -96,28 +102,27 @@ const routes = [
     children: [
       {
         index: true,
-        element: <EmployeeReportPage />,
+        element: <LazyComponent Component={EmployeeReportPage} />,
       },
       {
         path: "report",
-        element: <EmployeeReportPage />,
+        element: <LazyComponent Component={EmployeeReportPage} />,
       },
       {
         path: "check-status",
-        element: <ReportStatusPage />,
+        element: <LazyComponent Component={ReportStatusPage} />,
       },
-      // Help and Privacy pages are moved out of EmployeeLayout
     ],
   },
 
   // Error routes
   {
     path: "/unauthorized",
-    element: <UnauthorizedPage />,
+    element: <LazyComponent Component={UnauthorizedPage} />,
   },
   {
     path: "*",
-    element: <NotFoundPage />,
+    element: <LazyComponent Component={NotFoundPage} />,
   },
 ];
 

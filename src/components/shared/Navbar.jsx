@@ -12,7 +12,6 @@ import {
   X,
   HelpCircle,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "../../hooks/useAuth";
 import { logCustomEvent } from "../../services/analytics";
 
@@ -43,9 +42,15 @@ const Navbar = () => {
   // Determine if we're on the admin dashboard
   const isAdminDashboard = location.pathname.includes("/admin");
 
-  // Determine if we're on the employee report page
-  const isEmployeeReport =
-    location.pathname === "/" || location.pathname.includes("/report");
+  // Reusable styles
+  const linkStyles = {
+    desktop:
+      "text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 hover:bg-blue-900 flex items-center",
+    mobile:
+      "block text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium transition-colors duration-300 flex items-center",
+    reportIncident:
+      "text-gray-300 hover:text-white hover:bg-blue-900 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 flex items-center",
+  };
 
   return (
     <nav className="bg-slate-900 text-white shadow-md shadow-blue-900/30">
@@ -70,23 +75,17 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {isAdmin && (
               <>
-                <Link
-                  to="/admin/dashboard"
-                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                >
+                <Link to="/admin/dashboard" className={linkStyles.desktop}>
+                  <BarChart className="h-4 w-4 mr-2 text-blue-400" />
                   Dashboard
                 </Link>
-                <Link
-                  to="/admin/reports"
-                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                >
+                <Link to="/admin/reports" className={linkStyles.desktop}>
+                  <Search className="h-4 w-4 mr-2 text-green-400" />
                   Reports
                 </Link>
                 {isSuperAdmin && (
-                  <Link
-                    to="/admin/settings"
-                    className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                  >
+                  <Link to="/admin/settings" className={linkStyles.desktop}>
+                    <Shield className="h-4 w-4 mr-2 text-purple-400" />
                     Settings
                   </Link>
                 )}
@@ -95,40 +94,33 @@ const Navbar = () => {
 
             {!isAdmin && (
               <>
-                <Link
-                  to="/help"
-                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                >
+                <Link to="/help" className={linkStyles.desktop}>
+                  <HelpCircle className="h-4 w-4 mr-2 text-cyan-400" />
                   Help
                 </Link>
-                <Link
-                  to="/privacy"
-                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                >
+                <Link to="/privacy" className={linkStyles.desktop}>
+                  <Shield className="h-4 w-4 mr-2 text-indigo-400" />
                   Privacy
                 </Link>
               </>
             )}
 
-            {!isAdmin && !isEmployeeReport && (
-              <Link to="/">
-                <Button className="bg-amber-600 hover:bg-amber-500 text-white font-medium">
-                  <AlertTriangle className="h-4 w-4 mr-1" />
-                  Report Incident
-                </Button>
+            {/* Report Incident Button for Desktop */}
+            {(currentUser || !isAdmin) && (
+              <Link to="/" className={linkStyles.reportIncident}>
+                <AlertTriangle className="h-4 w-4 mr-2 text-amber-500" />
+                Report Incident
               </Link>
             )}
 
-            {!isAdmin && isEmployeeReport && !currentUser && (
+            {/* Login Button for Desktop */}
+            {!currentUser && !isAdmin && (
               <Link
                 to="/login"
-                className="block text-white bg-blue-800 hover:bg-blue-700 px-3 py-2 rounded-md font-medium"
-                onClick={closeMenu}
+                className={`${linkStyles.desktop} bg-blue-800 hover:bg-blue-700`}
               >
-                <div className="flex items-center">
-                  <User className="h-5 w-5 mr-2" />
-                  Admin Login
-                </div>
+                <User className="h-4 w-4 mr-2 text-blue-300" />
+                Admin Login
               </Link>
             )}
 
@@ -137,24 +129,22 @@ const Navbar = () => {
                 <span className="text-sm text-gray-400 mr-3">
                   {currentUser.email}
                 </span>
-                <Button
+                <button
                   onClick={handleLogout}
-                  variant="ghost"
-                  className="text-gray-300 hover:text-white hover:bg-blue-900"
+                  className="text-gray-300 hover:text-white hover:bg-blue-900 px-3 py-2 rounded-md transition-colors duration-300 flex items-center"
                 >
-                  <LogOut className="h-4 w-4 mr-1" />
+                  <LogOut className="h-4 w-4 mr-1 text-red-400" />
                   <span>Logout</span>
-                </Button>
+                </button>
               </div>
             ) : (
               isAdminDashboard && (
-                <Link to="/login">
-                  <Button
-                    variant="outline"
-                    className="bg-blue-900 hover:bg-blue-800 text-white border-blue-700"
-                  >
-                    Admin Login
-                  </Button>
+                <Link
+                  to="/login"
+                  className="bg-blue-900 hover:bg-blue-800 text-white border-blue-700 px-4 py-2 rounded-md transition-colors duration-300 transform hover:scale-105 active:scale-95 cursor-pointer flex items-center"
+                >
+                  <User className="h-4 w-4 mr-2 text-blue-300" />
+                  Admin Login
                 </Link>
               )
             )}
@@ -164,16 +154,16 @@ const Navbar = () => {
           <div className="md:hidden flex items-center">
             <button
               onClick={toggleMenu}
-              className="text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-md p-1"
+              className="text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-md p-1 transition-colors duration-300"
               aria-expanded={isMenuOpen}
             >
               <span className="sr-only">
                 {isMenuOpen ? "Close menu" : "Open menu"}
               </span>
               {isMenuOpen ? (
-                <X className="h-6 w-6" />
+                <X className="h-6 w-6 text-red-400" />
               ) : (
-                <Menu className="h-6 w-6" />
+                <Menu className="h-6 w-6 text-blue-400" />
               )}
             </button>
           </div>
@@ -188,34 +178,28 @@ const Navbar = () => {
               <>
                 <Link
                   to="/admin/dashboard"
-                  className="block text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium"
+                  className={linkStyles.mobile}
                   onClick={closeMenu}
                 >
-                  <div className="flex items-center">
-                    <BarChart className="h-5 w-5 mr-2" />
-                    Dashboard
-                  </div>
+                  <BarChart className="h-5 w-5 mr-2 text-blue-400" />
+                  Dashboard
                 </Link>
                 <Link
                   to="/admin/reports"
-                  className="block text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium"
+                  className={linkStyles.mobile}
                   onClick={closeMenu}
                 >
-                  <div className="flex items-center">
-                    <Search className="h-5 w-5 mr-2" />
-                    Reports
-                  </div>
+                  <Search className="h-5 w-5 mr-2 text-green-400" />
+                  Reports
                 </Link>
                 {isSuperAdmin && (
                   <Link
                     to="/admin/settings"
-                    className="block text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium"
+                    className={linkStyles.mobile}
                     onClick={closeMenu}
                   >
-                    <div className="flex items-center">
-                      <Shield className="h-5 w-5 mr-2" />
-                      Settings
-                    </div>
+                    <Shield className="h-5 w-5 mr-2 text-purple-400" />
+                    Settings
                   </Link>
                 )}
               </>
@@ -225,57 +209,47 @@ const Navbar = () => {
               <>
                 <Link
                   to="/help"
-                  className="block text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium"
+                  className={linkStyles.mobile}
                   onClick={closeMenu}
                 >
-                  <div className="flex items-center">
-                    <HelpCircle className="h-5 w-5 mr-2" />
-                    Help
-                  </div>
+                  <HelpCircle className="h-5 w-5 mr-2 text-cyan-400" />
+                  Help
                 </Link>
                 <Link
                   to="/privacy"
-                  className="block text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium"
+                  className={linkStyles.mobile}
                   onClick={closeMenu}
                 >
-                  <div className="flex items-center">
-                    <Shield className="h-5 w-5 mr-2" />
-                    Privacy
-                  </div>
+                  <Shield className="h-5 w-5 mr-2 text-indigo-400" />
+                  Privacy
                 </Link>
               </>
             )}
 
-            {!isAdmin && !isEmployeeReport && (
-              <Link
-                to="/"
-                className="block text-white bg-amber-700 hover:bg-amber-600 px-3 py-2 rounded-md font-medium cursor-pointer"
-                onClick={closeMenu}
-              >
-                <div className="flex items-center">
-                  <AlertTriangle className="h-5 w-5 mr-2" />
-                  Report Incident
-                </div>
+            {/* Report Incident Button for Mobile */}
+            {(currentUser || !isAdmin) && (
+              <Link to="/" className={linkStyles.mobile} onClick={closeMenu}>
+                <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
+                Report Incident
               </Link>
             )}
 
-            {!isAdmin && isEmployeeReport && !currentUser && (
+            {/* Login Button for Mobile */}
+            {!currentUser && !isAdmin && (
               <Link
                 to="/login"
-                className="block text-white bg-blue-800 hover:bg-blue-700 px-3 py-2 rounded-md font-medium cursor-pointer"
+                className={`${linkStyles.mobile} bg-blue-800 hover:bg-blue-700`}
                 onClick={closeMenu}
               >
-                <div className="flex items-center">
-                  <User className="h-5 w-5 mr-2" />
-                  Admin Login
-                </div>
+                <User className="h-5 w-5 mr-2 text-blue-300" />
+                Admin Login
               </Link>
             )}
 
             {currentUser ? (
               <>
-                <div className="block px-3 py-2 text-gray-400">
-                  <User className="h-5 w-5 inline mr-2" />
+                <div className="block px-3 py-2 text-gray-400 flex items-center">
+                  <User className="h-5 w-5 mr-2 text-blue-400" />
                   {currentUser.email}
                 </div>
                 <button
@@ -283,25 +257,21 @@ const Navbar = () => {
                     handleLogout();
                     closeMenu();
                   }}
-                  className="block w-full text-left text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium"
+                  className="block w-full text-left text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium transition-colors duration-300 flex items-center"
                 >
-                  <div className="flex items-center">
-                    <LogOut className="h-5 w-5 mr-2" />
-                    Logout
-                  </div>
+                  <LogOut className="h-5 w-5 mr-2 text-red-400" />
+                  Logout
                 </button>
               </>
             ) : (
               isAdminDashboard && (
                 <Link
                   to="/login"
-                  className="block text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium"
+                  className={linkStyles.mobile}
                   onClick={closeMenu}
                 >
-                  <div className="flex items-center">
-                    <User className="h-5 w-5 mr-2" />
-                    Admin Login
-                  </div>
+                  <User className="h-5 w-5 mr-2 text-blue-300" />
+                  Admin Login
                 </Link>
               )
             )}
