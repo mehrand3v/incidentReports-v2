@@ -6,6 +6,12 @@ import {
   calculateTrendChanges,
   groupIncidentsByTimePeriod,
 } from "../utils/analyticsUtils";
+import {
+  detectAnomalies,
+  generateForecast,
+  calculateConfidenceIntervals,
+  analyzeTrends,
+} from "../utils/advancedAnalyticsUtils";
 
 /**
  * Custom hook to fetch and process incident data for analytics
@@ -69,12 +75,43 @@ export const useAnalytics = (filters = {}) => {
     // Calculate week-over-week change
     const weeklyChange = calculateTrendChanges(weeklyTrends);
 
+    // Advanced analytics processing
+    const processedData = monthlyTrends.map((item) => ({
+      month: item.period,
+      count: item.count,
+    }));
+
+    // Detect anomalies in historical data
+    const withAnomalies = detectAnomalies(processedData, "count", 2);
+
+    // Generate forecast for future periods
+    const forecast = generateForecast(processedData, "count", 3);
+
+    // Add confidence intervals to forecast
+    const forecastWithIntervals = calculateConfidenceIntervals(
+      processedData,
+      forecast,
+      "count"
+    );
+
+    // Analyze trends and patterns
+    const trendAnalysis = analyzeTrends(processedData, "count");
+
+    // Filter out anomalies for display
+    const anomalies = withAnomalies.filter((item) => item.isAnomaly);
+
     return {
       daily: dailyTrends,
       weekly: weeklyTrends,
       monthly: monthlyTrends,
       monthlyChange,
       weeklyChange,
+
+      // Advanced analytics results
+      processedData: withAnomalies,
+      forecastData: forecastWithIntervals,
+      anomalies,
+      trendAnalysis,
     };
   }, [incidents]);
 
