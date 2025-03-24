@@ -3,39 +3,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { format } from "date-fns";
-
-/**
- * Format a date for display
- * @param {Date|string|number} date - The date to format
- * @param {string} formatString - The format string (default: 'MM/dd/yyyy h:mm a')
- * @returns {string} Formatted date string
- */
-export const formatDate = (date, formatString = "MM/dd/yyyy h:mm a") => {
-  if (!date) return "—";
-
-  try {
-    // Handle both string and Date objects
-    let dateObj;
-    if (date instanceof Date) {
-      dateObj = date;
-    } else if (typeof date === "string" || typeof date === "number") {
-      // For string or number input, create a new Date object
-      dateObj = new Date(date);
-    } else {
-      return "—";
-    }
-
-    // Check if the date is valid before formatting
-    if (isNaN(dateObj.getTime())) {
-      return "—";
-    }
-
-    return format(dateObj, formatString);
-  } catch (error) {
-    console.error("Error formatting date:", error);
-    return "—";
-  }
-};
+import { formatDate as appFormatDate } from "./formatters"; // Import the main formatDate function
 
 /**
  * Prepare incidents data for export
@@ -44,68 +12,8 @@ export const formatDate = (date, formatString = "MM/dd/yyyy h:mm a") => {
  */
 const prepareIncidentsForExport = (incidents) => {
   return incidents.map((incident) => {
-    // Properly handle timestamp with best-effort date extraction
-    let dateStr = "";
-    if (incident.timestamp) {
-      try {
-        // For common timestamp formats
-        const date = new Date(incident.timestamp);
-        if (!isNaN(date.getTime())) {
-          dateStr = format(date, "MM/dd/yy h:mm"); // Shortened date format
-        } else {
-          // For timestamps that might be nested in objects or arrays
-          let extracted = null;
-
-          // Handle array
-          if (
-            Array.isArray(incident.timestamp) &&
-            incident.timestamp.length > 0
-          ) {
-            extracted = new Date(incident.timestamp[0]);
-          }
-          // Handle object with date property
-          else if (
-            typeof incident.timestamp === "object" &&
-            incident.timestamp !== null
-          ) {
-            // Try common date properties
-            const possibleDateProps = [
-              "date",
-              "created",
-              "createdAt",
-              "timestamp",
-              "time",
-              "datetime",
-            ];
-            for (const prop of possibleDateProps) {
-              if (incident.timestamp[prop]) {
-                extracted = new Date(incident.timestamp[prop]);
-                if (!isNaN(extracted.getTime())) break;
-              }
-            }
-          }
-          // Handle string that might contain a date
-          else if (typeof incident.timestamp === "string") {
-            // Look for ISO date patterns
-            const isoMatch = incident.timestamp.match(/\d{4}-\d{2}-\d{2}/);
-            if (isoMatch) {
-              extracted = new Date(isoMatch[0]);
-            }
-            // Look for US date patterns MM/DD/YYYY
-            const usMatch = incident.timestamp.match(/\d{1,2}\/\d{1,2}\/\d{4}/);
-            if (!extracted && usMatch) {
-              extracted = new Date(usMatch[0]);
-            }
-          }
-
-          if (extracted && !isNaN(extracted.getTime())) {
-            dateStr = format(extracted, "MM/dd/yy"); // Shortened date format
-          }
-        }
-      } catch (e) {
-        console.error("Error formatting incident timestamp:", e);
-      }
-    }
+    // Use the application's formatDate function from formatters.js for consistent date handling
+    const dateStr = appFormatDate(incident.timestamp, "MM/dd/yy h:mm a");
 
     // Truncate long values for better fit
     const truncate = (str, maxLength = 30) => {
@@ -123,12 +31,12 @@ const prepareIncidentsForExport = (incidents) => {
 
     return {
       Date: dateStr || "—",
-      "Case#": incident.caseNumber || "—", // Removed space to save width
-      "Store#": incident.storeNumber || "—", // Removed space to save width
-      "Inc.": truncate(incidentType, 20), // Shortened header and truncated value
+      "Case#": incident.caseNumber || "—",
+      "Store#": incident.storeNumber || "—",
+      "Inc.": truncate(incidentType, 20),
       Details: truncate(incident.details || "", 35),
       Status: truncate(incident.status || "pending", 10),
-      "Police#": incident.policeReport || "—", // Removed space to save width
+      "Police#": incident.policeReport || "—",
     };
   });
 };
@@ -146,11 +54,11 @@ export const generatePdfReport = (incidents, filters = {}) => {
     unit: "pt", // Use points for more precise control
   });
 
-  // Add title and date - directly format current date to avoid any issues
+  // Add title and date
   doc.setFontSize(18);
   doc.text("Incident Report", 14, 22);
 
-  // Format the current date directly without using formatDate
+  // Format the current date using the proper formatter
   const now = new Date();
   const formattedNow = format(now, "MM/dd/yyyy h:mm a");
   doc.setFontSize(10);
@@ -169,18 +77,9 @@ export const generatePdfReport = (incidents, filters = {}) => {
       if (value) {
         let filterText = `${key.charAt(0).toUpperCase() + key.slice(1)}: `;
 
-        // Format dates in a readable way - direct handling without helper functions
+        // Format dates using the application's formatDate function
         if (key === "startDate" || key === "endDate") {
-          try {
-            const date = new Date(value);
-            if (!isNaN(date.getTime())) {
-              filterText += format(date, "MM/dd/yyyy");
-            } else {
-              filterText += "—";
-            }
-          } catch (e) {
-            filterText += "—";
-          }
+          filterText += appFormatDate(value, "MM/dd/yyyy");
         } else {
           filterText += value;
         }
@@ -266,23 +165,14 @@ export const generateExcelReport = (incidents, filters = {}) => {
     const filterData = Object.entries(filters)
       .filter(([_, value]) => value)
       .map(([key, value]) => {
-        // Format dates in a readable way - direct handling without helper functions
+        // Format dates using the application's formatDate function
         if (key === "startDate" || key === "endDate") {
-          try {
-            const date = new Date(value);
-            if (!isNaN(date.getTime())) {
-              return [key, format(date, "MM/dd/yyyy")];
-            } else {
-              return [key, "—"];
-            }
-          } catch (error) {
-            return [key, "—"];
-          }
+          return [key, appFormatDate(value, "MM/dd/yyyy")];
         }
         return [key, value];
       });
 
-    // Add report generation date to filter info - format directly
+    // Add report generation date to filter info
     const now = new Date();
     filterData.unshift(["Report Generated", format(now, "MM/dd/yyyy h:mm a")]);
 
@@ -329,10 +219,10 @@ export const downloadBlob = (blob, filename) => {
  * @param {Array} incidents - Array of incident objects
  * @param {Object} filters - Filters applied to the data
  */
-export const downloadPdfReport = (incidents, filters = {}) => {
+export const downloadPdfReport = async (incidents, filters = {}) => {
   try {
     const blob = generatePdfReport(incidents, filters);
-    // Format date directly to avoid any date-related issues
+    // Format date directly
     const now = new Date();
     const dateStr =
       now.getFullYear() +
@@ -354,10 +244,10 @@ export const downloadPdfReport = (incidents, filters = {}) => {
  * @param {Array} incidents - Array of incident objects
  * @param {Object} filters - Filters applied to the data
  */
-export const downloadExcelReport = (incidents, filters = {}) => {
+export const downloadExcelReport = async (incidents, filters = {}) => {
   try {
     const blob = generateExcelReport(incidents, filters);
-    // Format date directly to avoid any date-related issues
+    // Format date directly
     const now = new Date();
     const dateStr =
       now.getFullYear() +
@@ -372,4 +262,9 @@ export const downloadExcelReport = (incidents, filters = {}) => {
     console.error("Error generating Excel report:", error);
     throw error;
   }
+};
+
+// Keep the formatDate function for compatibility, but have it use the app's version
+export const formatDate = (date, formatString = "MM/dd/yyyy h:mm a") => {
+  return appFormatDate(date, formatString);
 };
