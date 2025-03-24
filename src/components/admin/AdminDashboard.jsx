@@ -1,6 +1,5 @@
 // src/components/admin/AdminDashboard.jsx
 import React, { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   AlertTriangle,
@@ -41,11 +40,10 @@ import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  // Get auth context
   const { isSuperAdmin } = useAuth();
   const notification = useNotification();
 
-  // State for incident hooks
+  // Incident hooks state
   const {
     incidents,
     loading,
@@ -59,17 +57,18 @@ const AdminDashboard = () => {
     refreshData,
   } = useIncidents();
 
-  // State for dialogs
+  // Dialog states
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState(null);
-  const [activeTab, setActiveTab] = useState("incidents");
 
-  // State for toggles
+  // Tab and toggle states
+  const [activeTab, setActiveTab] = useState("incidents");
   const [statsVisible, setStatsVisible] = useState(false);
   const [filtersVisible, setFiltersVisible] = useState(false);
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
 
-  // State for statistics
+  // Statistics state
   const [stats, setStats] = useState({
     pendingCount: 0,
     completedCount: 0,
@@ -78,54 +77,65 @@ const AdminDashboard = () => {
   });
   const [loadingStats, setLoadingStats] = useState(true);
 
+  // Tab handling function
+  const handleTabChange = (tabName) => {
+    console.log(`Switching to tab: ${tabName}`);
+    setActiveTab(tabName);
+    setMobileDropdownOpen(false);
+  };
+
   // Calculate statistics from filtered incidents
-   useEffect(() => {
-     try {
-       setLoadingStats(true);
+  useEffect(() => {
+    try {
+      setLoadingStats(true);
 
-       if (incidents && Array.isArray(incidents)) {
-         // Calculate statistics directly from the filtered incidents array
-         const pendingCount = incidents.filter(
-           (inc) => inc.status === "pending"
-         ).length;
+      if (incidents && Array.isArray(incidents)) {
+        // Calculate statistics directly from the filtered incidents array
+        const pendingCount = incidents.filter(
+          (inc) => inc.status === "pending"
+        ).length;
 
-         const completedCount = incidents.filter(
-           (inc) => inc.status === "complete" || inc.status === "resolved"
-         ).length;
+        const completedCount = incidents.filter(
+          (inc) => inc.status === "complete" || inc.status === "resolved"
+        ).length;
 
-         const missingPoliceReportCount = incidents.filter(
-           (inc) => !inc.policeReport || inc.policeReport === ""
-         ).length;
+        const missingPoliceReportCount = incidents.filter(
+          (inc) => !inc.policeReport || inc.policeReport === ""
+        ).length;
 
-         setStats({
-           pendingCount,
-           completedCount,
-           missingPoliceReportCount,
-           totalCount: incidents.length,
-         });
-       }
-     } catch (error) {
-       console.error("Error calculating statistics:", error);
-       notification.error("Failed to calculate statistics");
-     } finally {
-       setLoadingStats(false);
-     }
-   }, [incidents, notification]);
-const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
-
-// Also add this useEffect to close the dropdown when clicking outside
-useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (mobileDropdownOpen) {
-      setMobileDropdownOpen(false);
+        setStats({
+          pendingCount,
+          completedCount,
+          missingPoliceReportCount,
+          totalCount: incidents.length,
+        });
+      }
+    } catch (error) {
+      console.error("Error calculating statistics:", error);
+      notification.error("Failed to calculate statistics");
+    } finally {
+      setLoadingStats(false);
     }
-  };
+  }, [incidents, notification]);
 
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, [mobileDropdownOpen]);
+  // Close dropdown when clicking outside
+ useEffect(() => {
+   const handleClickOutside = (event) => {
+     // Only close if clicking outside the dropdown container
+     if (
+       mobileDropdownOpen &&
+       !event.target.closest(".mobile-dropdown-container")
+     ) {
+       setMobileDropdownOpen(false);
+     }
+   };
+
+   document.addEventListener("mousedown", handleClickOutside);
+   return () => {
+     document.removeEventListener("mousedown", handleClickOutside);
+   };
+ }, [mobileDropdownOpen]);
+
   // Toggle visibility functions
   const toggleStatsVisibility = () => {
     setStatsVisible(!statsVisible);
@@ -185,7 +195,6 @@ useEffect(() => {
 
   // Handle bulk update status
   const handleBulkUpdateStatus = async (status) => {
-    // This would be implemented in a real application
     notification.info(`Processing bulk update to ${status}`);
     setTimeout(() => {
       refreshData();
@@ -195,7 +204,6 @@ useEffect(() => {
 
   // Handle bulk delete
   const handleBulkDelete = async () => {
-    // This would be implemented in a real application
     notification.warning("Processing bulk deletion");
     setTimeout(() => {
       refreshData();
@@ -297,8 +305,10 @@ useEffect(() => {
     }
   };
 
+  // Render the UI
   return (
     <div className="space-y-6">
+      {/* Header Section */}
       <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg p-4 sm:p-6 shadow-lg mb-6">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
@@ -312,59 +322,58 @@ useEffect(() => {
 
           <div className="flex flex-wrap gap-2 w-full lg:w-auto">
             <Button
-              className="bg-slate-700 hover:bg-slate-600 text-white transition-all duration-200"
+              className="bg-slate-700 hover:bg-slate-600 text-white transition-all duration-200 cursor-pointer"
               variant="outline"
-              onClick={() => setActiveTab("reports")}
+              onClick={() => handleTabChange("reports")}
               size="sm"
             >
-              <FileText className="h-4 w-4 mr-1.5" />
+              <FileText className="h-4 w-4 mr-1.5 text-green-500" />
               Reports
             </Button>
 
             <Button
               variant="outline"
-              className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
+              className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600 cursor-pointer"
               onClick={() => navigate("/admin/qr-generator")}
               size="sm"
             >
-              <QrCode className="h-4 w-4 mr-1.5" />
+              <QrCode className="h-4 w-4 mr-1.5 text-pink-400" />
               QR Codes
             </Button>
             <Button
-              className="bg-blue-700 hover:bg-blue-600 text-white transition-all duration-200"
+              className="bg-blue-700 hover:bg-blue-600 text-white transition-all duration-200 cursor-pointer"
               onClick={handleRefreshData}
               size="sm"
             >
-              <RefreshCw className="h-4 w-4 mr-1.5" />
+              <RefreshCw className="h-4 w-4 mr-1.5 text-sky-300" />
               Refresh
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Main Content Tabs - Moved above the toggles */}
-      {/* Main Content Tabs - Improved Mobile Design */}
+      {/* Tabs Section */}
       <div className="mb-4">
-        {/* Mobile-friendly Tabs - Custom Dropdown */}
+        {/* Mobile Tabs */}
         <div className="block sm:hidden">
           <div className="bg-slate-900 rounded-t-lg p-2">
-            {/* Custom Dropdown */}
-            <div className="relative">
+            <div className="relative mobile-dropdown-container">
               <button
                 type="button"
                 onClick={() => setMobileDropdownOpen(!mobileDropdownOpen)}
                 className="w-full flex items-center justify-between py-2 px-3 bg-slate-800 border border-slate-700
           text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
               >
-                {/* Show current tab label with icon */}
                 <div className="flex items-center">
                   {activeTab === "incidents" && (
-                    <AlertTriangle className="h-4 w-4 mr-2" />
+                    <AlertTriangle className="h-4 w-4 mr-2 text-amber-500" />
                   )}
                   {activeTab === "reports" && (
-                    <FileText className="h-4 w-4 mr-2" />
+                    <FileText className="h-4 w-4 mr-2 text-green-500" />
                   )}
-                  {activeTab === "admin" && <Shield className="h-4 w-4 mr-2" />}
+                  {activeTab === "admin" && (
+                    <Shield className="h-4 w-4 mr-2 text-purple-500" />
+                  )}
 
                   {activeTab === "incidents" && (
                     <span>Incidents ({incidents.length})</span>
@@ -373,7 +382,6 @@ useEffect(() => {
                   {activeTab === "admin" && <span>Admin Controls</span>}
                 </div>
 
-                {/* Dropdown arrow */}
                 <ChevronDown
                   className={`h-4 w-4 text-blue-400 transition-transform duration-200 ${
                     mobileDropdownOpen ? "rotate-180" : ""
@@ -381,44 +389,45 @@ useEffect(() => {
                 />
               </button>
 
-              {/* Dropdown options */}
               {mobileDropdownOpen && (
                 <div className="absolute z-10 mt-1 w-full rounded-md bg-slate-800 border border-slate-700 shadow-lg">
                   <div className="py-1">
                     <button
-                      onClick={() => {
-                        setActiveTab("incidents");
-                        setMobileDropdownOpen(false);
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTabChange("incidents");
                       }}
                       className={`flex items-center w-full px-4 py-2 text-left text-white hover:bg-blue-700
-                ${activeTab === "incidents" ? "bg-blue-700" : ""}`}
+                ${
+                  activeTab === "incidents" ? "bg-blue-700" : ""
+                } cursor-pointer`}
                     >
-                      <AlertTriangle className="h-4 w-4 mr-2" />
+                      <AlertTriangle className="h-4 w-4 mr-2 text-amber-500" />
                       Incidents ({incidents.length})
                     </button>
 
                     <button
-                      onClick={() => {
-                        setActiveTab("reports");
-                        setMobileDropdownOpen(false);
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTabChange("reports");
                       }}
                       className={`flex items-center w-full px-4 py-2 text-left text-white hover:bg-blue-700
-                ${activeTab === "reports" ? "bg-blue-700" : ""}`}
+                ${activeTab === "reports" ? "bg-blue-700" : ""} cursor-pointer`}
                     >
-                      <FileText className="h-4 w-4 mr-2" />
+                      <FileText className="h-4 w-4 mr-2 text-green-500" />
                       Reports
                     </button>
 
                     {isSuperAdmin && (
                       <button
-                        onClick={() => {
-                          setActiveTab("admin");
-                          setMobileDropdownOpen(false);
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTabChange("admin");
                         }}
                         className={`flex items-center w-full px-4 py-2 text-left text-white hover:bg-blue-700
-                  ${activeTab === "admin" ? "bg-blue-700" : ""}`}
+                  ${activeTab === "admin" ? "bg-blue-700" : ""} cursor-pointer`}
                       >
-                        <Shield className="h-4 w-4 mr-2" />
+                        <Shield className="h-4 w-4 mr-2 text-purple-500" />
                         Admin Controls
                       </button>
                     )}
@@ -433,14 +442,18 @@ useEffect(() => {
         <div className="hidden sm:block">
           <div className="flex bg-slate-900 rounded-t-lg overflow-hidden border-b-2 border-slate-700">
             <button
-              onClick={() => setActiveTab("incidents")}
+              onClick={() => handleTabChange("incidents")}
               className={`flex items-center px-6 py-3 transition-all duration-200 cursor-pointer ${
                 activeTab === "incidents"
                   ? "bg-blue-700 text-white shadow-md font-medium"
                   : "text-gray-300 hover:bg-slate-800 hover:text-blue-300"
               }`}
             >
-              <AlertTriangle className="h-4 w-4 mr-2" />
+              <AlertTriangle
+                className={`h-4 w-4 mr-2 ${
+                  activeTab === "incidents" ? "text-white" : "text-amber-500"
+                }`}
+              />
               Incidents
               <Badge className="ml-2 bg-blue-800 text-white hover:bg-blue-700">
                 {loading ? "..." : incidents.length}
@@ -448,27 +461,35 @@ useEffect(() => {
             </button>
 
             <button
-              onClick={() => setActiveTab("reports")}
+              onClick={() => handleTabChange("reports")}
               className={`flex items-center px-6 py-3 transition-all duration-200 cursor-pointer ${
                 activeTab === "reports"
                   ? "bg-blue-700 text-white shadow-md font-medium"
                   : "text-gray-300 hover:bg-slate-800 hover:text-blue-300"
               }`}
             >
-              <FileText className="h-4 w-4 mr-2" />
+              <FileText
+                className={`h-4 w-4 mr-2 ${
+                  activeTab === "reports" ? "text-white" : "text-green-500"
+                }`}
+              />
               Reports
             </button>
 
             {isSuperAdmin && (
               <button
-                onClick={() => setActiveTab("admin")}
+                onClick={() => handleTabChange("admin")}
                 className={`flex items-center px-6 py-3 transition-all duration-200 cursor-pointer ${
                   activeTab === "admin"
                     ? "bg-blue-700 text-white shadow-md font-medium"
                     : "text-gray-300 hover:bg-slate-800 hover:text-blue-300"
                 }`}
               >
-                <Shield className="h-4 w-4 mr-2" />
+                <Shield
+                  className={`h-4 w-4 mr-2 ${
+                    activeTab === "admin" ? "text-white" : "text-purple-500"
+                  }`}
+                />
                 Admin Controls
               </button>
             )}
@@ -480,17 +501,17 @@ useEffect(() => {
           <button
             onClick={toggleStatsVisibility}
             className="flex items-center justify-center h-8 px-3 text-xs font-medium transition-all rounded-full
-      bg-slate-700/60 text-blue-400 border border-slate-600/50 hover:bg-slate-600 hover:text-blue-300 hover:border-blue-700/30
-      focus:outline-none focus:ring-2 focus:ring-blue-800/30 focus:ring-offset-2 focus:ring-offset-slate-800 cursor-pointer"
+              bg-slate-700/60 text-blue-400 border border-slate-600/50 hover:bg-slate-600 hover:text-blue-300 hover:border-blue-700/30
+              focus:outline-none focus:ring-2 focus:ring-blue-800/30 focus:ring-offset-2 focus:ring-offset-slate-800 cursor-pointer"
           >
             {statsVisible ? (
               <>
-                <ChevronUp className="h-3.5 w-3.5 mr-1.5" />
+                <ChevronUp className="h-3.5 w-3.5 mr-1.5 text-cyan-400" />
                 <span>Hide Statistics</span>
               </>
             ) : (
               <>
-                <ChevronDown className="h-3.5 w-3.5 mr-1.5" />
+                <ChevronDown className="h-3.5 w-3.5 mr-1.5 text-cyan-400" />
                 <span>Show Statistics</span>
               </>
             )}
@@ -499,17 +520,17 @@ useEffect(() => {
           <button
             onClick={toggleFiltersVisibility}
             className="flex items-center justify-center h-8 px-3 text-xs font-medium transition-all rounded-full
-      bg-slate-700/60 text-blue-400 border border-slate-600/50 hover:bg-slate-600 hover:text-blue-300 hover:border-blue-700/30
-      focus:outline-none focus:ring-2 focus:ring-blue-800/30 focus:ring-offset-2 focus:ring-offset-slate-800 cursor-pointer"
+              bg-slate-700/60 text-blue-400 border border-slate-600/50 hover:bg-slate-600 hover:text-blue-300 hover:border-blue-700/30
+              focus:outline-none focus:ring-2 focus:ring-blue-800/30 focus:ring-offset-2 focus:ring-offset-slate-800 cursor-pointer"
           >
             {filtersVisible ? (
               <>
-                <ChevronUp className="h-3.5 w-3.5 mr-1.5" />
+                <ChevronUp className="h-3.5 w-3.5 mr-1.5 text-indigo-400" />
                 <span>Hide Filters</span>
               </>
             ) : (
               <>
-                <ChevronDown className="h-3.5 w-3.5 mr-1.5" />
+                <ChevronDown className="h-3.5 w-3.5 mr-1.5 text-indigo-400" />
                 <span>Show Filters</span>
               </>
             )}
@@ -517,12 +538,12 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* Content Areas - Keep these sections as they were */}
+      {/* Statistics Section */}
       {statsVisible && (
         <div className="mt-4 bg-slate-800 rounded-lg border border-slate-700 p-4 shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <BarChart className="h-5 w-5 text-blue-400" />
+              <BarChart className="h-5 w-5 text-cyan-400" />
               Dashboard Statistics
             </h2>
           </div>
@@ -531,7 +552,7 @@ useEffect(() => {
             <StatCard
               title="Total Incidents"
               value={stats.totalCount}
-              icon={<BarChart className="h-5 w-5 text-blue-400" />}
+              icon={<BarChart className="h-5 w-5 text-cyan-400" />}
               loading={loadingStats}
               bgColor="bg-blue-900/20"
               borderColor="border-blue-800"
@@ -571,11 +592,12 @@ useEffect(() => {
         </div>
       )}
 
+      {/* Filters Section */}
       {filtersVisible && (
         <div className="mt-4 bg-slate-800 rounded-lg border border-slate-700 p-4 shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-md font-medium text-white flex items-center gap-2">
-              <Filter className="h-4 w-4 text-blue-400" />
+              <Filter className="h-4 w-4 text-indigo-400" />
               Filter Incidents
             </h3>
           </div>
@@ -591,8 +613,9 @@ useEffect(() => {
         </div>
       )}
 
-      {/* Content Display - Changed from TabsContent to conditional rendering */}
+      {/* Tab Content Section */}
       <div className="space-y-4 mt-4">
+        {/* Incidents Tab */}
         {activeTab === "incidents" && (
           <>
             {error && <ErrorAlert message={error} className="mb-4" />}
@@ -611,20 +634,21 @@ useEffect(() => {
           </>
         )}
 
+        {/* Reports Tab */}
         {activeTab === "reports" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <div className="bg-slate-800 border-slate-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 h-full">
                 <div className="bg-slate-900 border-b border-slate-700 p-4">
                   <h3 className="text-white flex items-center gap-2 font-medium">
-                    <FileText className="h-5 w-5 text-blue-400" />
+                    <FileText className="h-5 w-5 text-green-500" />
                     Incident Reports
                   </h3>
                 </div>
                 <div className="p-4">
                   <div className="text-center py-6">
                     <div className="bg-slate-900 rounded-full p-4 inline-block mb-4">
-                      <FileText className="h-12 w-12 text-blue-400" />
+                      <FileText className="h-12 w-12 text-green-500" />
                     </div>
                     <h3 className="text-xl font-medium text-white">
                       Generate Custom Reports
@@ -644,13 +668,14 @@ useEffect(() => {
           </div>
         )}
 
+        {/* Admin Controls Tab */}
         {activeTab === "admin" && isSuperAdmin && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <div className="bg-slate-800 border-slate-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 h-full">
                 <div className="bg-slate-900 border-b border-slate-700 p-4">
                   <h3 className="text-white flex items-center gap-2 font-medium">
-                    <Shield className="h-5 w-5 text-blue-400" />
+                    <Shield className="h-5 w-5 text-purple-500" />
                     Super Admin Features
                   </h3>
                 </div>
@@ -684,7 +709,7 @@ useEffect(() => {
         )}
       </div>
 
-      {/* Edit Dialog */}
+      {/* Dialogs */}
       <EditDialog
         isOpen={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
@@ -695,7 +720,6 @@ useEffect(() => {
         description="Update the police report number for this incident."
       />
 
-      {/* Delete Dialog */}
       <DeleteDialog
         isOpen={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
@@ -706,7 +730,7 @@ useEffect(() => {
   );
 };
 
-// Stat Card Component - Inside AdminDashboard.jsx
+// Stat Card Component
 const StatCard = ({
   title,
   value,
@@ -718,7 +742,7 @@ const StatCard = ({
 }) => {
   return (
     <div
-      className={`overflow-hidden hover:shadow-lg transition-all duration-300 ${bgColor} ${borderColor} border rounded-lg`}
+      className={`overflow-hidden hover:shadow-lg transition-all duration-300 ${bgColor} ${borderColor} border rounded-lg cursor-pointer`}
     >
       <div className="p-3 flex items-center justify-between">
         <div>
