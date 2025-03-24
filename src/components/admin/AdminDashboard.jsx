@@ -1,16 +1,19 @@
 // src/components/admin/AdminDashboard.jsx
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
-  CheckCircle2,
-  Clock,
   AlertTriangle,
   FileText,
   RefreshCw,
   BarChart,
-  Shield,QrCode
+  Shield,
+  QrCode,
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  Clock,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import IncidentTable from "./IncidentTable";
@@ -19,6 +22,7 @@ import EditDialog from "./EditDialog";
 import DeleteDialog from "./DeleteDialog";
 import ReportExport from "./ReportExport";
 import SuperAdminControls from "./SuperAdminControls";
+import DashboardStats from "./DashboardStats";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import ErrorAlert from "../shared/ErrorAlert";
 import { useIncidents } from "../../hooks/useIncidents";
@@ -39,7 +43,7 @@ import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-    // Get auth context
+  // Get auth context
   const { isSuperAdmin } = useAuth();
   const notification = useNotification();
 
@@ -62,6 +66,10 @@ const AdminDashboard = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [activeTab, setActiveTab] = useState("incidents");
+
+  // State for toggles
+  const [statsVisible, setStatsVisible] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(false);
 
   // State for statistics
   const [stats, setStats] = useState({
@@ -89,6 +97,17 @@ const AdminDashboard = () => {
 
     loadStats();
   }, [incidents, notification]);
+
+  // Toggle visibility functions
+  const toggleStatsVisibility = () => {
+    setStatsVisible(!statsVisible);
+    if (!statsVisible) setFiltersVisible(false);
+  };
+
+  const toggleFiltersVisibility = () => {
+    setFiltersVisible(!filtersVisible);
+    if (!filtersVisible) setStatsVisible(false);
+  };
 
   // Handle edit police report
   const handleEditPoliceReport = (incident) => {
@@ -168,77 +187,76 @@ const AdminDashboard = () => {
   };
 
   // Handle export PDF
- const handleExportPdf = () => {
-   try {
-     // Make sure incidents array is valid
-     if (!Array.isArray(incidents)) {
-       notification.error("Invalid incidents data for export");
-       return;
-     }
+  const handleExportPdf = () => {
+    try {
+      // Make sure incidents array is valid
+      if (!Array.isArray(incidents)) {
+        notification.error("Invalid incidents data for export");
+        return;
+      }
 
-     // Create a sanitized copy of the incidents to prevent date parsing issues
-     const sanitizedIncidents = incidents.map((incident) => {
-       // Create a new object with the same properties
-       const sanitized = { ...incident };
+      // Create a sanitized copy of the incidents to prevent date parsing issues
+      const sanitizedIncidents = incidents.map((incident) => {
+        // Create a new object with the same properties
+        const sanitized = { ...incident };
 
-       // Ensure timestamp is valid - add a default if missing or invalid
-       if (
-         !sanitized.timestamp ||
-         new Date(sanitized.timestamp).toString() === "Invalid Date"
-       ) {
-         sanitized.timestamp = new Date(); // Use current date as fallback
-       }
+        // Ensure timestamp is valid - add a default if missing or invalid
+        if (
+          !sanitized.timestamp ||
+          new Date(sanitized.timestamp).toString() === "Invalid Date"
+        ) {
+          sanitized.timestamp = new Date(); // Use current date as fallback
+        }
 
-       return sanitized;
-     });
+        return sanitized;
+      });
 
-     // Pass the sanitized data to the export function
-     downloadPdfReport(sanitizedIncidents, filters);
-     notification.success("PDF report downloaded");
-   } catch (error) {
-     console.error("Export PDF error:", error);
-     notification.error(
-       "Failed to generate PDF report: " + (error.message || "Unknown error")
-     );
-   }
- };
-
+      // Pass the sanitized data to the export function
+      downloadPdfReport(sanitizedIncidents, filters);
+      notification.success("PDF report downloaded");
+    } catch (error) {
+      console.error("Export PDF error:", error);
+      notification.error(
+        "Failed to generate PDF report: " + (error.message || "Unknown error")
+      );
+    }
+  };
 
   // Handle export Excel
- const handleExportExcel = () => {
-   try {
-     // Make sure incidents array is valid
-     if (!Array.isArray(incidents)) {
-       notification.error("Invalid incidents data for export");
-       return;
-     }
+  const handleExportExcel = () => {
+    try {
+      // Make sure incidents array is valid
+      if (!Array.isArray(incidents)) {
+        notification.error("Invalid incidents data for export");
+        return;
+      }
 
-     // Create a sanitized copy of the incidents to prevent date parsing issues
-     const sanitizedIncidents = incidents.map((incident) => {
-       // Create a new object with the same properties
-       const sanitized = { ...incident };
+      // Create a sanitized copy of the incidents to prevent date parsing issues
+      const sanitizedIncidents = incidents.map((incident) => {
+        // Create a new object with the same properties
+        const sanitized = { ...incident };
 
-       // Ensure timestamp is valid - add a default if missing or invalid
-       if (
-         !sanitized.timestamp ||
-         new Date(sanitized.timestamp).toString() === "Invalid Date"
-       ) {
-         sanitized.timestamp = new Date(); // Use current date as fallback
-       }
+        // Ensure timestamp is valid - add a default if missing or invalid
+        if (
+          !sanitized.timestamp ||
+          new Date(sanitized.timestamp).toString() === "Invalid Date"
+        ) {
+          sanitized.timestamp = new Date(); // Use current date as fallback
+        }
 
-       return sanitized;
-     });
+        return sanitized;
+      });
 
-     // Pass the sanitized data to the export function
-     downloadExcelReport(sanitizedIncidents, filters);
-     notification.success("Excel report downloaded");
-   } catch (error) {
-     console.error("Export Excel error:", error);
-     notification.error(
-       "Failed to generate Excel report: " + (error.message || "Unknown error")
-     );
-   }
- };
+      // Pass the sanitized data to the export function
+      downloadExcelReport(sanitizedIncidents, filters);
+      notification.success("Excel report downloaded");
+    } catch (error) {
+      console.error("Export Excel error:", error);
+      notification.error(
+        "Failed to generate Excel report: " + (error.message || "Unknown error")
+      );
+    }
+  };
 
   // Handle refresh data with loading state
   const handleRefreshData = async () => {
@@ -253,22 +271,25 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg p-6 shadow-lg mb-6">
+      <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg p-4 sm:p-6 shadow-lg mb-6">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
-            <p className="text-gray-400 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">
+              Admin Dashboard
+            </h1>
+            <p className="text-gray-400 mt-1 text-sm sm:text-base">
               Manage and monitor incident reports across all store locations
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+          <div className="flex flex-wrap gap-2 w-full lg:w-auto">
             <Button
               className="bg-slate-700 hover:bg-slate-600 text-white transition-all duration-200"
               variant="outline"
               onClick={() => setActiveTab("reports")}
+              size="sm"
             >
-              <FileText className="h-4 w-4 mr-2" />
+              <FileText className="h-4 w-4 mr-1.5" />
               Reports
             </Button>
 
@@ -276,60 +297,32 @@ const AdminDashboard = () => {
               variant="outline"
               className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
               onClick={() => navigate("/admin/qr-generator")}
+              size="sm"
             >
-              <QrCode className="h-4 w-4 mr-2" />
-              Generate QR Codes
+              <QrCode className="h-4 w-4 mr-1.5" />
+              QR Codes
             </Button>
             <Button
               className="bg-blue-700 hover:bg-blue-600 text-white transition-all duration-200"
               onClick={handleRefreshData}
+              size="sm"
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh Data
+              <RefreshCw className="h-4 w-4 mr-1.5" />
+              Refresh
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Incidents"
-          value={stats.totalCount}
-          icon={<BarChart className="h-6 w-6 text-blue-400" />}
-          loading={loadingStats}
-        />
-
-        <StatCard
-          title="Pending"
-          value={stats.pendingCount}
-          icon={<Clock className="h-6 w-6 text-amber-500" />}
-          loading={loadingStats}
-        />
-
-        <StatCard
-          title="Completed"
-          value={stats.completedCount}
-          icon={<CheckCircle2 className="h-6 w-6 text-green-500" />}
-          loading={loadingStats}
-        />
-
-        <StatCard
-          title="Missing Police Report #"
-          value={stats.missingPoliceReportCount}
-          icon={<AlertTriangle className="h-6 w-6 text-red-500" />}
-          loading={loadingStats}
-        />
-      </div>
-
-      {/* Main Content Tabs */}
+      {/* Main Content Tabs - Moved above the toggles */}
       <Tabs
         defaultValue="incidents"
         value={activeTab}
         onValueChange={setActiveTab}
+        className="mb-4"
       >
         <div className="overflow-x-auto">
-          <TabsList className="bg-slate-900 border-b-2 border-slate-700 w-full justify-start rounded-t-lg mb-4 p-0 h-auto">
+          <TabsList className="bg-slate-900 border-b-2 border-slate-700 w-full justify-start rounded-t-lg mb-0 p-0 h-auto">
             <TabsTrigger
               value="incidents"
               className="data-[state=active]:bg-blue-700 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:font-medium py-3 px-6 rounded-tl-lg transition-all duration-200"
@@ -340,9 +333,6 @@ const AdminDashboard = () => {
                 <Badge className="ml-1 bg-blue-800 text-white hover:bg-blue-700">
                   {loading ? "..." : incidents.length}
                 </Badge>
-                {/* <Badge className="ml-1 bg-cyan-600 hover:bg-cyan-500 text-white font-medium">
-                  {loading ? "..." : incidents.length}
-                </Badge> */}
               </div>
             </TabsTrigger>
             <TabsTrigger
@@ -368,18 +358,123 @@ const AdminDashboard = () => {
           </TabsList>
         </div>
 
-        <TabsContent value="incidents" className="space-y-4">
-          {error && <ErrorAlert message={error} className="mb-4" />}
+        {/* Toggle Button Bar */}
+        <div className="flex justify-end space-x-2 bg-slate-800 rounded-b-lg border-x border-b border-slate-700 p-3">
+          <button
+            onClick={toggleStatsVisibility}
+            className="flex items-center justify-center h-8 px-3 text-xs font-medium transition-all rounded-full
+            bg-slate-700/60 text-blue-400 border border-slate-600/50 hover:bg-slate-600 hover:text-blue-300 hover:border-blue-700/30
+            focus:outline-none focus:ring-2 focus:ring-blue-800/30 focus:ring-offset-2 focus:ring-offset-slate-800"
+          >
+            {statsVisible ? (
+              <>
+                <ChevronUp className="h-3.5 w-3.5 mr-1.5" />
+                <span>Hide Statistics</span>
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-3.5 w-3.5 mr-1.5" />
+                <span>Show Statistics</span>
+              </>
+            )}
+          </button>
 
-          <div className="bg-slate-800 rounded-lg border border-slate-700 p-4 shadow-md">
+          <button
+            onClick={toggleFiltersVisibility}
+            className="flex items-center justify-center h-8 px-3 text-xs font-medium transition-all rounded-full
+            bg-slate-700/60 text-blue-400 border border-slate-600/50 hover:bg-slate-600 hover:text-blue-300 hover:border-blue-700/30
+            focus:outline-none focus:ring-2 focus:ring-blue-800/30 focus:ring-offset-2 focus:ring-offset-slate-800"
+          >
+            {filtersVisible ? (
+              <>
+                <ChevronUp className="h-3.5 w-3.5 mr-1.5" />
+                <span>Hide Filters</span>
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-3.5 w-3.5 mr-1.5" />
+                <span>Show Filters</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Conditional Content Areas */}
+        {statsVisible && (
+          <div className="mt-4 bg-slate-800 rounded-lg border border-slate-700 p-4 shadow-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <BarChart className="h-5 w-5 text-blue-400" />
+                Dashboard Statistics
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <StatCard
+                title="Total Incidents"
+                value={stats.totalCount}
+                icon={<BarChart className="h-5 w-5 text-blue-400" />}
+                loading={loadingStats}
+                bgColor="bg-blue-900/20"
+                borderColor="border-blue-800"
+                textColor="text-blue-300"
+              />
+
+              <StatCard
+                title="Pending"
+                value={stats.pendingCount}
+                icon={<Clock className="h-5 w-5 text-amber-500" />}
+                loading={loadingStats}
+                bgColor="bg-amber-900/20"
+                borderColor="border-amber-800"
+                textColor="text-amber-300"
+              />
+
+              <StatCard
+                title="Completed"
+                value={stats.completedCount}
+                icon={<CheckCircle2 className="h-5 w-5 text-green-500" />}
+                loading={loadingStats}
+                bgColor="bg-green-900/20"
+                borderColor="border-green-800"
+                textColor="text-green-300"
+              />
+
+              <StatCard
+                title="Missing Police #"
+                value={stats.missingPoliceReportCount}
+                icon={<AlertTriangle className="h-5 w-5 text-red-500" />}
+                loading={loadingStats}
+                bgColor="bg-red-900/20"
+                borderColor="border-red-800"
+                textColor="text-red-300"
+              />
+            </div>
+          </div>
+        )}
+
+        {filtersVisible && (
+          <div className="mt-4 bg-slate-800 rounded-lg border border-slate-700 p-4 shadow-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-md font-medium text-white flex items-center gap-2">
+                <Filter className="h-4 w-4 text-blue-400" />
+                Filter Incidents
+              </h3>
+            </div>
+
             <FilterBar
               filters={filters}
               onFilterChange={updateFilters}
               onResetFilters={resetFilters}
               onExportPdf={handleExportPdf}
               onExportExcel={handleExportExcel}
+              hideToggleButton={true}
             />
           </div>
+        )}
+
+        <TabsContent value="incidents" className="space-y-4 mt-4">
+          {error && <ErrorAlert message={error} className="mb-4" />}
 
           <div className="rounded-lg border border-slate-700 shadow-md overflow-hidden">
             <IncidentTable
@@ -394,17 +489,18 @@ const AdminDashboard = () => {
           </div>
         </TabsContent>
 
+        {/* Other Tab Content - NO CHANGES */}
         <TabsContent value="reports">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
             <div className="lg:col-span-2">
-              <Card className="bg-slate-800 border-slate-700 h-full shadow-md hover:shadow-lg transition-all duration-300">
-                <CardHeader className="bg-slate-900 border-b border-slate-700">
-                  <CardTitle className="text-white flex items-center gap-2 py-4">
+              <div className="bg-slate-800 border-slate-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 h-full">
+                <div className="bg-slate-900 border-b border-slate-700 p-4">
+                  <h3 className="text-white flex items-center gap-2 font-medium">
                     <FileText className="h-5 w-5 text-blue-400" />
                     Incident Reports
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+                  </h3>
+                </div>
+                <div className="p-4">
                   <div className="text-center py-6">
                     <div className="bg-slate-900 rounded-full p-4 inline-block mb-4">
                       <FileText className="h-12 w-12 text-blue-400" />
@@ -417,8 +513,8 @@ const AdminDashboard = () => {
                       the data first to create specific reports.
                     </p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
 
             <div>
@@ -429,16 +525,16 @@ const AdminDashboard = () => {
 
         {isSuperAdmin && (
           <TabsContent value="admin">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
               <div className="lg:col-span-2">
-                <Card className="bg-slate-800 border-slate-700 h-full shadow-md hover:shadow-lg transition-all duration-300">
-                  <CardHeader className="bg-slate-900 border-b border-slate-700">
-                    <CardTitle className="text-white flex items-center gap-2 py-4">
+                <div className="bg-slate-800 border-slate-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 h-full">
+                  <div className="bg-slate-900 border-b border-slate-700 p-4">
+                    <h3 className="text-white flex items-center gap-2 font-medium">
                       <Shield className="h-5 w-5 text-blue-400" />
                       Super Admin Features
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
+                    </h3>
+                  </div>
+                  <div className="p-4">
                     <div className="text-center py-6">
                       <div className="bg-amber-500/10 p-4 rounded-full inline-block mb-4">
                         <AlertTriangle className="h-12 w-12 text-amber-500" />
@@ -452,8 +548,8 @@ const AdminDashboard = () => {
                         caution as some actions cannot be undone.
                       </p>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -491,26 +587,32 @@ const AdminDashboard = () => {
   );
 };
 
-// Stat Card Component
-const StatCard = ({ title, value, icon, loading }) => {
+// Stat Card Component - Moved inside AdminDashboard.jsx
+const StatCard = ({
+  title,
+  value,
+  icon,
+  loading,
+  bgColor = "bg-slate-800",
+  borderColor = "border-slate-700",
+  textColor = "text-gray-300",
+}) => {
   return (
-    <Card className="bg-slate-800 border-slate-700 overflow-hidden hover:shadow-lg transition-all duration-300">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-gray-300 text-sm font-medium">
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <LoadingSpinner size="small" />
-        ) : (
-          <div className="flex items-center">
-            {icon}
-            <span className="text-2xl font-bold text-white ml-2">{value}</span>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <div
+      className={`overflow-hidden hover:shadow-lg transition-all duration-300 ${bgColor} ${borderColor} border rounded-lg`}
+    >
+      <div className="p-3 flex items-center justify-between">
+        <div>
+          <h3 className={`text-xs font-medium ${textColor}`}>{title}</h3>
+          {loading ? (
+            <LoadingSpinner size="small" />
+          ) : (
+            <p className="text-xl font-bold text-white mt-1">{value}</p>
+          )}
+        </div>
+        <div className="p-2 rounded-full bg-slate-800/50">{icon}</div>
+      </div>
+    </div>
   );
 };
 

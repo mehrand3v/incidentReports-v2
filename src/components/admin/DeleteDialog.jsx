@@ -43,6 +43,30 @@ const DeleteDialog = ({
     }
   };
 
+  // Safe date formatting function
+  const safeFormatDate = (timestamp) => {
+    try {
+      if (!timestamp) return "No date available";
+
+      // Handle Firestore Timestamp
+      if (timestamp && typeof timestamp.toDate === "function") {
+        return timestamp.toDate().toLocaleString();
+      }
+
+      // Handle Date object
+      if (timestamp instanceof Date) {
+        return timestamp.toLocaleString();
+      }
+
+      // Try parsing as string
+      const date = new Date(timestamp);
+      return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
+    } catch (e) {
+      console.error("Error formatting date", e);
+      return "Invalid Date";
+    }
+  };
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent className="bg-slate-800 border-slate-700 text-white">
@@ -80,33 +104,9 @@ const DeleteDialog = ({
                   : incident.incidentTypes}
               </div>
 
-              
               <div className="text-gray-400">Date:</div>
               <div className="text-white">
-                {(() => {
-                  try {
-                    if (!incident.timestamp) return "No date available";
-
-                    // Handle Firestore Timestamp
-                    if (typeof incident.timestamp.toDate === "function") {
-                      return incident.timestamp.toDate().toLocaleString();
-                    }
-
-                    // Handle Date object
-                    if (incident.timestamp instanceof Date) {
-                      return incident.timestamp.toLocaleString();
-                    }
-
-                    // Try parsing as string
-                    const date = new Date(incident.timestamp);
-                    return isNaN(date.getTime())
-                      ? "Invalid Date"
-                      : date.toLocaleString();
-                  } catch (e) {
-                    console.error("Error formatting date", e);
-                    return "Invalid Date";
-                  }
-                })()}
+                {safeFormatDate(incident.timestamp)}
               </div>
             </div>
           </div>
