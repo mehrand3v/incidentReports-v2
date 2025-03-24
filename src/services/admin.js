@@ -6,6 +6,7 @@ import {
   getDocs,
   doc,
   getDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -82,6 +83,18 @@ export const getAllAdmins = async () => {
   } catch (error) {
     console.error("Error getting all admins:", error);
     throw new Error(`Failed to get admin users: ${error.message}`);
+  }
+};
+
+// Delete an admin user
+export const deleteAdmin = async (adminId) => {
+  try {
+    const docRef = doc(db, ADMIN_COLLECTION, adminId);
+    await deleteDoc(docRef);
+    return true;
+  } catch (error) {
+    console.error(`Error deleting admin with ID ${adminId}:`, error);
+    throw new Error(`Failed to delete admin: ${error.message}`);
   }
 };
 

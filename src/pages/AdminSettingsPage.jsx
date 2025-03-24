@@ -26,8 +26,8 @@ import { Separator } from "@/components/ui/separator";
 import LoadingSpinner from "../components/shared/LoadingSpinner";
 import ErrorAlert from "../components/shared/ErrorAlert";
 import { useAuth } from "../hooks/useAuth";
-import { getAllAdmins } from "../services/admin";
-import { logPageView } from "../services/analytics";
+import { getAllAdmins, deleteAdmin } from "../services/admin";
+import { logPageView, logCustomEvent } from "../services/analytics";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +39,378 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+// Component for mobile tab selector dropdown
+const MobileTabSelector = ({
+  activeTab,
+  setActiveTab,
+  setSelectOpen,
+  selectOpen,
+  dropdownRef,
+}) => (
+  <div className="block md:hidden mb-6">
+    <div className="relative" ref={dropdownRef}>
+      <div
+        className="w-full bg-slate-800 text-white p-4 rounded-lg border border-slate-600 shadow-lg
+        focus:outline-none hover:border-blue-500 transition-all duration-200 cursor-pointer flex justify-between items-center"
+        onClick={() => setSelectOpen(!selectOpen)}
+        tabIndex={0}
+        onKeyDown={(e) => e.key === "Enter" && setSelectOpen(!selectOpen)}
+        role="button"
+        aria-haspopup="listbox"
+        aria-expanded={selectOpen}
+      >
+        {activeTab === "admins" && <span>👤 Admin Users</span>}
+        {activeTab === "security" && <span>🔒 Security</span>}
+        {activeTab === "system" && <span>⚙️ System</span>}
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5 text-blue-500"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
+
+        {/* Gradient overlay */}
+        <div className="pointer-events-none absolute inset-0 rounded-lg overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-700/10 to-transparent"></div>
+        </div>
+      </div>
+
+      {/* Custom dropdown menu */}
+      {selectOpen && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-10 overflow-hidden">
+          <div
+            className={`py-3 px-4 cursor-pointer hover:bg-slate-700 transition-colors ${
+              activeTab === "admins" ? "bg-blue-600" : ""
+            }`}
+            onClick={() => {
+              setActiveTab("admins");
+              setSelectOpen(false);
+            }}
+            role="option"
+            aria-selected={activeTab === "admins"}
+          >
+            👤 Admin Users
+          </div>
+          <div
+            className={`py-3 px-4 cursor-pointer hover:bg-slate-700 transition-colors ${
+              activeTab === "security" ? "bg-blue-600" : ""
+            }`}
+            onClick={() => {
+              setActiveTab("security");
+              setSelectOpen(false);
+            }}
+            role="option"
+            aria-selected={activeTab === "security"}
+          >
+            🔒 Security
+          </div>
+          <div
+            className={`py-3 px-4 cursor-pointer hover:bg-slate-700 transition-colors ${
+              activeTab === "system" ? "bg-blue-600" : ""
+            }`}
+            onClick={() => {
+              setActiveTab("system");
+              setSelectOpen(false);
+            }}
+            role="option"
+            aria-selected={activeTab === "system"}
+          >
+            ⚙️ System
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+// Admin list component
+const AdminList = ({ admins, loading, openDeleteDialog, isDeleting }) => {
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <LoadingSpinner size="large" text="Loading admin users..." />
+      </div>
+    );
+  }
+
+  if (admins.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-400">No admin users found</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {admins.map((admin) => (
+        <div
+          key={admin.id}
+          className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-slate-700 rounded-lg border border-slate-600"
+        >
+          <div className="flex items-center">
+            <div className="bg-slate-600 h-10 w-10 rounded-full flex items-center justify-center">
+              <User className="h-5 w-5 text-gray-300" />
+            </div>
+            <div className="ml-3">
+              <p className="text-white font-medium">{admin.email}</p>
+              {admin.role === "super" ? (
+                <p className="text-sm bg-purple-600 text-white px-2 py-0.5 rounded-full inline-block mt-1">
+                  Super Admin
+                </p>
+              ) : (
+                <p className="text-sm bg-blue-600 text-white px-2 py-0.5 rounded-full inline-block mt-1">
+                  Standard Admin
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center mt-3 sm:mt-0 ml-auto">
+            <Button
+              variant="ghost"
+              className="text-red-400 hover:text-white hover:bg-red-600 w-full sm:w-auto justify-center"
+              onClick={() => openDeleteDialog(admin)}
+              disabled={isDeleting}
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Delete
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// Security settings tab content
+const SecuritySettings = () => (
+  <Card className="bg-gradient-to-b from-slate-800 to-slate-900 border-slate-700 shadow-lg">
+    <CardHeader className="pb-3">
+      <CardTitle className="text-white flex items-center gap-2">
+        <div className="p-1.5 bg-amber-600/30 rounded">
+          <Lock className="h-5 w-5 text-amber-400" />
+        </div>
+        Security Settings
+      </CardTitle>
+      <CardDescription className="text-gray-400 mt-2">
+        Configure security options for the application
+      </CardDescription>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-white">Authentication</h3>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+            <div className="mb-2 sm:mb-0">
+              <Label htmlFor="session-timeout" className="text-gray-300">
+                Session Timeout (minutes)
+              </Label>
+              <p className="text-sm text-gray-400">
+                Time before users are automatically logged out
+              </p>
+            </div>
+            <Input
+              id="session-timeout"
+              type="number"
+              defaultValue="30"
+              className="w-full sm:w-24 bg-slate-700 border-slate-600 text-white"
+            />
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 pt-2">
+            <div className="mb-2 sm:mb-0">
+              <Label className="text-gray-300">Require Strong Passwords</Label>
+              <p className="text-sm text-gray-400">
+                Enforce minimum password complexity
+              </p>
+            </div>
+            <Switch defaultChecked />
+          </div>
+        </div>
+
+        <Separator className="bg-slate-700" />
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-white">Access Controls</h3>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+            <div className="mb-2 sm:mb-0">
+              <Label className="text-gray-300">IP Restriction</Label>
+              <p className="text-sm text-gray-400">
+                Limit admin access to specific IP addresses
+              </p>
+            </div>
+            <Switch />
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 pt-2">
+            <div className="mb-2 sm:mb-0">
+              <Label className="text-gray-300">Audit Logging</Label>
+              <p className="text-sm text-gray-400">
+                Log all administrative actions
+              </p>
+            </div>
+            <Switch defaultChecked />
+          </div>
+        </div>
+      </div>
+    </CardContent>
+    <CardFooter className="border-t border-slate-700 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <Button className="bg-amber-600 hover:bg-amber-500 text-white shadow-md transition-all w-full sm:w-auto">
+        <Save className="h-4 w-4 mr-2" />
+        Save Security Settings
+      </Button>
+      <p className="text-xs text-gray-500 text-center sm:text-right">
+        Last updated: Today
+      </p>
+    </CardFooter>
+  </Card>
+);
+
+// System settings tab content
+const SystemSettings = () => (
+  <Card className="bg-gradient-to-b from-slate-800 to-slate-900 border-slate-700 shadow-lg">
+    <CardHeader className="pb-3">
+      <CardTitle className="text-white flex items-center gap-2">
+        <div className="p-1.5 bg-green-600/30 rounded">
+          <Settings className="h-5 w-5 text-green-400" />
+        </div>
+        System Configuration
+      </CardTitle>
+      <CardDescription className="text-gray-400 mt-2">
+        Configure general system settings
+      </CardDescription>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-white">General Settings</h3>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+            <div className="mb-2 sm:mb-0">
+              <Label htmlFor="case-prefix" className="text-gray-300">
+                Case Number Prefix
+              </Label>
+              <p className="text-sm text-gray-400">
+                Prefix used for all case numbers
+              </p>
+            </div>
+            <Input
+              id="case-prefix"
+              defaultValue="HSE"
+              className="w-full sm:w-24 bg-slate-700 border-slate-600 text-white"
+            />
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 pt-2">
+            <div className="mb-2 sm:mb-0">
+              <Label className="text-gray-300">Enable Analytics</Label>
+              <p className="text-sm text-gray-400">
+                Collect usage data for system improvement
+              </p>
+            </div>
+            <Switch defaultChecked />
+          </div>
+        </div>
+
+        <Separator className="bg-slate-700" />
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-white">Data Management</h3>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+            <div className="mb-2 sm:mb-0">
+              <Label className="text-gray-300">Auto-Backup</Label>
+              <p className="text-sm text-gray-400">
+                Automatically backup database daily
+              </p>
+            </div>
+            <Switch defaultChecked />
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 pt-2">
+            <div className="mb-2 sm:mb-0">
+              <Label htmlFor="retention" className="text-gray-300">
+                Data Retention (days)
+              </Label>
+              <p className="text-sm text-gray-400">
+                How long to keep incident data
+              </p>
+            </div>
+            <Input
+              id="retention"
+              type="number"
+              defaultValue="365"
+              className="w-full sm:w-24 bg-slate-700 border-slate-600 text-white"
+            />
+          </div>
+
+          <div className="mt-4 flex justify-center sm:justify-start">
+            <Button
+              variant="outline"
+              className="border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white w-full sm:w-auto"
+            >
+              <Database className="h-4 w-4 mr-2" />
+              Backup Database Now
+            </Button>
+          </div>
+        </div>
+      </div>
+    </CardContent>
+    <CardFooter className="border-t border-slate-700 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <Button className="bg-green-600 hover:bg-green-500 text-white shadow-md transition-all w-full sm:w-auto">
+        <Save className="h-4 w-4 mr-2" />
+        Save System Settings
+      </Button>
+      <p className="text-xs text-gray-500 text-center sm:text-right">
+        Last updated: Today
+      </p>
+    </CardFooter>
+  </Card>
+);
+
+// Admin roles sidebar component
+const AdminRolesSidebar = () => (
+  <Card className="bg-gradient-to-b from-slate-800 to-slate-900 border-slate-700 shadow-lg">
+    <CardHeader className="pb-3">
+      <CardTitle className="text-white flex items-center gap-2">
+        <div className="p-1.5 bg-purple-600/30 rounded">
+          <Shield className="h-5 w-5 text-purple-400" />
+        </div>
+        Admin Roles
+      </CardTitle>
+    </CardHeader>
+    <CardContent className="text-gray-300 space-y-4">
+      <div className="space-y-2 bg-blue-900/20 p-3 rounded-lg border border-blue-800/40">
+        <h3 className="font-medium text-blue-300">Standard Admin</h3>
+        <p className="text-sm text-gray-400">
+          Can view incidents, update police report numbers, generate reports,
+          and change incident status
+        </p>
+      </div>
+
+      <Separator className="bg-slate-700" />
+
+      <div className="space-y-2 bg-purple-900/20 p-3 rounded-lg border border-purple-800/40">
+        <h3 className="font-medium text-purple-300">Super Admin</h3>
+        <p className="text-sm text-gray-400">
+          Has all standard admin permissions plus the ability to add/remove
+          users, delete incidents, and modify system settings
+        </p>
+      </div>
+    </CardContent>
+  </Card>
+);
+
+// Main AdminSettingsPage component
 const AdminSettingsPage = () => {
   const { isAuthenticated, isSuperAdmin } = useAuth();
   const [admins, setAdmins] = useState([]);
@@ -48,6 +420,7 @@ const AdminSettingsPage = () => {
   const [adminToDelete, setAdminToDelete] = useState(null);
   const [activeTab, setActiveTab] = useState("admins");
   const [selectOpen, setSelectOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Ref for custom dropdown
   const dropdownRef = useRef(null);
@@ -98,25 +471,40 @@ const AdminSettingsPage = () => {
   };
 
   const handleDeleteAdmin = async () => {
-    // This is a placeholder for the actual delete functionality
-    // In a real implementation, you would call a service function to delete the admin from Firebase
-    try {
-      console.log(`Deleting admin with ID: ${adminToDelete.id}`);
-      // Add actual delete admin logic here
-      // e.g., await deleteAdmin(adminToDelete.id);
+    if (!adminToDelete || !adminToDelete.id) {
+      setError("Invalid admin selected for deletion.");
+      setDeleteDialogOpen(false);
+      return;
+    }
 
-      // After successful deletion, update the admin list
+    try {
+      setIsDeleting(true);
+
+      // Call the actual delete function from the service
+      await deleteAdmin(adminToDelete.id);
+
+      // Log the successful deletion
+      logCustomEvent("admin_deleted", {
+        adminId: adminToDelete.id,
+        email: adminToDelete.email,
+      });
+
+      // Update the local state by filtering out the deleted admin
       setAdmins(admins.filter((admin) => admin.id !== adminToDelete.id));
+
+      // Clear any previous errors
       setError("");
     } catch (err) {
       console.error("Error deleting admin:", err);
       setError("Failed to delete admin. Please try again.");
     } finally {
+      setIsDeleting(false);
       setDeleteDialogOpen(false);
       setAdminToDelete(null);
     }
   };
 
+  // If not authenticated or not a super admin, show access restricted message
   if (!isAuthenticated || !isSuperAdmin) {
     return (
       <div className="py-6">
@@ -132,6 +520,7 @@ const AdminSettingsPage = () => {
 
   return (
     <div className="space-y-6 py-6">
+      {/* Header Section */}
       <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg p-4 sm:p-6 shadow-lg border border-slate-700 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
           <div className="p-2 bg-blue-600 rounded-lg w-10 h-10 flex items-center justify-center">
@@ -146,6 +535,7 @@ const AdminSettingsPage = () => {
         </p>
       </div>
 
+      {/* Error Display */}
       {error && (
         <ErrorAlert
           message={error}
@@ -154,94 +544,20 @@ const AdminSettingsPage = () => {
         />
       )}
 
+      {/* Tabs Navigation */}
       <Tabs
         defaultValue="admins"
         value={activeTab}
         onValueChange={setActiveTab}
       >
         {/* Mobile Tabs - Dropdown Select */}
-        <div className="block md:hidden mb-6">
-          <div className="relative" ref={dropdownRef}>
-            {/* Custom select implementation to ensure consistent styling */}
-            <div
-              className="w-full bg-slate-800 text-white p-4 rounded-lg border border-slate-600 shadow-lg
-              focus:outline-none hover:border-blue-500 transition-all duration-200 cursor-pointer flex justify-between items-center"
-              onClick={() => setSelectOpen(!selectOpen)}
-              tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && setSelectOpen(!selectOpen)}
-              role="button"
-              aria-haspopup="listbox"
-              aria-expanded={selectOpen}
-            >
-              {activeTab === "admins" && <span>👤 Admin Users</span>}
-              {activeTab === "security" && <span>🔒 Security</span>}
-              {activeTab === "system" && <span>⚙️ System</span>}
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-blue-500"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-
-              {/* Gradient overlay */}
-              <div className="pointer-events-none absolute inset-0 rounded-lg overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-slate-700/10 to-transparent"></div>
-              </div>
-            </div>
-
-            {/* Custom dropdown menu */}
-            {selectOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-10 overflow-hidden">
-                <div
-                  className={`py-3 px-4 cursor-pointer hover:bg-slate-700 transition-colors ${
-                    activeTab === "admins" ? "bg-blue-600" : ""
-                  }`}
-                  onClick={() => {
-                    setActiveTab("admins");
-                    setSelectOpen(false);
-                  }}
-                  role="option"
-                  aria-selected={activeTab === "admins"}
-                >
-                  👤 Admin Users
-                </div>
-                <div
-                  className={`py-3 px-4 cursor-pointer hover:bg-slate-700 transition-colors ${
-                    activeTab === "security" ? "bg-blue-600" : ""
-                  }`}
-                  onClick={() => {
-                    setActiveTab("security");
-                    setSelectOpen(false);
-                  }}
-                  role="option"
-                  aria-selected={activeTab === "security"}
-                >
-                  🔒 Security
-                </div>
-                <div
-                  className={`py-3 px-4 cursor-pointer hover:bg-slate-700 transition-colors ${
-                    activeTab === "system" ? "bg-blue-600" : ""
-                  }`}
-                  onClick={() => {
-                    setActiveTab("system");
-                    setSelectOpen(false);
-                  }}
-                  role="option"
-                  aria-selected={activeTab === "system"}
-                >
-                  ⚙️ System
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <MobileTabSelector
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          setSelectOpen={setSelectOpen}
+          selectOpen={selectOpen}
+          dropdownRef={dropdownRef}
+        />
 
         {/* Desktop Tabs */}
         <TabsList className="bg-gradient-to-r from-slate-900 to-slate-800 p-1 border border-slate-700 w-full rounded-lg overflow-hidden mb-6 shadow-md hidden md:flex">
@@ -268,6 +584,7 @@ const AdminSettingsPage = () => {
           </TabsTrigger>
         </TabsList>
 
+        {/* Admin Users Tab Content */}
         <TabsContent value="admins">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
@@ -284,57 +601,12 @@ const AdminSettingsPage = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {loading ? (
-                    <div className="flex justify-center py-8">
-                      <LoadingSpinner
-                        size="large"
-                        text="Loading admin users..."
-                      />
-                    </div>
-                  ) : admins.length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-gray-400">No admin users found</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {admins.map((admin) => (
-                        <div
-                          key={admin.id}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-slate-700 rounded-lg border border-slate-600"
-                        >
-                          <div className="flex items-center">
-                            <div className="bg-slate-600 h-10 w-10 rounded-full flex items-center justify-center">
-                              <User className="h-5 w-5 text-gray-300" />
-                            </div>
-                            <div className="ml-3">
-                              <p className="text-white font-medium">
-                                {admin.email}
-                              </p>
-                              {admin.role === "super" ? (
-                                <p className="text-sm bg-purple-600 text-white px-2 py-0.5 rounded-full inline-block mt-1">
-                                  Super Admin
-                                </p>
-                              ) : (
-                                <p className="text-sm bg-blue-600 text-white px-2 py-0.5 rounded-full inline-block mt-1">
-                                  Standard Admin
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center mt-3 sm:mt-0 ml-auto">
-                            <Button
-                              variant="ghost"
-                              className="text-red-400 hover:text-white hover:bg-red-600 w-full sm:w-auto justify-center"
-                              onClick={() => openDeleteDialog(admin)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-1" />
-                              Delete
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <AdminList
+                    admins={admins}
+                    loading={loading}
+                    openDeleteDialog={openDeleteDialog}
+                    isDeleting={isDeleting}
+                  />
                 </CardContent>
                 <CardFooter className="border-t border-slate-700 pt-4">
                   <div className="bg-slate-700/50 rounded-lg p-3 w-full">
@@ -353,239 +625,19 @@ const AdminSettingsPage = () => {
             </div>
 
             <div>
-              <Card className="bg-gradient-to-b from-slate-800 to-slate-900 border-slate-700 shadow-lg">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <div className="p-1.5 bg-purple-600/30 rounded">
-                      <Shield className="h-5 w-5 text-purple-400" />
-                    </div>
-                    Admin Roles
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-gray-300 space-y-4">
-                  <div className="space-y-2 bg-blue-900/20 p-3 rounded-lg border border-blue-800/40">
-                    <h3 className="font-medium text-blue-300">
-                      Standard Admin
-                    </h3>
-                    <p className="text-sm text-gray-400">
-                      Can view incidents, update police report numbers, generate
-                      reports, and change incident status
-                    </p>
-                  </div>
-
-                  <Separator className="bg-slate-700" />
-
-                  <div className="space-y-2 bg-purple-900/20 p-3 rounded-lg border border-purple-800/40">
-                    <h3 className="font-medium text-purple-300">Super Admin</h3>
-                    <p className="text-sm text-gray-400">
-                      Has all standard admin permissions plus the ability to
-                      add/remove users, delete incidents, and modify system
-                      settings
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <AdminRolesSidebar />
             </div>
           </div>
         </TabsContent>
 
+        {/* Security Settings Tab Content */}
         <TabsContent value="security">
-          <Card className="bg-gradient-to-b from-slate-800 to-slate-900 border-slate-700 shadow-lg">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white flex items-center gap-2">
-                <div className="p-1.5 bg-amber-600/30 rounded">
-                  <Lock className="h-5 w-5 text-amber-400" />
-                </div>
-                Security Settings
-              </CardTitle>
-              <CardDescription className="text-gray-400 mt-2">
-                Configure security options for the application
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-white">
-                    Authentication
-                  </h3>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
-                    <div className="mb-2 sm:mb-0">
-                      <Label
-                        htmlFor="session-timeout"
-                        className="text-gray-300"
-                      >
-                        Session Timeout (minutes)
-                      </Label>
-                      <p className="text-sm text-gray-400">
-                        Time before users are automatically logged out
-                      </p>
-                    </div>
-                    <Input
-                      id="session-timeout"
-                      type="number"
-                      defaultValue="30"
-                      className="w-full sm:w-24 bg-slate-700 border-slate-600 text-white"
-                    />
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 pt-2">
-                    <div className="mb-2 sm:mb-0">
-                      <Label className="text-gray-300">
-                        Require Strong Passwords
-                      </Label>
-                      <p className="text-sm text-gray-400">
-                        Enforce minimum password complexity
-                      </p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                </div>
-
-                <Separator className="bg-slate-700" />
-
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-white">
-                    Access Controls
-                  </h3>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
-                    <div className="mb-2 sm:mb-0">
-                      <Label className="text-gray-300">IP Restriction</Label>
-                      <p className="text-sm text-gray-400">
-                        Limit admin access to specific IP addresses
-                      </p>
-                    </div>
-                    <Switch />
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 pt-2">
-                    <div className="mb-2 sm:mb-0">
-                      <Label className="text-gray-300">Audit Logging</Label>
-                      <p className="text-sm text-gray-400">
-                        Log all administrative actions
-                      </p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="border-t border-slate-700 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-              <Button className="bg-amber-600 hover:bg-amber-500 text-white shadow-md transition-all w-full sm:w-auto">
-                <Save className="h-4 w-4 mr-2" />
-                Save Security Settings
-              </Button>
-              <p className="text-xs text-gray-500 text-center sm:text-right">
-                Last updated: Today
-              </p>
-            </CardFooter>
-          </Card>
+          <SecuritySettings />
         </TabsContent>
 
+        {/* System Settings Tab Content */}
         <TabsContent value="system">
-          <Card className="bg-gradient-to-b from-slate-800 to-slate-900 border-slate-700 shadow-lg">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white flex items-center gap-2">
-                <div className="p-1.5 bg-green-600/30 rounded">
-                  <Settings className="h-5 w-5 text-green-400" />
-                </div>
-                System Configuration
-              </CardTitle>
-              <CardDescription className="text-gray-400 mt-2">
-                Configure general system settings
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-white">
-                    General Settings
-                  </h3>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
-                    <div className="mb-2 sm:mb-0">
-                      <Label htmlFor="case-prefix" className="text-gray-300">
-                        Case Number Prefix
-                      </Label>
-                      <p className="text-sm text-gray-400">
-                        Prefix used for all case numbers
-                      </p>
-                    </div>
-                    <Input
-                      id="case-prefix"
-                      defaultValue="HSE"
-                      className="w-full sm:w-24 bg-slate-700 border-slate-600 text-white"
-                    />
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 pt-2">
-                    <div className="mb-2 sm:mb-0">
-                      <Label className="text-gray-300">Enable Analytics</Label>
-                      <p className="text-sm text-gray-400">
-                        Collect usage data for system improvement
-                      </p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                </div>
-
-                <Separator className="bg-slate-700" />
-
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-white">
-                    Data Management
-                  </h3>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
-                    <div className="mb-2 sm:mb-0">
-                      <Label className="text-gray-300">Auto-Backup</Label>
-                      <p className="text-sm text-gray-400">
-                        Automatically backup database daily
-                      </p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0 pt-2">
-                    <div className="mb-2 sm:mb-0">
-                      <Label htmlFor="retention" className="text-gray-300">
-                        Data Retention (days)
-                      </Label>
-                      <p className="text-sm text-gray-400">
-                        How long to keep incident data
-                      </p>
-                    </div>
-                    <Input
-                      id="retention"
-                      type="number"
-                      defaultValue="365"
-                      className="w-full sm:w-24 bg-slate-700 border-slate-600 text-white"
-                    />
-                  </div>
-
-                  <div className="mt-4 flex justify-center sm:justify-start">
-                    <Button
-                      variant="outline"
-                      className="border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white w-full sm:w-auto"
-                    >
-                      <Database className="h-4 w-4 mr-2" />
-                      Backup Database Now
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="border-t border-slate-700 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-              <Button className="bg-green-600 hover:bg-green-500 text-white shadow-md transition-all w-full sm:w-auto">
-                <Save className="h-4 w-4 mr-2" />
-                Save System Settings
-              </Button>
-              <p className="text-xs text-gray-500 text-center sm:text-right">
-                Last updated: Today
-              </p>
-            </CardFooter>
-          </Card>
+          <SystemSettings />
         </TabsContent>
       </Tabs>
 
@@ -608,8 +660,16 @@ const AdminSettingsPage = () => {
             <AlertDialogAction
               className="bg-red-600 hover:bg-red-700 text-white"
               onClick={handleDeleteAdmin}
+              disabled={isDeleting}
             >
-              Delete
+              {isDeleting ? (
+                <>
+                  <LoadingSpinner size="small" className="mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
