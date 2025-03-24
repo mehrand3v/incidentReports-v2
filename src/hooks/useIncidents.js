@@ -11,7 +11,7 @@ import {
   searchByCaseNumber,
 } from "../services/incident";
 import { getDocuments } from "../services/db"; // Add this import
-import { Timestamp, where } from "firebase/firestore";
+import { Timestamp, where, orderBy } from "firebase/firestore";
 import { useAuth } from "./useAuth";
 import { logCustomEvent } from "../services/analytics";
 
@@ -71,8 +71,39 @@ export const useIncidents = (initialFilters = {}) => {
          constraints.push(where("timestamp", "<=", endTimestamp));
        }
 
-       const data = await getDocuments("incident-reports", constraints);
-       setIncidents(data);
+      const data = await getDocuments("incident-reports", constraints);
+
+      // Sort the data with robust timestamp handling
+      const sortedData = [...data].sort((a, b) => {
+        // Safely convert any timestamp format to a comparable number
+        const getTimestamp = (item) => {
+          if (!item || !item.timestamp) return 0;
+
+          try {
+            // For Firestore Timestamp objects
+            if (typeof item.timestamp.toDate === "function") {
+              return item.timestamp.toDate().getTime();
+            }
+
+            // For JavaScript Date objects
+            if (item.timestamp instanceof Date) {
+              return item.timestamp.getTime();
+            }
+
+            // Try parsing as a string
+            const parsed = new Date(item.timestamp);
+            return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+          } catch (e) {
+            console.error("Error parsing timestamp", e);
+            return 0;
+          }
+        };
+
+        return getTimestamp(b) - getTimestamp(a); // Newest first
+      });
+
+      setIncidents(sortedData);
+
      } catch (err) {
        console.error("Error fetching incidents:", err);
        setError("Failed to load incidents. Please try again.");

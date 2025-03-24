@@ -80,11 +80,33 @@ const DeleteDialog = ({
                   : incident.incidentTypes}
               </div>
 
+              
               <div className="text-gray-400">Date:</div>
               <div className="text-white">
-                {incident.timestamp instanceof Date
-                  ? incident.timestamp.toLocaleString()
-                  : new Date(incident.timestamp).toLocaleString()}
+                {(() => {
+                  try {
+                    if (!incident.timestamp) return "No date available";
+
+                    // Handle Firestore Timestamp
+                    if (typeof incident.timestamp.toDate === "function") {
+                      return incident.timestamp.toDate().toLocaleString();
+                    }
+
+                    // Handle Date object
+                    if (incident.timestamp instanceof Date) {
+                      return incident.timestamp.toLocaleString();
+                    }
+
+                    // Try parsing as string
+                    const date = new Date(incident.timestamp);
+                    return isNaN(date.getTime())
+                      ? "Invalid Date"
+                      : date.toLocaleString();
+                  } catch (e) {
+                    console.error("Error formatting date", e);
+                    return "Invalid Date";
+                  }
+                })()}
               </div>
             </div>
           </div>
