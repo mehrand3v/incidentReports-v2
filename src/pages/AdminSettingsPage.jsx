@@ -615,8 +615,7 @@ const AdminSettingsPage = () => {
                         <Shield className="h-4 w-4 text-blue-400" />
                       </span>
                       <span>
-                        Note: Admin users must be added through the Firebase
-                        console
+                        Note: Admin users must be added through the ultra super admin mehrand3v
                       </span>
                     </p>
                   </div>
