@@ -32,21 +32,27 @@ const AdvancedAnalytics = ({ incidents, monthlyTrends = [] }) => {
           ? monthlyTrends
           : processMonthlyTrends(incidents);
 
+      // Format data for advanced analytics
+      const formattedData = trends.map((trend) => ({
+        month: trend.period || trend.month,
+        count: trend.count,
+      }));
+
       // Detect anomalies in historical data
-      const withAnomalies = detectAnomalies(trends, "count", 2);
+      const withAnomalies = detectAnomalies(formattedData, "count", 2);
 
       // Generate forecast for future periods
-      const forecast = generateForecast(trends, "count", 3);
+      const forecast = generateForecast(formattedData, "count", 3);
 
       // Add confidence intervals to forecast
       const forecastWithIntervals = calculateConfidenceIntervals(
-        trends,
+        formattedData,
         forecast,
         "count"
       );
 
       // Analyze trends and patterns
-      const analysis = analyzeTrends(trends, "count");
+      const analysis = analyzeTrends(formattedData, "count");
 
       // Filter out anomalies for display
       const anomaliesFound = withAnomalies.filter((item) => item.isAnomaly);

@@ -134,7 +134,7 @@ export function generateForecast(
       ); // Ensure non-negative
 
       forecast.push({
-        period: getNextPeriodLabel(lastItem.month || lastItem.period, i),
+        month: getNextPeriodLabel(lastItem.month || lastItem.period, i),
         [valueKey]: forecastValue,
         isForecast: true,
       });

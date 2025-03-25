@@ -21,11 +21,6 @@ const AnalyticsMetricsCard = ({ analytics, timeTrends }) => {
     return !highest || current.count > highest.count ? current : highest;
   }, null);
 
-  // Calculate period with lowest incidents
-  const lowestPeriod = timeTrends.processedData?.reduce((lowest, current) => {
-    return !lowest || current.count < lowest.count ? current : lowest;
-  }, null);
-
   // Calculate most recent forecast
   const latestForecast = timeTrends.forecastData?.[0];
 
