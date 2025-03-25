@@ -16,16 +16,20 @@ const IncidentStatusBreakdown = ({ incidents }) => {
       return [];
     }
 
-    // Count incidents by status
-    const statusCounts = _.countBy(incidents, "status");
+    // Normalize status values (treat "resolved" as "complete")
+    const normalizedIncidents = incidents.map((incident) => ({
+      ...incident,
+      normalizedStatus:
+        incident.status === "resolved" ? "complete" : incident.status,
+    }));
+
+    // Count incidents by normalized status
+    const statusCounts = _.countBy(normalizedIncidents, "normalizedStatus");
 
     // Map status labels to more readable format
     const statusMapping = {
       pending: "Pending",
-      "in-progress": "In Progress",
-      resolved: "Resolved",
       complete: "Complete",
-      cancelled: "Cancelled",
     };
 
     // Convert to array format for Recharts
@@ -34,16 +38,14 @@ const IncidentStatusBreakdown = ({ incidents }) => {
         statusMapping[status] ||
         status.charAt(0).toUpperCase() + status.slice(1),
       value: count,
+      originalStatus: status,
     }));
   }, [incidents]);
 
   // Status-specific colors
   const STATUS_COLORS = {
     Pending: "#f59e0b",
-    "In Progress": "#3b82f6",
-    Resolved: "#10b981",
-    Complete: "#22c55e",
-    Cancelled: "#6b7280",
+    Complete: "#10b981",
     Default: "#8b5cf6",
   };
 
@@ -66,6 +68,11 @@ const IncidentStatusBreakdown = ({ incidents }) => {
           <p className="font-medium text-white">{data.name}</p>
           <p className="text-sm text-gray-300">{`${data.value} incidents`}</p>
           <p className="text-sm text-gray-400">{getPercentage(data.value)}</p>
+          {data.originalStatus === "complete" && (
+            <p className="text-xs text-gray-500 mt-1">
+              Includes both current "complete" and legacy "resolved" statuses
+            </p>
+          )}
         </div>
       );
     }

@@ -1,5 +1,5 @@
 // src/components/admin/AnalyticsDashboard.jsx
-import React, { useState } from "react";
+import React from "react";
 import {
   Card,
   CardContent,
@@ -7,13 +7,11 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
   Activity,
   AlertTriangle,
   BarChart,
-  BrainCircuit,
   LineChart,
   PieChart,
   RefreshCw,
@@ -31,8 +29,7 @@ import IncidentStatusBreakdown from "./analytics/IncidentStatusBreakdown.jsx";
 import IncidentTrends from "./analytics/IncidentTrends.jsx";
 import StoreComparison from "./analytics/StoreComparison.jsx";
 import AnalyticsSummary from "./analytics/AnalyticsSummary.jsx";
-import AdvancedAnalytics from "./analytics/AdvancedAnalytics.jsx";
-import AnalyticsMetricsCard from "./analytics/AnalyticsMetricsCard.jsx";
+import StatusAnalysis from "./analytics/StatusAnalysis.jsx";
 
 // Hooks
 import { useAnalytics } from "../../hooks/useAnalytics";
@@ -48,9 +45,6 @@ const AnalyticsDashboard = ({ filters = {} }) => {
     lastUpdated,
     refreshData,
   } = useAnalytics(filters);
-
-  // State for active analytics tab
-  const [activeAnalyticsTab, setActiveAnalyticsTab] = useState("basic");
 
   // Format the last updated time
   const formattedLastUpdated = lastUpdated
@@ -120,164 +114,93 @@ const AnalyticsDashboard = ({ filters = {} }) => {
       {/* Summary Cards */}
       <AnalyticsSummary analytics={analytics} timeTrends={timeTrends} />
 
-      {/* Analytics Type Tabs */}
-      <Tabs
-        defaultValue="basic"
-        value={activeAnalyticsTab}
-        onValueChange={setActiveAnalyticsTab}
-      >
-        <TabsList className="bg-slate-800 border border-slate-700 w-full justify-start rounded-lg mb-4">
-          <TabsTrigger
-            value="basic"
-            className="data-[state=active]:bg-blue-700 rounded-md data-[state=active]:text-white"
-          >
-            <Activity className="h-4 w-4 mr-2" />
-            Basic Analytics
-          </TabsTrigger>
-          <TabsTrigger
-            value="advanced"
-            className="data-[state=active]:bg-purple-700 rounded-md data-[state=active]:text-white"
-          >
-            <BrainCircuit className="h-4 w-4 mr-2" />
-            Advanced Analytics
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Basic Analytics Content */}
-        <TabsContent value="basic" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Incident Type Distribution */}
-            <Card className="bg-slate-800 border-slate-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-white flex items-center text-lg">
-                  <BarChart className="h-5 w-5 mr-2 text-blue-400" />
-                  Incident Type Distribution
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Breakdown of incidents by type
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <IncidentTypeDistribution incidents={incidents} />
-              </CardContent>
-            </Card>
-
-            {/* Status Breakdown */}
-            <Card className="bg-slate-800 border-slate-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-white flex items-center text-lg">
-                  <PieChart className="h-5 w-5 mr-2 text-purple-400" />
-                  Status Breakdown
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Current status of all incidents
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <IncidentStatusBreakdown incidents={incidents} />
-              </CardContent>
-            </Card>
-
-            {/* Store Comparison */}
-            <Card className="bg-slate-800 border-slate-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-white flex items-center text-lg">
-                  <Store className="h-5 w-5 mr-2 text-emerald-400" />
-                  Store Comparison
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Top stores by incident volume
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <StoreComparison incidents={incidents} />
-              </CardContent>
-            </Card>
-
-            {/* Incident Trends Over Time */}
-            <Card className="bg-slate-800 border-slate-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-white flex items-center text-lg">
-                  <TrendingUp className="h-5 w-5 mr-2 text-red-400" />
-                  Incident Trends
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Incident volume over time
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <IncidentTrends
-                  incidents={incidents}
-                  monthlyTrends={timeTrends?.monthly || []}
-                />
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Advanced Analytics Content */}
-        <TabsContent value="advanced" className="space-y-6">
-          {/* Advanced Metrics Cards */}
-          <AnalyticsMetricsCard analytics={analytics} timeTrends={timeTrends} />
-
-          {/* Advanced Analysis Card */}
+      {/* Analytics Content */}
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Incident Type Distribution */}
           <Card className="bg-slate-800 border-slate-700">
             <CardHeader className="pb-2">
               <CardTitle className="text-white flex items-center text-lg">
-                <BrainCircuit className="h-5 w-5 mr-2 text-purple-400" />
-                Trend Forecasting & Anomaly Detection
+                <BarChart className="h-5 w-5 mr-2 text-blue-400" />
+                Incident Type Distribution
               </CardTitle>
               <CardDescription className="text-gray-400">
-                Advanced statistical analysis with 3-month forecast
+                Breakdown of incidents by type
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <AdvancedAnalytics
+              <IncidentTypeDistribution incidents={incidents} />
+            </CardContent>
+          </Card>
+
+          {/* Status Breakdown */}
+          <Card className="bg-slate-800 border-slate-700">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-white flex items-center text-lg">
+                <PieChart className="h-5 w-5 mr-2 text-purple-400" />
+                Status Breakdown
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Current status of all incidents
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <IncidentStatusBreakdown incidents={incidents} />
+            </CardContent>
+          </Card>
+
+          {/* Store Comparison */}
+          <Card className="bg-slate-800 border-slate-700">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-white flex items-center text-lg">
+                <Store className="h-5 w-5 mr-2 text-emerald-400" />
+                Store Comparison
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Top stores by incident volume
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <StoreComparison incidents={incidents} />
+            </CardContent>
+          </Card>
+
+          {/* Incident Trends Over Time */}
+          <Card className="bg-slate-800 border-slate-700">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-white flex items-center text-lg">
+                <TrendingUp className="h-5 w-5 mr-2 text-red-400" />
+                Incident Trends
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Incident volume over time
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <IncidentTrends
                 incidents={incidents}
                 monthlyTrends={timeTrends?.monthly || []}
               />
             </CardContent>
           </Card>
+        </div>
 
-          {/* Explanation Card */}
-          <Card className="bg-slate-900 border-slate-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-white text-lg">
-                About Advanced Analytics
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-gray-400 text-sm space-y-2">
-                <p>
-                  <span className="font-medium text-blue-400">
-                    Anomaly Detection
-                  </span>
-                  : Identifies unusual incident patterns using Z-score
-                  statistical analysis. Anomalies are data points that deviate
-                  significantly from the normal pattern.
-                </p>
-                <p>
-                  <span className="font-medium text-purple-400">
-                    Forecasting
-                  </span>
-                  : Predicts future incident volumes using linear regression
-                  techniques based on historical trends. The confidence interval
-                  (shaded area) represents the range of possible values with 95%
-                  confidence.
-                </p>
-                <p>
-                  <span className="font-medium text-emerald-400">
-                    Pattern Analysis
-                  </span>
-                  : Analyzes your incident data to identify trends, seasonality,
-                  and pattern consistency, helping you understand underlying
-                  factors affecting incident rates.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        {/* Status Analysis Section */}
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white flex items-center text-lg">
+              <Activity className="h-5 w-5 mr-2 text-blue-400" />
+              Status Analysis
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              Detailed status distribution and transition analysis
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <StatusAnalysis incidents={incidents} />
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Data Quality Warning (if needed) */}
       {incidents.some(

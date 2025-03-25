@@ -4,7 +4,6 @@ import {
   BarChart,
   Clock,
   CheckCircle2,
-  AlertTriangle,
   TrendingUp,
   TrendingDown,
 } from "lucide-react";
@@ -15,10 +14,7 @@ const AnalyticsSummary = ({ analytics, timeTrends }) => {
   // Extract metrics
   const totalCount = analytics.totalCount || 0;
   const pendingCount = analytics.byStatus?.pending || 0;
-  const resolvedCount =
-    (analytics.byStatus?.complete || 0) + (analytics.byStatus?.resolved || 0);
-  const missingPoliceReportCount =
-    analytics.byStatus?.["missing-police-report"] || 0;
+  const completeCount = analytics.byStatus?.complete || 0; // This includes both "complete" and legacy "resolved"
 
   // Get trend changes
   const monthlyChange = timeTrends?.monthlyChange || {
@@ -27,7 +23,7 @@ const AnalyticsSummary = ({ analytics, timeTrends }) => {
   };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
       {/* Total Incidents Card */}
       <SummaryCard
         title="Total Incidents"
@@ -48,25 +44,15 @@ const AnalyticsSummary = ({ analytics, timeTrends }) => {
         textColor="text-amber-300"
       />
 
-      {/* Resolved Incidents Card */}
+      {/* Complete Incidents Card */}
       <SummaryCard
-        title="Resolved"
-        value={resolvedCount}
+        title="Complete"
+        value={completeCount}
         icon={<CheckCircle2 className="h-5 w-5 text-green-500" />}
         bgColor="bg-green-900/20"
         borderColor="border-green-800"
         textColor="text-green-300"
-      />
-
-      {/* Monthly Trend Card */}
-      <TrendCard
-        title="Monthly Trend"
-        value={`${Math.abs(monthlyChange.percentChange)}%`}
-        isIncreasing={monthlyChange.isIncreasing}
-        isDecreasing={monthlyChange.isDecreasing}
-        bgColor="bg-indigo-900/20"
-        borderColor="border-indigo-800"
-        textColor="text-indigo-300"
+        subtitle="Including legacy 'resolved'"
       />
     </div>
   );
@@ -77,6 +63,7 @@ const SummaryCard = ({
   title,
   value,
   icon,
+  subtitle = null,
   bgColor = "bg-slate-800",
   borderColor = "border-slate-700",
   textColor = "text-gray-300",
@@ -89,6 +76,7 @@ const SummaryCard = ({
         <div>
           <h3 className={`text-xs font-medium ${textColor}`}>{title}</h3>
           <p className="text-2xl font-bold text-white mt-1">{value}</p>
+          {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
         </div>
         <div className="p-2 rounded-full bg-slate-800/50">{icon}</div>
       </div>

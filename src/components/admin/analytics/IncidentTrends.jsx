@@ -16,14 +16,18 @@ const IncidentTrends = ({ incidents, monthlyTrends = [] }) => {
   const chartData = useMemo(() => {
     // If we have pre-processed monthly trends, use those
     if (monthlyTrends && monthlyTrends.length > 0) {
-      return monthlyTrends.map((trend) => ({
-        month: trend.month,
-        total: trend.count,
-        pending: trend.byStatus?.pending || 0,
-        inProgress: trend.byStatus?.["in-progress"] || 0,
-        resolved:
-          (trend.byStatus?.resolved || 0) + (trend.byStatus?.complete || 0),
-      }));
+      return monthlyTrends.map((trend) => {
+        // Sum "complete" and "resolved" statuses
+        const completeCount =
+          (trend.byStatus?.complete || 0) + (trend.byStatus?.resolved || 0);
+
+        return {
+          month: trend.month,
+          total: trend.count,
+          pending: trend.byStatus?.pending || 0,
+          complete: completeCount,
+        };
+      });
     }
 
     // Otherwise, calculate from incidents (fallback)
@@ -55,15 +59,14 @@ const IncidentTrends = ({ incidents, monthlyTrends = [] }) => {
     return recentMonths.map((month) => {
       const monthIncidents = groupedByMonth[month];
 
-      // Count incidents by status for this month
+      // Count incidents by status for this month, treating "resolved" as "complete"
       const pendingCount = monthIncidents.filter(
         (inc) => inc.status === "pending"
       ).length;
-      const inProgressCount = monthIncidents.filter(
-        (inc) => inc.status === "in-progress"
-      ).length;
-      const resolvedCount = monthIncidents.filter(
-        (inc) => inc.status === "resolved" || inc.status === "complete"
+
+      // Combine "complete" and legacy "resolved" statuses
+      const completeCount = monthIncidents.filter(
+        (inc) => inc.status === "complete" || inc.status === "resolved"
       ).length;
 
       // Format month for display (e.g., "2023-01" to "Jan 2023")
@@ -88,8 +91,7 @@ const IncidentTrends = ({ incidents, monthlyTrends = [] }) => {
         month: displayMonth,
         total: monthIncidents.length,
         pending: pendingCount,
-        inProgress: inProgressCount,
-        resolved: resolvedCount,
+        complete: completeCount,
       };
     });
   }, [incidents, monthlyTrends]);
@@ -125,6 +127,12 @@ const IncidentTrends = ({ incidents, monthlyTrends = [] }) => {
               )}
             </p>
           ))}
+          {payload.some((p) => p.dataKey === "complete" && p.value > 0) && (
+            <p className="text-xs text-gray-500 mt-1">
+              "Complete" includes both current "complete" and legacy "resolved"
+              statuses
+            </p>
+          )}
         </div>
       );
     }
@@ -181,8 +189,8 @@ const IncidentTrends = ({ incidents, monthlyTrends = [] }) => {
           />
           <Line
             type="monotone"
-            dataKey="resolved"
-            name="Resolved"
+            dataKey="complete"
+            name="Complete"
             stroke="#10b981"
             strokeWidth={2}
             dot={{ r: 4, strokeWidth: 2 }}

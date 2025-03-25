@@ -2,6 +2,21 @@
 import _ from "lodash";
 
 /**
+ * Normalizes incident status values by treating "resolved" as "complete"
+ * @param {Object} incident - Incident object
+ * @returns {Object} Incident with normalized status
+ */
+const normalizeStatus = (incident) => {
+  if (!incident) return incident;
+
+  return {
+    ...incident,
+    normalizedStatus:
+      incident.status === "resolved" ? "complete" : incident.status,
+  };
+};
+
+/**
  * Processes incident data and returns analytics-ready metrics
  * @param {Array} incidents - Array of incident objects
  * @returns {Object} Object containing various analytics metrics
@@ -19,11 +34,14 @@ export const processIncidentAnalytics = (incidents = []) => {
   }
 
   try {
+    // Normalize statuses
+    const normalizedIncidents = incidents.map(normalizeStatus);
+
     // Calculate total count
     const totalCount = incidents.length;
 
-    // Group by status
-    const byStatus = _.countBy(incidents, "status");
+    // Group by normalized status
+    const byStatus = _.countBy(normalizedIncidents, "normalizedStatus");
 
     // Process incident types
     const allTypes = incidents.flatMap((incident) =>
@@ -70,6 +88,8 @@ export const processIncidentAnalytics = (incidents = []) => {
     // Format for trend analysis
     const recentTrends = recentMonths.map((month) => {
       const monthIncidents = groupedByMonth[month];
+      const normalizedMonthIncidents = monthIncidents.map(normalizeStatus);
+
       const [year, monthNum] = month.split("-");
       const monthNames = [
         "Jan",
@@ -91,7 +111,7 @@ export const processIncidentAnalytics = (incidents = []) => {
         month: displayMonth,
         rawMonth: month,
         count: monthIncidents.length,
-        byStatus: _.countBy(monthIncidents, "status"),
+        byStatus: _.countBy(normalizedMonthIncidents, "normalizedStatus"),
       };
     });
 
@@ -216,8 +236,11 @@ export const groupIncidentsByTimePeriod = (
   }
 
   try {
+    // Normalize statuses
+    const normalizedIncidents = incidents.map(normalizeStatus);
+
     // Filter incidents with valid timestamps
-    const validIncidents = incidents.filter(
+    const validIncidents = normalizedIncidents.filter(
       (incident) => incident.timestamp && incident.timestamp instanceof Date
     );
 
@@ -289,6 +312,7 @@ export const groupIncidentsByTimePeriod = (
         rawPeriod: key,
         count: periodIncidents.length,
         incidents: periodIncidents,
+        byStatus: _.countBy(periodIncidents, "normalizedStatus"),
       };
     });
   } catch (error) {
