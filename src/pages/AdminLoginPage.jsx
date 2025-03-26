@@ -1,7 +1,16 @@
 // src/pages/AdminLoginPage.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, AlertTriangle, User, Key, Eye, EyeOff } from "lucide-react";
+import {
+  Shield,
+  AlertTriangle,
+  User,
+  Key,
+  Eye,
+  EyeOff,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -18,43 +27,147 @@ import LoadingSpinner from "../components/shared/LoadingSpinner";
 import { useAuth } from "../hooks/useAuth";
 import { logPageView } from "../services/analytics";
 import Navbar from "../components/shared/Navbar";
-// import LoginFooter from "../components/shared/LoginFooter";
+import { getCurrentUser } from "../services/auth";
 
 const AdminLoginPage = () => {
   // Form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Validation state
+  const [validationErrors, setValidationErrors] = useState({
+    email: "",
+    password: "",
+  });
+  const [successMessage, setSuccessMessage] = useState("");
+  const [localError, setLocalError] = useState("");
+  const [initialAuthCheck, setInitialAuthCheck] = useState(true);
 
   // Auth state
   const { login, isAuthenticated, isAdmin, loading, error, clearError } =
     useAuth();
   const navigate = useNavigate();
 
-  // Log page view on component mount
+  // Check if user is authenticated on initial load
   useEffect(() => {
-    logPageView("Admin Login Page");
-  }, []);
+    const checkAuth = async () => {
+      // Get current user directly from Firebase
+      const user = getCurrentUser();
+      if (user) {
+        // User is logged in, redirect immediately
+        navigate("/admin/dashboard", { replace: true });
+      } else {
+        // User is not logged in, show login form
+        setInitialAuthCheck(false);
+      }
+    };
 
-  // Redirect if already authenticated and is admin
+    checkAuth();
+    logPageView("Admin Login Page");
+  }, [navigate]);
+
+  // Also handle the normal auth state from context
   useEffect(() => {
     if (isAuthenticated && isAdmin) {
-      navigate("/admin/dashboard");
+      navigate("/admin/dashboard", { replace: true });
     }
   }, [isAuthenticated, isAdmin, navigate]);
+
+  // Clear success message after 3 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
+  // Validate form inputs
+  const validateForm = () => {
+    const errors = {
+      email: "",
+      password: "",
+    };
+
+    // Email validation
+    if (!email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    // Password validation
+    if (!password) {
+      errors.password = "Password is required";
+    } else if (password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+    }
+
+    setValidationErrors(errors);
+    return !errors.email && !errors.password;
+  };
 
   // Handle login form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Clear any previous errors
+    if (clearError) clearError();
+    setLocalError("");
+
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
+
+    // Prevent multiple submissions
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
     try {
       await login(email, password);
+      setSuccessMessage("Login successful! Redirecting...");
       // Redirect will happen in the effect hook
-    } catch (error) {
-      // Error is handled by auth context
-      console.error("Login failed:", error);
+    } catch (err) {
+      // Handle specific Firebase error codes for better user feedback
+      if (
+        err.code === "auth/user-not-found" ||
+        err.code === "auth/wrong-password"
+      ) {
+        setValidationErrors({
+          ...validationErrors,
+          password: "Invalid email or password",
+        });
+      } else if (err.code === "auth/too-many-requests") {
+        setValidationErrors({
+          ...validationErrors,
+          password: "Too many failed login attempts. Please try again later.",
+        });
+      } else {
+        // Generic error handling
+        setLocalError(err.message || "Login failed. Please try again.");
+      }
+      console.error("Login failed:", err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  // Show loading state while checking authentication
+  if (initialAuthCheck) {
+    return (
+      <div className="flex flex-col min-h-screen bg-slate-800">
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center">
+          <LoadingSpinner text="Checking authentication..." />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-800">
@@ -81,12 +194,22 @@ const AdminLoginPage = () => {
             </CardHeader>
 
             <CardContent>
-              {error && (
+              {(error || localError) && (
                 <ErrorAlert
-                  message={error}
-                  onDismiss={clearError}
+                  message={error || localError}
+                  onDismiss={() => {
+                    if (clearError) clearError();
+                    setLocalError("");
+                  }}
                   className="mb-4"
                 />
+              )}
+
+              {successMessage && (
+                <div className="flex items-center p-3 mb-4 rounded-md bg-green-800/30 text-green-300 border border-green-700">
+                  <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 text-green-400" />
+                  <span>{successMessage}</span>
+                </div>
               )}
 
               <form onSubmit={handleSubmit} id="login-form">
@@ -98,18 +221,47 @@ const AdminLoginPage = () => {
                     </Label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <User className="h-5 w-5 text-gray-400" />
+                        <User
+                          className={`h-5 w-5 ${
+                            validationErrors.email
+                              ? "text-red-400"
+                              : "text-blue-400"
+                          }`}
+                        />
                       </div>
                       <Input
                         id="email"
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          // Clear error when user types
+                          if (validationErrors.email) {
+                            setValidationErrors({
+                              ...validationErrors,
+                              email: "",
+                            });
+                          }
+                        }}
                         placeholder="admin@example.com"
-                        className="bg-slate-700 border-slate-600 text-white pl-10 placeholder:text-gray-400 focus:border-blue-500"
-                        required
+                        className={`bg-slate-700 border-slate-600 text-white pl-10 placeholder:text-gray-400 focus:border-blue-500 ${
+                          validationErrors.email
+                            ? "border-red-500 focus:border-red-500"
+                            : ""
+                        }`}
                       />
+                      {validationErrors.email && (
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <XCircle className="h-5 w-5 text-red-400" />
+                        </div>
+                      )}
                     </div>
+                    {validationErrors.email && (
+                      <p className="text-red-400 text-sm mt-1 flex items-center">
+                        <XCircle className="h-3 w-3 mr-1 text-red-400" />
+                        {validationErrors.email}
+                      </p>
+                    )}
                   </div>
 
                   {/* Password */}
@@ -119,16 +271,34 @@ const AdminLoginPage = () => {
                     </Label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <Key className="h-5 w-5 text-gray-400" />
+                        <Key
+                          className={`h-5 w-5 ${
+                            validationErrors.password
+                              ? "text-red-400"
+                              : "text-purple-400"
+                          }`}
+                        />
                       </div>
                       <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          // Clear error when user types
+                          if (validationErrors.password) {
+                            setValidationErrors({
+                              ...validationErrors,
+                              password: "",
+                            });
+                          }
+                        }}
                         placeholder="••••••••"
-                        className="bg-slate-700 border-slate-600 text-white pl-10 pr-10 placeholder:text-gray-400 focus:border-blue-500"
-                        required
+                        className={`bg-slate-700 border-slate-600 text-white pl-10 pr-10 placeholder:text-gray-400 focus:border-blue-500 ${
+                          validationErrors.password
+                            ? "border-red-500 focus:border-red-500"
+                            : ""
+                        }`}
                       />
                       <button
                         type="button"
@@ -139,12 +309,23 @@ const AdminLoginPage = () => {
                         }
                       >
                         {showPassword ? (
-                          <EyeOff className="h-5 w-5" />
+                          <EyeOff className="h-5 w-5 text-amber-400" />
                         ) : (
-                          <Eye className="h-5 w-5" />
+                          <Eye className="h-5 w-5 text-amber-400" />
                         )}
                       </button>
+                      {validationErrors.password && showPassword && (
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-12 pointer-events-none">
+                          <XCircle className="h-5 w-5 text-red-400" />
+                        </div>
+                      )}
                     </div>
+                    {validationErrors.password && (
+                      <p className="text-red-400 text-sm mt-1 flex items-center">
+                        <XCircle className="h-3 w-3 mr-1 text-red-400" />
+                        {validationErrors.password}
+                      </p>
+                    )}
                   </div>
                 </div>
               </form>
@@ -155,12 +336,15 @@ const AdminLoginPage = () => {
                 type="submit"
                 form="login-form"
                 className="w-full bg-blue-700 hover:bg-blue-600 text-white"
-                disabled={loading}
+                disabled={isSubmitting}
               >
-                {loading ? (
+                {isSubmitting ? (
                   <LoadingSpinner size="small" text="Logging in..." />
                 ) : (
-                  "Log In"
+                  <>
+                    <Shield className="h-4 w-4 mr-2 text-blue-300" />
+                    Log In
+                  </>
                 )}
               </Button>
             </CardFooter>
@@ -168,7 +352,7 @@ const AdminLoginPage = () => {
 
           <div className="mt-6 text-center">
             <div className="flex items-center justify-center text-amber-400">
-              <AlertTriangle className="h-4 w-4 mr-2" />
+              <AlertTriangle className="h-4 w-4 mr-2 text-amber-400" />
               <span className="text-sm">Admin access is restricted</span>
             </div>
             <p className="text-gray-400 text-sm mt-1">
@@ -177,8 +361,6 @@ const AdminLoginPage = () => {
           </div>
         </div>
       </main>
-
-
     </div>
   );
 };
