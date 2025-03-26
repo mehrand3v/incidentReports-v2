@@ -50,6 +50,39 @@ const AdminLoginPage = () => {
     useAuth();
   const navigate = useNavigate();
 
+  // Custom error messages for Firebase error codes
+  const getCustomErrorMessage = (errorCode) => {
+    const errorMessages = {
+      "auth/invalid-credential": "Invalid email or password. Please try again.",
+      "auth/user-not-found":
+        "No account found with this email. Please check and try again.",
+      "auth/wrong-password": "Incorrect password. Please try again.",
+      "auth/too-many-requests":
+        "Too many failed login attempts. Please try again later.",
+      "auth/user-disabled":
+        "This account has been disabled. Please contact support.",
+      "auth/invalid-email": "Please enter a valid email address.",
+      "auth/email-already-in-use":
+        "This email is already in use by another account.",
+      "auth/weak-password": "Password should be at least 6 characters.",
+      "auth/network-request-failed":
+        "Network error. Please check your connection.",
+      "auth/popup-closed-by-user":
+        "Authentication popup was closed before completing the sign-in.",
+      "auth/unauthorized-domain":
+        "The domain of this site is not authorized for OAuth operations.",
+      "auth/operation-not-allowed":
+        "This operation is not allowed. Contact support.",
+      "auth/account-exists-with-different-credential":
+        "An account already exists with the same email but different sign-in credentials.",
+    };
+
+    return (
+      errorMessages[errorCode] ||
+      "An error occurred during login. Please try again."
+    );
+  };
+
   // Check if user is authenticated on initial load
   useEffect(() => {
     const checkAuth = async () => {
@@ -133,25 +166,45 @@ const AdminLoginPage = () => {
       setSuccessMessage("Login successful! Redirecting...");
       // Redirect will happen in the effect hook
     } catch (err) {
-      // Handle specific Firebase error codes for better user feedback
-      if (
-        err.code === "auth/user-not-found" ||
-        err.code === "auth/wrong-password"
-      ) {
-        setValidationErrors({
-          ...validationErrors,
-          password: "Invalid email or password",
-        });
-      } else if (err.code === "auth/too-many-requests") {
-        setValidationErrors({
-          ...validationErrors,
-          password: "Too many failed login attempts. Please try again later.",
-        });
+      console.error("Login failed:", err);
+
+      // Use custom error messages for Firebase errors
+      if (err.code) {
+        const customMessage = getCustomErrorMessage(err.code);
+
+        // For credential errors, show them at the password field
+        if (
+          err.code === "auth/invalid-credential" ||
+          err.code === "auth/user-not-found" ||
+          err.code === "auth/wrong-password"
+        ) {
+          setValidationErrors({
+            ...validationErrors,
+            password: customMessage,
+          });
+        }
+        // For rate limiting errors
+        else if (err.code === "auth/too-many-requests") {
+          setValidationErrors({
+            ...validationErrors,
+            password: customMessage,
+          });
+        }
+        // For email format errors
+        else if (err.code === "auth/invalid-email") {
+          setValidationErrors({
+            ...validationErrors,
+            email: customMessage,
+          });
+        }
+        // For other errors, show a general error
+        else {
+          setLocalError(customMessage);
+        }
       } else {
-        // Generic error handling
+        // Generic error handling for non-Firebase errors
         setLocalError(err.message || "Login failed. Please try again.");
       }
-      console.error("Login failed:", err);
     } finally {
       setIsSubmitting(false);
     }
