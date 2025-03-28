@@ -1,5 +1,5 @@
-// src/components/admin/analytics/IncidentStatusBreakdown.jsx
-import React, { useMemo } from "react";
+// src/components/admin/analytics/IncidentStatusBreakdown.jsx - Updated component
+import React, { useMemo, useState, useEffect } from "react";
 import {
   PieChart,
   Pie,
@@ -7,10 +7,27 @@ import {
   ResponsiveContainer,
   Tooltip,
   Legend,
+  Sector,
 } from "recharts";
 import _ from "lodash";
 
 const IncidentStatusBreakdown = ({ incidents }) => {
+  // Track window width for mobile responsiveness
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1024
+  );
+  const [activeIndex, setActiveIndex] = useState(null);
+
+  // Update window width on resize for responsive design
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const chartData = useMemo(() => {
     if (!incidents || incidents.length === 0) {
       return [];
@@ -79,6 +96,103 @@ const IncidentStatusBreakdown = ({ incidents }) => {
     return null;
   };
 
+  // Active shape for better interactivity, especially on mobile
+  const renderActiveShape = (props) => {
+    const {
+      cx,
+      cy,
+      innerRadius,
+      outerRadius,
+      startAngle,
+      endAngle,
+      fill,
+      payload,
+      value,
+    } = props;
+    const total = chartData.reduce((sum, item) => sum + item.value, 0);
+    const percent = Math.round((value / total) * 100);
+
+    return (
+      <g>
+        <text
+          x={cx}
+          y={cy - 15}
+          dy={8}
+          textAnchor="middle"
+          fill="#fff"
+          className="text-sm"
+        >
+          {payload.name}
+        </text>
+        <text
+          x={cx}
+          y={cy + 15}
+          dy={8}
+          textAnchor="middle"
+          fill="#d1d5db"
+          className="text-xs"
+        >
+          {`${value} (${percent}%)`}
+        </text>
+        <Sector
+          cx={cx}
+          cy={cy}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius + 6}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={fill}
+          opacity={0.8}
+        />
+        <Sector
+          cx={cx}
+          cy={cy}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          innerRadius={innerRadius - 6}
+          outerRadius={innerRadius - 2}
+          fill={fill}
+        />
+      </g>
+    );
+  };
+
+  // Handle click event for mobile
+  const onPieClick = (_, index) => {
+    setActiveIndex(index === activeIndex ? null : index);
+  };
+
+  // Determine sizing based on screen width
+  const getChartConfig = () => {
+    if (windowWidth <= 480) {
+      // Mobile
+      return {
+        innerRadius: 50,
+        outerRadius: 70,
+        label: false,
+        enableLegend: true,
+      };
+    } else if (windowWidth <= 768) {
+      // Tablet
+      return {
+        innerRadius: 60,
+        outerRadius: 80,
+        label: true,
+        enableLegend: true,
+      };
+    } else {
+      // Desktop
+      return {
+        innerRadius: 60,
+        outerRadius: 80,
+        label: true,
+        enableLegend: true,
+      };
+    }
+  };
+
+  const chartConfig = getChartConfig();
+
   if (chartData.length === 0) {
     return (
       <div className="text-center py-8">
@@ -95,12 +209,19 @@ const IncidentStatusBreakdown = ({ incidents }) => {
             data={chartData}
             cx="50%"
             cy="50%"
-            innerRadius={60}
-            outerRadius={80}
+            innerRadius={chartConfig.innerRadius}
+            outerRadius={chartConfig.outerRadius}
             paddingAngle={5}
             dataKey="value"
-            labelLine={false}
-            label={({ name, value }) => `${name}: ${value}`}
+            labelLine={chartConfig.label}
+            label={
+              chartConfig.label
+                ? ({ name, value }) => `${name}: ${value}`
+                : false
+            }
+            activeIndex={activeIndex}
+            activeShape={renderActiveShape}
+            onClick={onPieClick}
           >
             {chartData.map((entry, index) => (
               <Cell
@@ -111,13 +232,16 @@ const IncidentStatusBreakdown = ({ incidents }) => {
             ))}
           </Pie>
           <Tooltip content={<CustomTooltip />} />
-          <Legend
-            layout="horizontal"
-            verticalAlign="bottom"
-            formatter={(value) => (
-              <span className="text-gray-300 text-sm">{value}</span>
-            )}
-          />
+          {chartConfig.enableLegend && (
+            <Legend
+              layout={windowWidth <= 480 ? "horizontal" : "horizontal"}
+              verticalAlign="bottom"
+              align={windowWidth <= 480 ? "center" : "center"}
+              formatter={(value) => (
+                <span className="text-gray-300 text-sm">{value}</span>
+              )}
+            />
+          )}
         </PieChart>
       </ResponsiveContainer>
     </div>
