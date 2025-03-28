@@ -8,16 +8,22 @@ import { formatDate as appFormatDate } from "./formatters"; // Import the main f
 /**
  * Prepare incidents data for export
  * @param {Array} incidents - Array of incident objects
+ * @param {boolean} forPdf - Whether the data is being prepared for PDF (affects truncation)
  * @returns {Array} Array of formatted incident objects for export
  */
-const prepareIncidentsForExport = (incidents) => {
+const prepareIncidentsForExport = (incidents, forPdf = false) => {
   return incidents.map((incident) => {
     // Use the application's formatDate function from formatters.js for consistent date handling
     const dateStr = appFormatDate(incident.timestamp, "MM/dd/yy h:mm a");
 
-    // Truncate long values for better fit
+    // Handle truncation differently for PDF vs Excel
     const truncate = (str, maxLength = 30) => {
       if (!str || typeof str !== "string") return str;
+
+      // For PDF exports, don't truncate the details column
+      if (forPdf) return str;
+
+      // For other exports, truncate for better fit
       return str.length > maxLength ? str.substring(0, maxLength) + "..." : str;
     };
 
@@ -34,7 +40,9 @@ const prepareIncidentsForExport = (incidents) => {
       "Case#": incident.caseNumber || "—",
       "Store#": incident.storeNumber || "—",
       "Inc.": truncate(incidentType, 20),
-      Details: truncate(incident.details || "", 35),
+      Details: forPdf
+        ? incident.details || "—"
+        : truncate(incident.details || "", 35),
       Status: truncate(incident.status || "pending", 10),
       "Police#": incident.policeReport || "—",
     };
@@ -92,8 +100,8 @@ export const generatePdfReport = (incidents, filters = {}) => {
     yPosition += 5;
   }
 
-  // Prepare the data
-  const formattedIncidents = prepareIncidentsForExport(incidents);
+  // Prepare the data - with forPdf=true to prevent truncation
+  const formattedIncidents = prepareIncidentsForExport(incidents, true);
 
   // Use autoTable as a function instead of a method
   if (formattedIncidents.length > 0) {
@@ -102,19 +110,19 @@ export const generatePdfReport = (incidents, filters = {}) => {
       head: [Object.keys(formattedIncidents[0])],
       body: formattedIncidents.map((incident) => Object.values(incident)),
       styles: {
-        overflow: "ellipsize",
+        overflow: "linebreak", // Change from 'ellipsize' to 'linebreak' to show all text
         fontSize: 8,
         cellPadding: 2,
         halign: "left",
       },
       columnStyles: {
-        0: { cellWidth: "auto" }, // Date
-        1: { cellWidth: "auto" }, // Case#
-        2: { cellWidth: "auto" }, // Store#
-        3: { cellWidth: "auto" }, // Inc.
-        4: { cellWidth: "auto" }, // Details
-        5: { cellWidth: "auto" }, // Status
-        6: { cellWidth: "auto" }, // Police#
+        0: { cellWidth: 70 }, // Date
+        1: { cellWidth: 80 }, // Case#
+        2: { cellWidth: 50 }, // Store#
+        3: { cellWidth: 70 }, // Inc.
+        4: { cellWidth: "auto" }, // Details - auto width to accommodate full text
+        5: { cellWidth: 50 }, // Status
+        6: { cellWidth: 60 }, // Police#
       },
       didDrawPage: (data) => {
         // Add page number at the bottom
@@ -148,8 +156,8 @@ export const generatePdfReport = (incidents, filters = {}) => {
  * @returns {Blob} Excel file as blob
  */
 export const generateExcelReport = (incidents, filters = {}) => {
-  // Prepare the data
-  const formattedIncidents = prepareIncidentsForExport(incidents);
+  // Prepare the data - Excel can show all text, but we'll keep standard formatting
+  const formattedIncidents = prepareIncidentsForExport(incidents, false);
 
   // Create a new workbook
   const workbook = XLSX.utils.book_new();
