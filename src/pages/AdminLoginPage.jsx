@@ -1,6 +1,7 @@
 // src/pages/AdminLoginPage.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 import {
   Shield,
   AlertTriangle,
@@ -35,7 +36,7 @@ const AdminLoginPage = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+const [redirecting, setRedirecting] = useState(false);
   // Validation state
   const [validationErrors, setValidationErrors] = useState({
     email: "",
@@ -388,16 +389,28 @@ const AdminLoginPage = () => {
               <Button
                 type="submit"
                 form="login-form"
-                className="w-full bg-blue-700 hover:bg-blue-600 text-white"
-                disabled={isSubmitting}
+                className="w-full bg-blue-700 hover:bg-blue-600 text-white py-2.5 min-h-[44px]"
+                disabled={isSubmitting || redirecting}
               >
-                {isSubmitting ? (
-                  <LoadingSpinner size="small" text="Logging in..." />
-                ) : (
+                {!isSubmitting && !redirecting && (
                   <>
                     <Shield className="h-4 w-4 mr-2 text-blue-300" />
                     Log In
                   </>
+                )}
+
+                {isSubmitting && !redirecting && (
+                  <div className="inline-flex items-center">
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                    Logging in...
+                  </div>
+                )}
+
+                {redirecting && (
+                  <div className="inline-flex items-center">
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                    Redirecting...
+                  </div>
                 )}
               </Button>
             </CardFooter>
