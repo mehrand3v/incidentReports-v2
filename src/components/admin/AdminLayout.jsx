@@ -2,6 +2,7 @@
 import React, { useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../shared/Navbar";
+import WelcomeMessageModal from "./WelcomeMessageModal";
 
 import { useAuth } from "../../hooks/useAuth";
 import { logPageView } from "../../services/analytics";
@@ -47,7 +48,7 @@ const AdminLayout = () => {
           <Outlet />
         </div>
       </main>
-
+      <WelcomeMessageModal />
     </div>
   );
 };
