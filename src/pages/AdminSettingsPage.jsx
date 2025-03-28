@@ -131,58 +131,38 @@ const MobileTabSelector = ({
 );
 
 // Admin list component
+// Grid-based AdminList with inline delete button on mobile
 const AdminList = ({ admins, loading, openDeleteDialog, isDeleting }) => {
-  if (loading) {
-    return (
-      <div className="flex justify-center py-8">
-        <LoadingSpinner size="large" text="Loading admin users..." />
-      </div>
-    );
-  }
-
-  if (admins.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-gray-400">No admin users found</p>
-      </div>
-    );
-  }
+  if (loading) return <div className="flex justify-center py-6"><LoadingSpinner size="large" text="Loading admin users..." /></div>;
+  if (admins.length === 0) return <div className="text-center py-6"><p className="text-gray-400">No admin users found</p></div>;
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {admins.map((admin) => (
-        <div
-          key={admin.id}
-          className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-slate-700 rounded-lg border border-slate-600"
-        >
-          <div className="flex items-center">
-            <div className="bg-slate-600 h-10 w-10 rounded-full flex items-center justify-center">
-              <User className="h-5 w-5 text-gray-300" />
-            </div>
-            <div className="ml-3">
-              <p className="text-white font-medium">{admin.email}</p>
+        <div key={admin.id} className="flex flex-row items-start justify-between p-2 md:p-3 bg-slate-700 rounded-lg border border-slate-600">
+          <div className="flex items-center overflow-hidden pr-2">
+            <div className={`h-8 w-8 md:h-10 md:w-10 rounded-full flex items-center justify-center shrink-0 ${admin.role === "super" ? "bg-purple-600" : "bg-blue-600"}`}>
               {admin.role === "super" ? (
-                <p className="text-sm bg-purple-600 text-white px-2 py-0.5 rounded-full inline-block mt-1">
-                  Super Admin
-                </p>
+                <Shield className="h-4 w-4 md:h-5 md:w-5 text-white" />
               ) : (
-                <p className="text-sm bg-blue-600 text-white px-2 py-0.5 rounded-full inline-block mt-1">
-                  Standard Admin
-                </p>
+                <User className="h-4 w-4 md:h-5 md:w-5 text-white" />
               )}
             </div>
+            <div className="ml-2 md:ml-3 min-w-0">
+              <p className="text-white font-medium text-sm md:text-base break-all sm:truncate sm:max-w-[180px] md:max-w-[200px]">{admin.email}</p>
+              <p className={`text-xs md:text-sm px-1.5 md:px-2 py-0.5 rounded-full inline-block mt-0.5 ${admin.role === "super" ? "bg-purple-600/50" : "bg-blue-600/50"} text-white`}>
+                {admin.role === "super" ? "Super Admin" : "Standard Admin"}
+              </p>
+            </div>
           </div>
-          <div className="flex items-center mt-3 sm:mt-0 ml-auto">
-            <Button
-              variant="ghost"
-              className="text-red-400 hover:text-white hover:bg-red-600 w-full sm:w-auto justify-center"
-              onClick={() => openDeleteDialog(admin)}
-              disabled={isDeleting}
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              Delete
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            className="text-red-400 hover:text-white hover:bg-red-600 p-1.5 md:p-2 mt-1 sm:mt-0 shrink-0"
+            onClick={() => openDeleteDialog(admin)}
+            disabled={isDeleting}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       ))}
     </div>
