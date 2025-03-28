@@ -55,7 +55,7 @@ const PrivacyPage = () => {
               <div className="flex items-center mb-2">
                 <FileText className="h-4 w-4 text-blue-400 mr-2" />
                 <h2 className="text-lg font-semibold text-blue-400">
-                  How We Use Your Information
+                  How We Use Information
                 </h2>
               </div>
               <p>
@@ -64,65 +64,18 @@ const PrivacyPage = () => {
               <ul className="list-disc ml-5 mt-1 space-y-1">
                 <li>To process and respond to incident reports</li>
                 <li>To improve workplace safety and security</li>
-                <li>To comply with legal obligations</li>
+
                 <li>
                   To generate anonymous statistics about workplace incidents
                 </li>
               </ul>
             </section>
 
-            <section>
-              <div className="flex items-center mb-2">
-                <Lock className="h-4 w-4 text-blue-400 mr-2" />
-                <h2 className="text-lg font-semibold text-blue-400">
-                  Data Security
-                </h2>
-              </div>
-              <p>
-                We take the security of your information seriously. We implement
-                appropriate technical and organizational measures to protect
-                your data from unauthorized access, loss, or alteration.
-              </p>
-              <ul className="list-disc ml-5 mt-1 space-y-1">
-                <li>All data is stored securely in Firebase Firestore</li>
-                <li>
-                  Access to the data is restricted to authorized personnel only
-                </li>
-                <li>All transmissions are encrypted using HTTPS</li>
-                <li>Regular security audits are conducted</li>
-              </ul>
-            </section>
 
-            <section>
-              <div className="flex items-center mb-2">
-                <CheckCircle className="h-4 w-4 text-blue-400 mr-2" />
-                <h2 className="text-lg font-semibold text-blue-400">
-                  Data Retention
-                </h2>
-              </div>
-              <p>
-                We retain incident reports for a period of 5 years to comply
-                with legal requirements and to assist with ongoing safety
-                improvements. After this period, the data is anonymized or
-                deleted.
-              </p>
-            </section>
 
-            <section>
-              <h2 className="text-lg font-semibold text-blue-400 mb-2">
-                Your Rights
-              </h2>
-              <p>You have the right to:</p>
-              <ul className="list-disc ml-5 mt-1 space-y-1">
-                <li>Access your personal data</li>
-                <li>Request correction of inaccurate data</li>
-                <li>
-                  Request deletion of your data (subject to legal retention
-                  requirements)
-                </li>
-                <li>Object to certain processing of your data</li>
-              </ul>
-            </section>
+
+
+
 
             <section>
               <h2 className="text-lg font-semibold text-blue-400 mb-2">
@@ -140,7 +93,7 @@ const PrivacyPage = () => {
               </h2>
               <p>
                 If you have any questions about this privacy policy or our data
-                practices, please contact us at privacy@example.com.
+                practices, please contact us at privacy@azeem.com.
               </p>
             </section>
 
