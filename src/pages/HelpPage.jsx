@@ -48,11 +48,7 @@ const HelpPage = () => {
                   <li>Add any additional details (optional)</li>
                   <li>Review your information and submit</li>
                 </ol>
-                <p>
-                  After submission, you'll receive a case number. Keep this
-                  number for your records and to check the status of your
-                  report.
-                </p>
+
               </CardContent>
             </Card>
 
@@ -80,7 +76,7 @@ const HelpPage = () => {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="item-2" className="border-slate-700">
+                  {/* <AccordionItem value="item-2" className="border-slate-700">
                     <AccordionTrigger className="hover:text-white text-sm py-3">
                       How long will it take to process my report?
                     </AccordionTrigger>
@@ -88,7 +84,7 @@ const HelpPage = () => {
                       Reports are typically processed within 24-48 hours,
                       depending on the severity and type of incident.
                     </AccordionContent>
-                  </AccordionItem>
+                  </AccordionItem> */}
 
                   <AccordionItem value="item-3" className="border-slate-700">
                     <AccordionTrigger className="hover:text-white text-sm py-3">
@@ -130,7 +126,7 @@ const HelpPage = () => {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="item-5" className="border-slate-700">
+                  {/* <AccordionItem value="item-5" className="border-slate-700">
                     <AccordionTrigger className="hover:text-white text-sm py-3">
                       How do I check the status of my report?
                     </AccordionTrigger>
@@ -138,7 +134,7 @@ const HelpPage = () => {
                       You can check the status of your report by going to the
                       "Check Status" page and entering your case number.
                     </AccordionContent>
-                  </AccordionItem>
+                  </AccordionItem> */}
                 </Accordion>
               </CardContent>
             </Card>
@@ -156,7 +152,7 @@ const HelpPage = () => {
                 </p>
                 <p className="mt-2">
                   <strong className="text-white">Email:</strong>{" "}
-                  support@example.com
+                  support@azeem.com
                 </p>
                 <p>
                   <strong className="text-white">Phone:</strong> (555) 123-4567
