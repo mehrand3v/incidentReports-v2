@@ -1,31 +1,33 @@
-// src/components/shared/RouteErrorBoundary.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouteError, isRouteErrorResponse, Link } from "react-router-dom";
 import { AlertTriangle, RefreshCw, Home, Server, FileX } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { logError, ErrorSeverity } from "@/utils/errorLogger"; // Import the logger
 
-/**
- * Route Error Boundary component specifically designed to work with React Router's
- * errorElement property. This handles route-level errors like 404s and API failures.
- */
 const RouteErrorBoundary = () => {
   const error = useRouteError();
-
-  // Determine if it's a route error response (like 404, 500, etc.)
   const isRouteError = isRouteErrorResponse(error);
 
-  // Get error details
-  const status = isRouteError ? error.status : null;
-  const statusText = isRouteError ? error.statusText : null;
-  const message = isRouteError ? error.data?.message : error.message;
+  const status = isRouteError ? error.status : 500;
+  const statusText = isRouteError ? error.statusText : "Unexpected Error";
+  const message = isRouteError
+    ? error.data?.message
+    : error.message || "Something went wrong";
 
   // Determine icon based on error type
   let ErrorIcon = AlertTriangle;
-  if (status === 404) {
-    ErrorIcon = FileX;
-  } else if (status >= 500) {
-    ErrorIcon = Server;
-  }
+  if (status === 404) ErrorIcon = FileX;
+  else if (status >= 500) ErrorIcon = Server;
+
+  // Log the error using errorLogger
+  useEffect(() => {
+    logError(error, "RouteErrorBoundary", ErrorSeverity.ERROR, {
+      status,
+      statusText,
+      message,
+      url: window.location.href,
+    });
+  }, [error, status, statusText, message]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-800 p-4">
@@ -47,25 +49,6 @@ const RouteErrorBoundary = () => {
             {message ||
               "We've encountered an unexpected error. Please try again later."}
           </p>
-
-          {/* Error details in development mode */}
-          {process.env.NODE_ENV === "development" && !isRouteError && error && (
-            <div className="mb-6 w-full overflow-auto">
-              <details className="bg-slate-900 rounded-md p-3 text-gray-300 text-sm">
-                <summary className="font-medium cursor-pointer">
-                  Error Details (Development Only)
-                </summary>
-                <pre className="mt-2 whitespace-pre-wrap text-red-400 text-xs">
-                  {error.toString()}
-                </pre>
-                {error.stack && (
-                  <pre className="mt-2 whitespace-pre-wrap text-gray-400 text-xs">
-                    {error.stack}
-                  </pre>
-                )}
-              </details>
-            </div>
-          )}
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Button
