@@ -5,14 +5,16 @@ import router from "./router/appRouter";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext"; // Changed from "./context/" to "./contexts/"
 import "./styles/globals.css";
-
+import ErrorBoundary from "./components/shared/ErrorBoundary";
 const App = () => {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <NotificationProvider>
         <RouterProvider router={router} />
       </NotificationProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 
