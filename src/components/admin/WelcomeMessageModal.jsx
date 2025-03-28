@@ -49,7 +49,7 @@ const WELCOME_MESSAGES = [
   "This time before you leave dashboard, make sure you don't smell like a pig, and you don't look like a pig, and you don't act like a pig, and you don't behave like a pig, and you don't talk like a pig",
   "Didn't I tell you to stop pretending?",
   "Didn't I tell you to stop pretending? You are not a good person, You are a bad person, Kutt tay tenu fir v peni aye",
- 
+
   "You know how many times you masturbated in your life? Shame on you, your parents, your family, your society, your culture, your religion, your values, all of them are responsible for that, You are innocent",
   "You are free to go, Mate!",
   "I Confess My Ancestors Were Worshipping On That Land, But I Was Born In Makkah, Saudi Arabia, So I don't care",
@@ -247,7 +247,7 @@ const WelcomeMessageModal = () => {
                 {RandomIcon()}
               </div>
               <AlertDialogTitle className="text-xl text-white font-bold text-glow">
-                Attention Human!
+                🔥 Hey Logos Alumni 
               </AlertDialogTitle>
             </div>
             <div className="animate-pulse bg-red-500 w-3 h-3 rounded-full"></div>
