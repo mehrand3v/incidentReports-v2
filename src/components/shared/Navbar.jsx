@@ -1,5 +1,5 @@
 // src/components/shared/Navbar.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   Menu,
@@ -14,10 +14,13 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { logCustomEvent } from "../../services/analytics";
+import LogoutConfirmModal from "./LogoutConfirmModal";
 
 const Navbar = () => {
-  const { currentUser, isAdmin, isSuperAdmin, logout } = useAuth();
+  const { currentUser, isAdmin, isSuperAdmin, logout, loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,18 +32,44 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
+  // Open logout confirmation modal
+  const handleLogoutClick = () => {
+    setLogoutModalOpen(true);
+    closeMenu(); // Close mobile menu if open
+  };
+
+  // Handle actual logout with loading state
   const handleLogout = async () => {
     try {
+      setIsLoggingOut(true);
       await logout();
       logCustomEvent("user_logout");
       navigate("/login");
     } catch (error) {
       console.error("Error logging out:", error);
+    } finally {
+      setIsLoggingOut(false);
+      setLogoutModalOpen(false);
     }
   };
 
   // Determine if we're on the admin dashboard
   const isAdminDashboard = location.pathname.includes("/admin");
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Only close if clicking outside the dropdown container
+      if (isMenuOpen && !event.target.closest(".mobile-dropdown-container")) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   // Reusable styles
   const linkStyles = {
@@ -73,7 +102,7 @@ const Navbar = () => {
 
           {/* Desktop navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            {isAdmin && (
+            {!loading && isAdmin && (
               <>
                 <Link to="/admin/dashboard" className={linkStyles.desktop}>
                   <BarChart className="h-4 w-4 mr-2 text-blue-400" />
@@ -92,7 +121,7 @@ const Navbar = () => {
               </>
             )}
 
-            {!isAdmin && (
+            {(!isAdmin || !loading) && (
               <>
                 <Link to="/help" className={linkStyles.desktop}>
                   <HelpCircle className="h-4 w-4 mr-2 text-cyan-400" />
@@ -106,7 +135,7 @@ const Navbar = () => {
             )}
 
             {/* Report Incident Button for Desktop */}
-            {(currentUser || !isAdmin) && (
+            {(currentUser || !isAdmin || !loading) && (
               <Link to="/" className={linkStyles.reportIncident}>
                 <AlertTriangle className="h-4 w-4 mr-2 text-amber-500" />
                 Report Incident
@@ -114,7 +143,7 @@ const Navbar = () => {
             )}
 
             {/* Login Button for Desktop */}
-            {!currentUser && !isAdmin && (
+            {!loading && !currentUser && !isAdmin && (
               <Link
                 to="/login"
                 className={`${linkStyles.desktop} bg-blue-800 hover:bg-blue-700`}
@@ -124,13 +153,13 @@ const Navbar = () => {
               </Link>
             )}
 
-            {currentUser ? (
+            {!loading && currentUser ? (
               <div className="flex items-center">
                 <span className="text-sm text-gray-400 mr-3">
                   {currentUser.email}
                 </span>
                 <button
-                  onClick={handleLogout}
+                  onClick={handleLogoutClick}
                   className="text-gray-300 hover:text-white hover:bg-blue-900 px-3 py-2 rounded-md transition-colors duration-300 flex items-center"
                 >
                   <LogOut className="h-4 w-4 mr-1 text-red-400" />
@@ -138,6 +167,7 @@ const Navbar = () => {
                 </button>
               </div>
             ) : (
+              !loading &&
               isAdminDashboard && (
                 <Link
                   to="/login"
@@ -172,9 +202,9 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-slate-800 shadow-inner">
+        <div className="md:hidden bg-slate-800 shadow-inner mobile-dropdown-container">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {isAdmin && (
+            {!loading && isAdmin && (
               <>
                 <Link
                   to="/admin/dashboard"
@@ -205,7 +235,7 @@ const Navbar = () => {
               </>
             )}
 
-            {!isAdmin && (
+            {(!isAdmin || !loading) && (
               <>
                 <Link
                   to="/help"
@@ -227,7 +257,7 @@ const Navbar = () => {
             )}
 
             {/* Report Incident Button for Mobile */}
-            {(currentUser || !isAdmin) && (
+            {(currentUser || !isAdmin || !loading) && (
               <Link to="/" className={linkStyles.mobile} onClick={closeMenu}>
                 <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
                 Report Incident
@@ -235,7 +265,7 @@ const Navbar = () => {
             )}
 
             {/* Login Button for Mobile */}
-            {!currentUser && !isAdmin && (
+            {!loading && !currentUser && !isAdmin && (
               <Link
                 to="/login"
                 className={`${linkStyles.mobile} bg-blue-800 hover:bg-blue-700`}
@@ -246,38 +276,43 @@ const Navbar = () => {
               </Link>
             )}
 
-            {currentUser ? (
+            {!loading && currentUser && (
               <>
                 <div className="block px-3 py-2 text-gray-400 flex items-center">
                   <User className="h-5 w-5 mr-2 text-blue-400" />
                   {currentUser.email}
                 </div>
                 <button
-                  onClick={() => {
-                    handleLogout();
-                    closeMenu();
-                  }}
+                  onClick={handleLogoutClick}
                   className="block w-full text-left text-white hover:bg-blue-900 px-3 py-2 rounded-md font-medium transition-colors duration-300 flex items-center"
                 >
                   <LogOut className="h-5 w-5 mr-2 text-red-400" />
                   Logout
                 </button>
               </>
-            ) : (
-              isAdminDashboard && (
-                <Link
-                  to="/login"
-                  className={linkStyles.mobile}
-                  onClick={closeMenu}
-                >
-                  <User className="h-5 w-5 mr-2 text-blue-300" />
-                  Admin Login
-                </Link>
-              )
+            )}
+
+            {!loading && !currentUser && isAdminDashboard && (
+              <Link
+                to="/login"
+                className={linkStyles.mobile}
+                onClick={closeMenu}
+              >
+                <User className="h-5 w-5 mr-2 text-blue-300" />
+                Admin Login
+              </Link>
             )}
           </div>
         </div>
       )}
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmModal
+        isOpen={logoutModalOpen}
+        onClose={() => setLogoutModalOpen(false)}
+        onConfirm={handleLogout}
+        isLoggingOut={isLoggingOut}
+      />
     </nav>
   );
 };
