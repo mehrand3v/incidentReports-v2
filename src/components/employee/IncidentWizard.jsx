@@ -57,6 +57,21 @@ import SuccessDisplay from "./SuccessDisplay";
 const IncidentWizard = () => {
   // Get store number from URL if provided by QR code
   useEffect(() => {
+    // Save the original styles
+    const originalStyle = document.body.style.cssText;
+
+    // Apply fixed positioning to prevent scroll
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.width = "100%";
+    document.body.style.height = "100%";
+
+    // Restore original styles on unmount
+    return () => {
+      document.body.style.cssText = originalStyle;
+    };
+  }, []);
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const storeParam = urlParams.get("store");
 
