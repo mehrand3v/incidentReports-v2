@@ -32,7 +32,9 @@ const WELCOME_MESSAGES = [
   "Ye tum bol kis tarha rehay ho? Mein asay hi bolta hon...Shaat aye munday di",
   "You can go pheekay kharboozay",
   "If you had different values, you would have been a different person, You don't believe me?",
-  "If you had a girl friend at right age, You would not have been that week and were more focused, But your values your religion, your culture, your society, your friends, your environment, your education, your school, your college, your university, your teachers, your society, your culture, your religion, your values, all of them are responsible for making you a loser",
+    "If you had a girl friend at right age, You would not have been that week and were more focused, But your values your religion, your culture, your society, your friends, your environment, your education, your school, your college, your university, your teachers, your society, your culture, your religion, your values, all of them are responsible for making you a loser",
+    "Today I feel like kicking your A$$, Can you bend over please?",
+  "Sidhi tarah das menu exactly ki hoya c goongay plaat vich, chal shabaash!!!"
   "You can go",
   "You can Enter",
   "You can Enter, That's fine",
@@ -247,7 +249,7 @@ const WelcomeMessageModal = () => {
                 {RandomIcon()}
               </div>
               <AlertDialogTitle className="text-xl text-white font-bold text-glow">
-                🔥 Hey Logos Alumni 
+                🔥 Hey Logos Alumni
               </AlertDialogTitle>
             </div>
             <div className="animate-pulse bg-red-500 w-3 h-3 rounded-full"></div>
