@@ -249,7 +249,7 @@ const WelcomeMessageModal = () => {
                 {RandomIcon()}
               </div>
               <AlertDialogTitle className="text-xl text-white font-bold text-glow">
-                🔥 Hey Logos Alumni
+                🔥 Hey Logos Alumnus
               </AlertDialogTitle>
             </div>
             <div className="animate-pulse bg-red-500 w-3 h-3 rounded-full"></div>
