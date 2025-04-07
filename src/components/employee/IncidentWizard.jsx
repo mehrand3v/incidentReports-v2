@@ -1,57 +1,28 @@
 // src/components/employee/IncidentWizard.jsx
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-
-
-
   ShoppingCart,
-
-
-
-
-
-
   FileWarning,
   PackageOpen,
   Skull,
   PersonStanding,
-  Paintbrush,
-
+  User,
+  ArrowRight,
+  ArrowLeft,
+  Check,
+  AlertTriangle,
+  Hammer,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  AlertCircle,
-  Beer,
-  User,
-  ShoppingBag,
-  AlertTriangle,
-  Hammer,
-  ArrowRight,
-  ArrowLeft,
-  Check,
-  Stethoscope,
-} from "lucide-react";
-import { createIncident } from "@/services/incident";
-import { logCustomEvent } from "@/services/analytics";
-import { formatCaseNumber } from "@/utils/formatters";
-import {
-  isValidStoreNumber,
-  hasSelectedIncidentType,
-} from "@/utils/validators";
-import { getAvailableIncidentTypes } from "@/constants/incidentTypes";
+import { isValidStoreNumber } from "../../utils/validators";
+import { getAvailableIncidentTypes } from "../../constants/incidentTypes";
+import { createIncident } from "../../services/incident";
+import { logCustomEvent } from "../../services/analytics";
 import SuccessDisplay from "./SuccessDisplay";
 
 const IncidentWizard = () => {
@@ -89,92 +60,70 @@ const IncidentWizard = () => {
     ? incidentTypes.find((inc) => inc.id === selectedIncidentType)
     : null;
 
-  // Custom styles for dark theme with gradient
-  const customStyles = {
-    mainBackground: "bg-slate-900",
-    cardBackground: "bg-slate-800 border-slate-700",
-    headerGradient: "bg-gradient-to-r from-blue-600 to-indigo-600",
-    secondaryBackground: "bg-slate-700",
-    textPrimary: "text-white",
-    textSecondary: "text-slate-300",
-    textMuted: "text-slate-400",
-    borderColor: "border-slate-700",
-    focusRing: "focus:ring-blue-500 focus-visible:ring-blue-500",
-    focusBorder: "focus:border-blue-500 focus-visible:border-blue-500",
-    inputBackground: "bg-slate-700",
-    buttonGradient:
-      "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700",
-  };
-
-  // Map incident types to the format expected by the IncidentWizard
+  // Map incident types to the format expected by the component
   const mappedIncidentTypes = incidentTypes.map((type) => {
     // Get icon component based on the type.icon string
-  let icon;
-  switch (type.icon) {
-    case "ShoppingBag":
-      icon = ShoppingCart;
-      break;
-    case "AlertTriangle":
-      icon = FileWarning;
-      break;
-    case "Beer":
-      icon = PackageOpen;
-      break;
-    case "Hammer":
-      icon = Hammer;
-      break;
-    case "Stethoscope":
-      icon = Skull;
-      break;
-    case "User":
-      if (type.id === "skinny-hispanic") {
-        icon = PersonStanding;
-      } else if (type.id === "mr-pants") {
-        icon = User;
-      } else {
-        icon = User;
-      }
-      break;
-    default:
-      icon = AlertCircle;
-  }
+    let icon;
+    switch (type.icon) {
+      case "ShoppingBag":
+        icon = ShoppingCart;
+        break;
+      case "AlertTriangle":
+        icon = FileWarning;
+        break;
+      case "Beer":
+        icon = PackageOpen;
+        break;
+      case "Hammer":
+        icon = Hammer;
+        break;
+      case "Stethoscope":
+        icon = Skull;
+        break;
+      case "User":
+        icon = type.id === "skinny-hispanic" ? PersonStanding : User;
+        break;
+      default:
+        icon = AlertTriangle;
+    }
 
     return {
       id: type.id,
       label: type.label,
+      description: type.description,
       icon,
       color:
         type.id === "shoplifting"
-          ? "from-purple-500 to-purple-600"
+          ? "bg-purple-600"
           : type.id === "robbery"
-          ? "from-red-500 to-red-600"
+          ? "bg-red-600"
           : type.id === "beer-run"
-          ? "from-amber-500 to-amber-600"
+          ? "bg-amber-600"
           : type.id === "property-damage"
-          ? "from-orange-500 to-orange-600"
+          ? "bg-orange-600"
           : type.id === "injury"
-          ? "from-rose-500 to-rose-600"
+          ? "bg-rose-600"
           : type.id === "mr-pants"
-          ? "from-green-500 to-green-600"
+          ? "bg-green-600"
           : type.id === "skinny-hispanic"
-          ? "from-sky-500 to-sky-600"
-          : "from-gray-500 to-gray-600",
-      hoverColor:
+          ? "bg-sky-600"
+          : "bg-gray-600",
+      hoverBg:
         type.id === "shoplifting"
-          ? "from-purple-600 to-purple-700"
+          ? "hover:bg-purple-700"
           : type.id === "robbery"
-          ? "from-red-600 to-red-700"
+          ? "hover:bg-red-700"
           : type.id === "beer-run"
-          ? "from-amber-600 to-amber-700"
+          ? "hover:bg-amber-700"
           : type.id === "property-damage"
-          ? "from-orange-600 to-orange-700"
+          ? "hover:bg-orange-700"
           : type.id === "injury"
-          ? "from-rose-600 to-rose-700"
+          ? "hover:bg-rose-700"
           : type.id === "mr-pants"
-          ? "from-green-600 to-green-700"
+          ? "hover:bg-green-700"
           : type.id === "skinny-hispanic"
-          ? "from-sky-600 to-sky-700"
-          : "from-gray-600 to-gray-700",
+          ? "hover:bg-sky-700"
+          : "hover:bg-gray-700",
       iconColor:
         type.id === "shoplifting"
           ? "text-purple-500"
@@ -199,59 +148,59 @@ const IncidentWizard = () => {
     {
       id: "store",
       title: "Store Information",
-      description: "Enter the store number where the incident occurred",
+      description: "Enter store number",
       content: (
         <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 50 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="space-y-2 py-1"
+          className="space-y-2"
         >
           <div className="space-y-2">
             <Label
               htmlFor="store-number"
-              className={`text-xs font-medium ${customStyles.textPrimary}`}
+              className="text-sm font-medium text-white"
             >
               Store Number
             </Label>
-            <Input
-              id="store-number"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              placeholder="Enter store # (7 digits)"
-              value={storeNumber}
-              onChange={(e) => {
-                setStoreNumber(e.target.value.replace(/\D/g, ""));
-                setError("");
-              }}
-              className={cn(
-                "h-10 text-small sm:text-base text-sm",
-                customStyles.inputBackground,
-                customStyles.textPrimary,
-                customStyles.borderColor,
-                customStyles.focusRing,
-                customStyles.focusBorder,
-                "placeholder:text-gray-500 placeholder:text-xs sm:placeholder:text-sm",
-                error && !storeNumber.trim()
-                  ? "border-red-400 focus-visible:border-red-400 focus-visible:ring-red-400"
-                  : ""
+            <div className="relative">
+              <Input
+                id="store-number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                placeholder="Enter 7-digit store number"
+                value={storeNumber}
+                onChange={(e) => {
+                  setStoreNumber(e.target.value.replace(/\D/g, ""));
+                }}
+                className={cn(
+                  "h-10 text-base bg-slate-700 border-slate-600 text-white focus:border-blue-500 focus:ring-blue-500 focus:ring-1 rounded-md",
+                  "shadow-inner shadow-black/10 placeholder:text-gray-400 placeholder:text-sm",
+                  error && !storeNumber.trim()
+                    ? "border-red-400 focus:border-red-400 focus:ring-red-400"
+                    : ""
+                )}
+                maxLength={7}
+                aria-describedby="store-number-error"
+              />
+              {isValidStoreNumber(storeNumber) && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-green-500/20 p-1 rounded-full">
+                  <Check className="h-4 w-4 text-green-500" />
+                </div>
               )}
-              maxLength={7}
-              aria-label="Store number"
-              aria-describedby="store-number-error"
-            />
+            </div>
             {error && !storeNumber.trim() && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
-                className="text-sm text-red-500 flex items-center"
+                className="text-sm text-red-400 flex items-center"
                 id="store-number-error"
                 aria-live="polite"
               >
-                <AlertCircle className="h-4 w-4 mr-1" />
+                <AlertTriangle className="h-4 w-4 mr-1" />
                 {error}
               </motion.p>
             )}
@@ -261,18 +210,17 @@ const IncidentWizard = () => {
     },
     {
       id: "incident-type",
-      title: "",
-      description: "Select the type of incident that occurred",
+      title: "Incident Type",
+      description: "Select incident type",
       content: (
         <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 50 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="space-y-4 py-2"
+          className="space-y-3"
         >
-
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-2 gap-2">
             {mappedIncidentTypes.map((incident, index) => {
               const Icon = incident.icon;
               const isSelected = selectedIncidentType === incident.id;
@@ -291,33 +239,44 @@ const IncidentWizard = () => {
                     type="button"
                     onClick={() => setSelectedIncidentType(incident.id)}
                     className={cn(
-                      "w-full rounded-md transition-all duration-200 border overflow-hidden cursor-pointer",
+                      "w-full p-2 rounded-lg transition-all duration-200 border",
+                      "hover:shadow-md flex items-center",
                       isSelected
-                        ? `bg-gradient-to-b ${incident.color} shadow-sm`
-                        : `${customStyles.secondaryBackground} ${customStyles.borderColor} hover:bg-slate-600`
+                        ? `${incident.color} border-transparent shadow-lg`
+                        : `bg-slate-700 border-slate-600 ${incident.hoverBg}`
                     )}
                     aria-label={`Select ${incident.label}`}
                   >
-                    <div className="flex flex-col items-center justify-center p-1.5 h-full">
-                      <div
+                    <div
+                      className={cn(
+                        "rounded-full p-1.5 flex-shrink-0",
+                        isSelected ? "bg-white/20" : "bg-slate-800"
+                      )}
+                    >
+                      <Icon
                         className={cn(
-                          "rounded-full p-1 mb-0.5",
-                          isSelected
-                            ? "bg-white/20 text-white"
-                            : `${incident.iconColor}`
+                          "h-4 w-4",
+                          isSelected ? "text-white" : incident.iconColor
                         )}
-                      >
-                        <Icon className="h-6 w-6" />
-                      </div>
-
-                      <span
+                      />
+                    </div>
+                    <div className="text-left ml-2 flex-1 min-w-0">
+                      <p
                         className={cn(
-                          "text-xs font-medium text-center leading-tight",
-                          isSelected ? "text-white" : customStyles.textPrimary
+                          "font-medium text-xs",
+                          isSelected ? "text-white" : "text-gray-100"
                         )}
                       >
                         {incident.label}
-                      </span>
+                      </p>
+                      <p
+                        className={cn(
+                          "text-xs truncate",
+                          isSelected ? "text-white/80" : "text-gray-400"
+                        )}
+                      >
+                        {incident.description}
+                      </p>
                     </div>
                   </button>
                 </motion.div>
@@ -329,10 +288,10 @@ const IncidentWizard = () => {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
-              className="text-sm text-red-500 flex items-center"
+              className="text-sm text-red-400 flex items-center"
               aria-live="polite"
             >
-              <AlertCircle className="h-4 w-4 mr-1" />
+              <AlertTriangle className="h-4 w-4 mr-1" />
               {error}
             </motion.p>
           )}
@@ -342,44 +301,43 @@ const IncidentWizard = () => {
     {
       id: "details",
       title: "Details",
-      description: "",
+      description: "Provide details",
       content: (
         <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 50 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="space-y-4 py-2"
+          className="space-y-2"
         >
           <div className="space-y-2">
+            <Label htmlFor="details" className="text-sm font-medium text-white">
+              Incident Details
+            </Label>
             <Textarea
               id="details"
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              placeholder="Enter brief details about what happened"
+              placeholder="Describe what happened..."
               className={cn(
-                "min-h-32 text-base sm:text-base text-sm",
-                customStyles.inputBackground,
-                customStyles.textPrimary,
-                customStyles.borderColor,
-                customStyles.focusRing,
-                customStyles.focusBorder,
-                "placeholder:text-gray-500 placeholder:text-xs sm:placeholder:text-sm",
+                "min-h-24 text-sm bg-slate-700 border-slate-600 text-white focus:border-blue-500 focus:ring-blue-500 focus:ring-1 rounded-md",
+                "shadow-inner shadow-black/10 placeholder:text-gray-400 placeholder:text-sm",
                 error && !details.trim()
-                  ? "border-red-400 focus-visible:border-red-400 focus-visible:ring-red-400"
+                  ? "border-red-400 focus:border-red-400 focus:ring-red-400"
                   : ""
               )}
-              aria-label="Additional details"
+              aria-describedby="details-error"
             />
             {error && !details.trim() && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
-                className="text-sm text-red-500 flex items-center"
+                className="text-sm text-red-400 flex items-center"
+                id="details-error"
                 aria-live="polite"
               >
-                <AlertCircle className="h-4 w-4 mr-1" />
+                <AlertTriangle className="h-4 w-4 mr-1" />
                 {error}
               </motion.p>
             )}
@@ -389,47 +347,60 @@ const IncidentWizard = () => {
     },
     {
       id: "summary",
-      title: "",
-      description: "",
+      title: "Review",
+      description: "Review & submit",
       content: (
         <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 50 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="space-y-2 py-1"
+          className="space-y-3"
         >
-          <div className="rounded-lg border bg-slate-700/50 border-slate-600 p-3">
-            <div className="grid grid-cols-2 gap-y-2 text-sm">
-              <div className="text-gray-400">Store Number:</div>
-              <div className="text-right font-mono text-white">
-                {storeNumber}
+          <div className="rounded-lg border bg-slate-700/70 border-slate-600 p-3 text-sm">
+            <div className="grid gap-2">
+              <div className="flex justify-between items-center border-b border-slate-600/60 pb-1">
+                <span className="text-gray-300 font-medium">Store #:</span>
+                <span className="text-white font-mono bg-slate-800 px-2 py-0.5 rounded text-xs">
+                  {storeNumber}
+                </span>
               </div>
 
-              <div className="text-gray-400">Incident Type:</div>
-              <div className="text-right">
+              <div className="flex justify-between items-center border-b border-slate-600/60 pb-1">
+                <span className="text-gray-300 font-medium">Incident:</span>
                 {selectedIncident && (
-                  <span
-                    className={`inline-flex items-center text-xs rounded-full px-2 py-0.5 bg-gradient-to-r ${
-                      mappedIncidentTypes.find(
-                        (inc) => inc.id === selectedIncidentType
-                      ).color
-                    } text-white`}
-                  >
-                    {selectedIncident.label}
-                  </span>
+                  <div className="flex items-center">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                        mappedIncidentTypes.find(
+                          (inc) => inc.id === selectedIncidentType
+                        )?.color
+                      } text-white`}
+                    >
+                      {selectedIncident.label}
+                    </span>
+                  </div>
                 )}
               </div>
 
               {details && (
-                <>
-                  <div className="text-gray-400 col-span-2 mt-1">Details:</div>
-                  <div className="col-span-2 bg-slate-800 p-2 rounded text-xs text-gray-300 max-h-24 overflow-auto">
+                <div className="border-b border-slate-600/60 pb-1">
+                  <span className="text-gray-300 font-medium block mb-1">Details:</span>
+                  <div className="bg-slate-800 p-2 rounded text-xs text-white/90 max-h-20 overflow-y-auto">
                     {details}
                   </div>
-                </>
+                </div>
               )}
             </div>
+          </div>
+          
+          <div className="bg-blue-900/20 border border-blue-800/30 rounded-lg p-2 text-xs">
+            <p className="text-blue-300 flex items-start">
+              <AlertTriangle className="h-3 w-3 mt-0.5 mr-1 flex-shrink-0" />
+              <span>
+                Please review details carefully before submitting.
+              </span>
+            </p>
           </div>
         </motion.div>
       ),
@@ -500,7 +471,7 @@ const IncidentWizard = () => {
       // Prepare data for submission
       const incidentData = {
         storeNumber: parseInt(storeNumber, 10),
-        incidentTypes: [selectedIncidentType], // Your service expects an array
+        incidentTypes: [selectedIncidentType], // Service expects an array
         details: details.trim(),
       };
 
@@ -524,100 +495,72 @@ const IncidentWizard = () => {
   };
 
   return (
-    <div
-      className={`w-full max-w-md mx-auto px-4 sm:px-0 rounded-t-xl ${customStyles.mainBackground}`}
-    >
-      <Card
-        className={`shadow-md rounded-xl overflow-hidden !pt-0 ${customStyles.cardBackground}`}
-      >
-        {/* Remove default padding from CardHeader to fix top border issue */}
-        <CardHeader
-          className={`${customStyles.headerGradient} p-4 pb-3 rounded-none text-white`}
-        >
-          <CardTitle className="text-xl font-bold">Incident Report</CardTitle>
-          <CardDescription className="text-blue-100 opacity-90">
-            Report store incidents in a few simple steps
-          </CardDescription>
-        </CardHeader>
-
-        <div className="relative">
-          <div className="absolute top-0 left-0 right-0">
-            <div className="flex justify-between px-8">
-              {steps.map((step, index) => (
-                <div key={step.id} className="flex flex-col items-center">
-                  <motion.div
-                    className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium border transition-colors",
-                      currentStep === index
-                        ? "border-blue-600 bg-blue-600 text-white"
-                        : currentStep > index
-                        ? "border-green-500 bg-green-500 text-white"
-                        : `border-slate-600 bg-slate-700 ${customStyles.textMuted}`
-                    )}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.3, delay: 0.1 * index }}
-                  >
-                    {currentStep > index ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      index + 1
-                    )}
-                  </motion.div>
-                </div>
-              ))}
+    <div className="w-full max-w-md mx-auto px-2 sm:px-0">
+      <div className="bg-slate-800 rounded-xl overflow-hidden shadow-lg border border-slate-700">
+        {/* Progress header */}
+        <div className="bg-blue-700 p-3 relative overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mt-20 -mr-20"></div>
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -mb-10 -ml-10"></div>
+          
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-lg font-bold text-white relative z-10">
+                Incident Report
+              </h1>
+              <p className="text-blue-200 opacity-90 text-xs relative z-10">
+                {steps[currentStep].title} - {steps[currentStep].description}
+              </p>
             </div>
-            <div className="mx-8 mt-4 h-1 bg-slate-700 rounded-full overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"
-                initial={{ width: 0 }}
-                animate={{
-                  width: `${(currentStep / (steps.length - 1)) * 100}%`,
-                }}
-                transition={{ duration: 0.5 }}
-              ></motion.div>
+            
+            {/* Compact step indicators */}
+            <div className="flex space-x-1.5 relative z-10">
+              {steps.map((_, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "w-2 h-2 rounded-full transition-colors",
+                    currentStep === index
+                      ? "bg-white"
+                      : currentStep > index
+                      ? "bg-green-400"
+                      : "bg-blue-900"
+                  )}
+                ></div>
+              ))}
             </div>
           </div>
         </div>
 
-        <CardContent className="pt-10 pb-0">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={steps[currentStep].id}
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 50 }}
-              transition={{ duration: 0.3 }}
-              layout
-            >
-              <div className="space-y-1">
-                <h3 className={`font-bold text-lg ${customStyles.textPrimary}`}>
-                  {steps[currentStep].title}
-                </h3>
-                <p className={`text-xs ${customStyles.textMuted}`}>
-                  {steps[currentStep].description}
-                </p>
-              </div>
-              <motion.div layout className="mt-4">
+        {/* Step content */}
+        <div className="p-3">
+          <div className="min-h-40">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={steps[currentStep].id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
                 {steps[currentStep].content}
               </motion.div>
-            </motion.div>
-          </AnimatePresence>
-        </CardContent>
+            </AnimatePresence>
+          </div>
+        </div>
 
-        <CardFooter
-          className={`flex justify-between border-t ${customStyles.borderColor} py-2 px-4`}
-        >
+        {/* Footer with buttons */}
+        <div className="bg-slate-900/90 border-t border-slate-700 p-3 flex justify-between items-center">
           <Button
             variant="outline"
             onClick={prevStep}
             disabled={currentStep === 0}
             className={cn(
-              "rounded-lg bg-slate-700 border-slate-600 hover:bg-slate-600 text-white",
-              currentStep === 0 && "opacity-50"
+              "h-9 px-3 py-1 rounded-lg bg-transparent border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white",
+              currentStep === 0 && "opacity-50 cursor-not-allowed"
             )}
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-4 w-4 mr-1" />
             Back
           </Button>
 
@@ -625,31 +568,31 @@ const IncidentWizard = () => {
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className={`rounded-lg ${customStyles.buttonGradient} text-white`}
+              className="h-9 px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
             >
               {isSubmitting ? (
-                <>
-                  <span className="animate-spin mr-2">⏳</span>
-                  Submitting...
-                </>
+                <div className="flex items-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+                  <span>Submitting...</span>
+                </div>
               ) : (
                 <>
-                  Submit Report
-                  <Check className="h-4 w-4 ml-2" />
+                  Submit
+                  <Check className="h-4 w-4 ml-1" />
                 </>
               )}
             </Button>
           ) : (
             <Button
               onClick={nextStep}
-              className={`rounded-lg ${customStyles.buttonGradient} text-white`}
+              className="h-9 px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
             >
-              Continue
-              <ArrowRight className="h-4 w-4 ml-2" />
+              Next
+              <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           )}
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
