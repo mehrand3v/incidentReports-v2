@@ -5,31 +5,31 @@ export const STANDARD_INCIDENT_TYPES = [
   {
     id: "shoplifting",
     label: "Shoplifting",
-    description: "Theft of merchandise from the store",
+    description: "Merchandise theft",
     icon: "ShoppingBag",
   },
   {
     id: "robbery",
     label: "Robbery",
-    description: "Theft using force or threats",
+    description: "Forced theft",
     icon: "AlertTriangle",
   },
   {
     id: "beer-run",
     label: "Beer-run",
-    description: "Theft specifically of alcoholic beverages",
+    description: "Alcohol theft",
     icon: "Beer",
   },
   {
     id: "property-damage",
     label: "Property Damage",
-    description: "Damage to store property or fixtures",
+    description: "Store damage",
     icon: "Hammer",
   },
   {
     id: "injury",
     label: "Injury",
-    description: "Customer or employee injury on premises",
+    description: "On-site injury",
     icon: "Stethoscope",
   },
 ];
@@ -39,15 +39,14 @@ export const SPECIAL_INCIDENT_TYPES = [
   {
     id: "mr-pants",
     label: "Mr. Pants",
-    description: "Incident involving known individual 'Mr. Pants'",
+    description: "Known individual",
     icon: "User",
     restrictedToStores: ["2742091"],
   },
   {
     id: "skinny-hispanic",
     label: "Skinny Hispanic",
-    description:
-      "Incident involving known individual described as 'Skinny Hispanic'",
+    description: "Known individual",
     icon: "User",
     restrictedToStores: ["2742091"],
   },
