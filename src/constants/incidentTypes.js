@@ -5,7 +5,7 @@ export const STANDARD_INCIDENT_TYPES = [
   {
     id: "shoplifting",
     label: "Shoplifting",
-    description: "Merchandise theft",
+    description: "Items theft",
     icon: "ShoppingBag",
   },
   {
