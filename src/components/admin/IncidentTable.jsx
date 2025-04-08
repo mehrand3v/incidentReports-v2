@@ -8,6 +8,11 @@ import {
   ChevronLast,
   ChevronLeft,
   ChevronRight,
+  Search,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Filter,
 } from "lucide-react";
 import {
   Table,
@@ -19,7 +24,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Clock } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -64,6 +68,9 @@ const IncidentTable = ({
   // State for details modal
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  
+  // State for row hover and animation
+  const [hoveredRow, setHoveredRow] = useState(null);
 
   // Calculate pagination
   const totalPages = Math.ceil(incidents.length / pageSize);
@@ -152,11 +159,40 @@ const IncidentTable = ({
     setIsDetailsOpen(false);
   };
 
+  // Get status badge
+  const getStatusBadge = (status) => {
+    if (status === "complete" || status === "resolved") {
+      return (
+        <div className="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium bg-gradient-to-r from-green-700 to-green-600 text-white">
+          <CheckCircle className="h-3 w-3 mr-0.5" />
+          <span>Complete</span>
+        </div>
+      );
+    }
+    return (
+      <div className="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium bg-gradient-to-r from-amber-700 to-amber-600 text-white">
+        <Clock className="h-3 w-3 mr-0.5" />
+        <span>Pending</span>
+      </div>
+    );
+  };
+
+  // Handle row hover
+  const handleRowHover = (id) => {
+    setHoveredRow(id);
+  };
+
   // Loading state
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <LoadingSpinner size="large" text="Loading incidents..." />
+      <div className="flex justify-center items-center h-64 bg-slate-800/50 rounded-lg border border-slate-700">
+        <div className="text-center">
+          <div className="inline-block bg-slate-700/50 p-3 rounded-full mb-3">
+            <Search className="h-6 w-6 text-blue-400 animate-pulse" />
+          </div>
+          <LoadingSpinner size="large" text="Loading incidents..." />
+          <p className="text-slate-400 text-sm mt-2">Please wait while we retrieve your data</p>
+        </div>
       </div>
     );
   }
@@ -164,19 +200,24 @@ const IncidentTable = ({
   // Empty state
   if (incidents.length === 0) {
     return (
-      <div className="text-center py-12 bg-slate-700 rounded-lg border border-slate-600">
-        <p className="text-gray-300">
-          No incidents found matching your criteria
+      <div className="text-center py-16 bg-slate-800/70 rounded-lg border border-slate-700">
+        <div className="inline-block bg-slate-700/50 p-4 rounded-full mb-4">
+          <Filter className="h-8 w-8 text-slate-500" />
+        </div>
+        <p className="text-gray-300 text-lg font-medium mb-2">
+          No incidents found
         </p>
-        <p className="text-gray-400 text-sm mt-1">Try adjusting your filters</p>
+        <p className="text-gray-400 text-sm max-w-md mx-auto">
+          Try adjusting your filters or adding new incident reports
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="relative overflow-hidden rounded-lg border border-slate-700 bg-slate-800">
+    <div className="relative overflow-hidden rounded-lg border border-slate-700 bg-gradient-to-b from-slate-800 to-slate-800/90 shadow-lg">
       <div
-        className="overflow-x-auto shadow-md"
+        className="overflow-x-auto"
         style={{ tableLayout: "fixed" }}
       >
         <Table className="w-full text-xs text-left text-gray-300 border-collapse border-spacing-0 p-0 m-0">
@@ -190,42 +231,42 @@ const IncidentTable = ({
             <col style={{ width: columnWidths.case }} />
             <col style={{ width: columnWidths.actions }} />
           </colgroup>
-          <TableHeader className="bg-slate-900">
-            <TableRow className="h-6 border-b border-slate-700">
+          <TableHeader className="bg-gradient-to-r from-slate-900 to-slate-800 sticky top-0 z-10">
+            <TableRow className="h-8 border-b border-slate-700">
               <TableHead
-                className={`px-0.5 py-1 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium ${
+                className={`px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium ${
                   windowWidth >= 1440 ? "pl-2" : ""
                 }`}
               >
                 Date
               </TableHead>
               <TableHead
-                className={`px-0.5 py-1 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium ${
+                className={`px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium ${
                   windowWidth >= 1440 ? "pl-2" : ""
                 }`}
               >
                 Store #
               </TableHead>
               <TableHead
-                className={`px-0.5 py-1 text-gray-200 uppercase text-2xs font-medium ${
+                className={`px-1.5 py-2 text-gray-200 uppercase text-2xs font-medium ${
                   windowWidth >= 1440 ? "pl-2" : ""
                 }`}
               >
                 Incident
               </TableHead>
-              <TableHead className="px-0.5 py-1 text-gray-200 uppercase text-2xs font-medium">
+              <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs font-medium">
                 Details
               </TableHead>
-              <TableHead className="px-0.5 py-1 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
+              <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
                 Status
               </TableHead>
-              <TableHead className="px-0.5 py-1 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
+              <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
                 Police #
               </TableHead>
-              <TableHead className="px-0.5 py-1 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
+              <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
                 Case #
               </TableHead>
-              <TableHead className="px-0.5 py-1 text-gray-200 uppercase text-2xs text-center font-medium">
+              <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs text-center font-medium">
                 Actions
               </TableHead>
             </TableRow>
@@ -234,24 +275,28 @@ const IncidentTable = ({
             {paginatedIncidents.map((incident) => (
               <TableRow
                 key={incident.id}
-                className="border-slate-700 hover:bg-slate-700 h-6"
+                className={`border-slate-700 h-8 transition-colors duration-200 hover:bg-slate-700/60 relative ${
+                  hoveredRow === incident.id ? 'bg-slate-700/40' : ''
+                }`}
+                onMouseEnter={() => handleRowHover(incident.id)}
+                onMouseLeave={() => handleRowHover(null)}
               >
                 <TableCell
-                  className={`px-0.5 py-0.5 text-gray-300 whitespace-nowrap text-xs ${
+                  className={`px-1.5 py-1 text-gray-300 whitespace-nowrap text-xs ${
                     windowWidth >= 1440 ? "pl-2" : ""
                   }`}
                 >
                   {formatDate(incident.timestamp)}
                 </TableCell>
                 <TableCell
-                  className={`px-0.5 py-0.5 font-mono text-amber-300 text-xs ${
+                  className={`px-1.5 py-1 font-mono text-amber-300 text-xs ${
                     windowWidth >= 1440 ? "pl-2" : ""
                   }`}
                 >
                   {formatStoreNumber(incident.storeNumber)}
                 </TableCell>
                 <TableCell
-                  className={`px-0.5 py-0.5 text-gray-300 ${
+                  className={`px-1.5 py-1 text-gray-300 ${
                     windowWidth >= 1440 ? "pl-2" : ""
                   }`}
                 >
@@ -260,38 +305,38 @@ const IncidentTable = ({
                       incident.incidentTypes.map((type) => (
                         <span
                           key={type}
-                          className={`inline-block rounded-sm px-0.5 text-xs font-medium ${
+                          className={`inline-block rounded px-0.5 py-0.5 text-xs font-medium ${
                             type === "shoplifting"
-                              ? "bg-purple-700 text-white"
+                              ? "bg-gradient-to-r from-purple-700 to-purple-600 text-white"
                               : type === "robbery"
-                              ? "bg-red-700 text-white"
+                              ? "bg-gradient-to-r from-red-700 to-red-600 text-white"
                               : type === "beer-run"
-                              ? "bg-orange-800 text-white"
+                              ? "bg-gradient-to-r from-orange-800 to-orange-700 text-white"
                               : type === "property-damage"
-                              ? "bg-blue-600 text-white"
+                              ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
                               : type === "injury"
-                              ? "bg-rose-600 text-white"
+                              ? "bg-gradient-to-r from-rose-600 to-rose-500 text-white"
                               : type === "mr-pants"
-                              ? "bg-indigo-600 text-white"
+                              ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white"
                               : type === "skinny-hispanic"
-                              ? "bg-teal-600 text-white"
-                              : "bg-gray-600 text-white"
+                              ? "bg-gradient-to-r from-teal-600 to-teal-500 text-white"
+                              : "bg-gradient-to-r from-gray-600 to-gray-500 text-white"
                           }`}
                         >
                           {type.replace(/-/g, " ")}
                         </span>
                       ))
                     ) : (
-                      <span className="inline-block rounded-sm px-0.5 text-xs font-medium bg-gray-600 text-white">
+                      <span className="inline-block rounded px-0.5 py-0.5 text-xs font-medium bg-gradient-to-r from-gray-600 to-gray-500 text-white">
                         {incident.incidentTypes || "N/A"}
                       </span>
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="px-0.5 py-0.5 text-gray-300">
+                <TableCell className="px-1.5 py-1 text-gray-300">
                   <Button
                     variant="link"
-                    className="text-cyan-400 p-0 h-auto hover:text-cyan-300 hover:underline text-left w-full cursor-pointer justify-start text-xs mx-0.5"
+                    className="text-blue-400 p-0 h-auto hover:text-blue-300 hover:underline text-left w-full cursor-pointer justify-start text-xs mx-0.5 transition-colors duration-200"
                     onClick={() => handleViewDetails(incident)}
                   >
                     <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium pr-1">
@@ -306,34 +351,23 @@ const IncidentTable = ({
                     </div>
                   </Button>
                 </TableCell>
-                <TableCell className="px-0.5 py-0.5">
-                  <span
-                    className={`inline-flex items-center rounded-sm px-0.5 text-xs font-medium ${
-                      incident.status === "complete" ||
-                      incident.status === "resolved"
-                        ? "bg-green-700 text-white"
-                        : "bg-amber-600 text-white"
-                    }`}
-                  >
-                    {incident.status === "resolved"
-                      ? "Complete"
-                      : incident.status
-                      ? incident.status.charAt(0).toUpperCase() +
-                        incident.status.slice(1)
-                      : "Pending"}
-                  </span>
+                <TableCell className="px-1.5 py-1">
+                  {getStatusBadge(incident.status)}
                 </TableCell>
-                <TableCell className="px-0.5 py-0.5 whitespace-nowrap text-xs">
+                <TableCell className="px-1.5 py-1 whitespace-nowrap text-xs">
                   {incident.policeReport ? (
                     <span className="text-blue-300 font-medium">
                       {incident.policeReport}
                     </span>
                   ) : (
-                    <span className="text-red-400 font-medium">N/A</span>
+                    <span className="text-red-400 font-medium flex items-center">
+                      <AlertCircle className="h-3 w-3 mr-1" />
+                      N/A
+                    </span>
                   )}
                 </TableCell>
 
-                <TableCell className="px-0.5 py-0.5 font-mono whitespace-nowrap text-xs">
+                <TableCell className="px-1.5 py-1 font-mono whitespace-nowrap text-xs">
                   {incident.caseNumber ? (
                     <span className="text-green-400 font-semibold">
                       {incident.caseNumber}
@@ -342,41 +376,41 @@ const IncidentTable = ({
                     <span className="text-red-400 font-medium">N/A</span>
                   )}
                 </TableCell>
-                <TableCell className="px-0.5 py-0.5">
-                  <div className="flex items-center justify-center space-x-0.5">
+                <TableCell className="px-1.5 py-1">
+                  <div className="flex items-center justify-center space-x-1">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-5 w-5 p-0 text-gray-400 hover:text-white hover:bg-slate-700 cursor-pointer"
+                      className="h-6 w-6 p-0 text-gray-400 hover:text-white hover:bg-slate-600 cursor-pointer rounded-full transition-colors duration-200"
                       onClick={() => handleViewDetails(incident)}
                       title="View details"
                     >
-                      <Eye className="h-3 w-3" />
+                      <Eye className="h-3.5 w-3.5" />
                     </Button>
 
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-5 w-5 p-0 text-blue-400 hover:text-blue-300 hover:bg-slate-700 cursor-pointer"
+                      className="h-6 w-6 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/50 cursor-pointer rounded-full transition-colors duration-200"
                       onClick={() =>
                         onEditPoliceReport && onEditPoliceReport(incident)
                       }
                       title="Edit police report number"
                     >
-                      <Pencil className="h-3 w-3" />
+                      <Pencil className="h-3.5 w-3.5" />
                     </Button>
 
                     {isSuperAdmin && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-5 w-5 p-0 text-red-400 hover:text-red-300 hover:bg-slate-700 cursor-pointer"
+                        className="h-6 w-6 p-0 text-red-400 hover:text-red-300 hover:bg-red-900/50 cursor-pointer rounded-full transition-colors duration-200"
                         onClick={() =>
                           onDeleteIncident && onDeleteIncident(incident)
                         }
                         title="Delete incident"
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     )}
                   </div>
@@ -387,9 +421,9 @@ const IncidentTable = ({
         </Table>
       </div>
 
-      {/* Pagination - modified to be more compact with increased gap */}
+      {/* Pagination - Enhanced with more visual interest */}
       {totalPages > 1 && (
-        <div className="py-2 bg-slate-800 border-t border-slate-700 mt-8">
+        <div className="py-3 bg-gradient-to-t from-slate-900 to-slate-800 border-t border-slate-700">
           <Pagination className="justify-center">
             <PaginationContent>
               {/* First page button */}
@@ -399,11 +433,11 @@ const IncidentTable = ({
                   className={`transition-all duration-200 cursor-pointer h-7 w-7 ${
                     currentPage === 1
                       ? "opacity-50 cursor-not-allowed"
-                      : "text-blue-400 hover:text-blue-300 hover:bg-slate-700"
+                      : "text-blue-400 hover:text-blue-300 hover:bg-blue-900/30"
                   }`}
                   disabled={currentPage === 1}
                 >
-                  <ChevronFirst className="h-3 w-3" />
+                  <ChevronFirst className="h-3.5 w-3.5" />
                 </PaginationLink>
               </PaginationItem>
 
@@ -415,12 +449,12 @@ const IncidentTable = ({
                   className={`h-7 p-0 w-7 transition-all duration-200 cursor-pointer ${
                     currentPage === 1
                       ? "opacity-50 cursor-not-allowed"
-                      : "text-blue-400 hover:text-blue-300 hover:bg-slate-700 border-slate-600"
+                      : "text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 border-slate-600"
                   }`}
                   disabled={currentPage === 1}
                   onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 >
-                  <ChevronLeft className="h-3 w-3" />
+                  <ChevronLeft className="h-3.5 w-3.5" />
                 </Button>
               </PaginationItem>
 
@@ -451,7 +485,7 @@ const IncidentTable = ({
                         isActive={currentPage === pageNum}
                         className={`transition-all duration-200 cursor-pointer h-7 w-7 text-xs ${
                           currentPage === pageNum
-                            ? "bg-blue-700 text-white hover:bg-blue-600"
+                            ? "bg-gradient-to-r from-blue-700 to-blue-600 text-white hover:from-blue-600 hover:to-blue-500 font-medium shadow-sm"
                             : "text-gray-300 hover:text-white hover:bg-slate-700"
                         }`}
                       >
@@ -480,14 +514,14 @@ const IncidentTable = ({
                   className={`h-7 p-0 w-7 transition-all duration-200 cursor-pointer ${
                     currentPage === totalPages
                       ? "opacity-50 cursor-not-allowed"
-                      : "text-blue-400 hover:text-blue-300 hover:bg-slate-700 border-slate-600"
+                      : "text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 border-slate-600"
                   }`}
                   disabled={currentPage === totalPages}
                   onClick={() =>
                     handlePageChange(Math.min(totalPages, currentPage + 1))
                   }
                 >
-                  <ChevronRight className="h-3 w-3" />
+                  <ChevronRight className="h-3.5 w-3.5" />
                 </Button>
               </PaginationItem>
 
@@ -498,87 +532,129 @@ const IncidentTable = ({
                   className={`transition-all duration-200 cursor-pointer h-7 w-7 ${
                     currentPage === totalPages
                       ? "opacity-50 cursor-not-allowed"
-                      : "text-blue-400 hover:text-blue-300 hover:bg-slate-700"
+                      : "text-blue-400 hover:text-blue-300 hover:bg-blue-900/30"
                   }`}
                   disabled={currentPage === totalPages}
                 >
-                  <ChevronLast className="h-3 w-3" />
+                  <ChevronLast className="h-3.5 w-3.5" />
                 </PaginationLink>
               </PaginationItem>
             </PaginationContent>
           </Pagination>
+          <div className="text-center text-xs text-slate-500 mt-2">
+            Showing {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, incidents.length)} of {incidents.length} incidents
+          </div>
         </div>
       )}
 
-      {/* Details Dialog - no changes needed here */}
+      {/* Details Dialog - Enhanced */}
       <Dialog open={isDetailsOpen} onOpenChange={handleCloseDetails}>
-        <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-3xl">
+        <DialogContent className="bg-gradient-to-b from-slate-800 to-slate-800/95 border-slate-700 text-white max-w-3xl shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-blue-400 text-xl">
+            <DialogTitle className="text-blue-400 text-xl flex items-center">
+              <Eye className="h-5 w-5 mr-2 text-blue-400" />
               Incident Details
             </DialogTitle>
             <DialogDescription className="text-gray-400">
-              {selectedIncident && <>Case #: {selectedIncident.caseNumber}</>}
+              {selectedIncident && (
+                <div className="flex items-center mt-1">
+                  <span className="bg-slate-700 px-2 py-0.5 rounded text-white font-mono">
+                    Case #{selectedIncident.caseNumber}
+                  </span>
+                </div>
+              )}
             </DialogDescription>
           </DialogHeader>
 
           {selectedIncident && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
+                <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm">
+                  <h4 className="text-gray-400 text-sm">Incident Type</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {Array.isArray(selectedIncident.incidentTypes) ? (
+                      selectedIncident.incidentTypes.map((type) => (
+                        <span
+                          key={type}
+                          className={`inline-block rounded px-2 py-1 text-xs font-medium ${
+                            type === "shoplifting"
+                              ? "bg-gradient-to-r from-purple-700 to-purple-600 text-white"
+                              : type === "robbery"
+                              ? "bg-gradient-to-r from-red-700 to-red-600 text-white"
+                              : type === "beer-run"
+                              ? "bg-gradient-to-r from-orange-800 to-orange-700 text-white"
+                              : type === "property-damage"
+                              ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
+                              : type === "injury"
+                              ? "bg-gradient-to-r from-rose-600 to-rose-500 text-white"
+                              : type === "mr-pants"
+                              ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white"
+                              : type === "skinny-hispanic"
+                              ? "bg-gradient-to-r from-teal-600 to-teal-500 text-white"
+                              : "bg-gradient-to-r from-gray-600 to-gray-500 text-white"
+                          }`}
+                        >
+                          {type.replace(/-/g, " ")}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="bg-gradient-to-r from-gray-600 to-gray-500 text-white rounded px-2 py-1 text-xs font-medium">
+                        {selectedIncident.incidentTypes || "N/A"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm">
+                  <h4 className="text-gray-400 text-sm">Status</h4>
+                  <div>
+                    {selectedIncident.status === "complete" || selectedIncident.status === "resolved" ? (
+                      <div className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium bg-gradient-to-r from-green-700 to-green-600 text-white">
+                        <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                        Complete
+                      </div>
+                    ) : (
+                      <div className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium bg-gradient-to-r from-amber-700 to-amber-600 text-white">
+                        <Clock className="h-3.5 w-3.5 mr-1.5" />
+                        Pending
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm">
                   <h4 className="text-gray-400 text-sm">Date & Time</h4>
-                  <p className="text-white">
+                  <p className="text-white font-medium">
                     {formatDate(selectedIncident.timestamp)}
                   </p>
                 </div>
 
-                <div className="space-y-1">
+                <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm">
                   <h4 className="text-gray-400 text-sm">Store Number</h4>
-                  <p className="text-white font-mono">
+                  <p className="text-amber-300 font-medium font-mono">
                     {formatStoreNumber(selectedIncident.storeNumber)}
                   </p>
                 </div>
 
-                <div className="space-y-1">
-                  <h4 className="text-gray-400 text-sm">Incident Type</h4>
-                  <p className="text-white">
-                    {formatIncidentTypes(selectedIncident.incidentTypes)}
-                  </p>
-                </div>
-
-                <div className="space-y-1">
-                  <h4 className="text-gray-400 text-sm">Status</h4>
-                  <div>
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
-                        selectedIncident.status === "complete" ||
-                        selectedIncident.status === "resolved"
-                          ? "bg-green-700 text-white"
-                          : "bg-amber-600 text-white"
-                      }`}
-                    >
-                      {selectedIncident.status === "resolved"
-                        ? "Complete"
-                        : selectedIncident.status
-                        ? selectedIncident.status.charAt(0).toUpperCase() +
-                          selectedIncident.status.slice(1)
-                        : "Pending"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
+                <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm">
                   <h4 className="text-gray-400 text-sm">
                     Police Report Number
                   </h4>
                   <p className="text-white">
-                    {selectedIncident.policeReport || "None"}
+                    {selectedIncident.policeReport ? (
+                      <span className="text-blue-300 font-mono">{selectedIncident.policeReport}</span>
+                    ) : (
+                      <span className="text-red-400 flex items-center">
+                        <AlertCircle className="h-3.5 w-3.5 mr-1.5" />
+                        Not provided
+                      </span>
+                    )}
                   </p>
                 </div>
 
-                <div className="space-y-1">
+                <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm">
                   <h4 className="text-gray-400 text-sm">Case Number</h4>
-                  <p className="text-white font-mono">
+                  <p className="text-green-400 font-mono font-bold">
                     {selectedIncident.caseNumber}
                   </p>
                 </div>
@@ -586,17 +662,17 @@ const IncidentTable = ({
 
               <div className="space-y-1">
                 <h4 className="text-gray-400 text-sm">Details</h4>
-                <div className="bg-slate-700 p-4 rounded-lg border border-slate-600 min-h-24 whitespace-pre-wrap">
+                <div className="bg-gradient-to-r from-slate-700/80 to-slate-700/60 p-4 rounded-lg border border-slate-600/50 min-h-24 whitespace-pre-wrap shadow-inner">
                   {selectedIncident.details ||
                     "No additional details provided."}
                 </div>
               </div>
 
-              <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between pt-4 border-t border-slate-700">
+              <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between pt-4 border-t border-slate-700/50">
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    className="border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white transition-colors duration-200"
+                    className="border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white transition-colors duration-300"
                     onClick={() => {
                       const newStatus =
                         selectedIncident.status === "complete"
@@ -607,19 +683,28 @@ const IncidentTable = ({
                       handleCloseDetails();
                     }}
                   >
-                    {selectedIncident.status === "complete"
-                      ? "Mark as Pending"
-                      : "Mark as Complete"}
+                    {selectedIncident.status === "complete" ? (
+                      <>
+                        <Clock className="h-4 w-4 mr-2" />
+                        Mark as Pending
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Mark as Complete
+                      </>
+                    )}
                   </Button>
 
                   <Button
-                    className="bg-blue-700 hover:bg-blue-600 text-white transition-colors duration-200"
+                    className="bg-blue-700 hover:bg-blue-600 text-white transition-colors duration-300"
                     onClick={() => {
                       onEditPoliceReport &&
                         onEditPoliceReport(selectedIncident);
                       handleCloseDetails();
                     }}
                   >
+                    <Pencil className="h-4 w-4 mr-2" />
                     Edit Police Report #
                   </Button>
                 </div>
@@ -627,7 +712,7 @@ const IncidentTable = ({
                 {isSuperAdmin && (
                   <Button
                     variant="destructive"
-                    className="bg-red-800 hover:bg-red-700 text-white transition-colors duration-200"
+                    className="bg-gradient-to-r from-red-800 to-red-700 hover:from-red-700 hover:to-red-600 text-white transition-colors duration-300"
                     onClick={() => {
                       onDeleteIncident && onDeleteIncident(selectedIncident);
                       handleCloseDetails();
