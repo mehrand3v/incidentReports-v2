@@ -392,6 +392,34 @@ const GuidedDetailsForm = ({
     // Common questions for all incident types
     const baseQuestions = [timeQuestion];
 
+    // Beer options with sizes
+    const beerOptions = [
+      // Modelo options
+      "Modelo 6pk",
+      "Modelo 12pk",
+      "Modelo 18pk",
+      "Modelo 24pk",
+      // Corona options
+      "Corona 6pk",
+      "Corona 12pk",
+      "Corona 18pk",
+      "Corona 24pk",
+      // Michelob Ultra options
+      "Michelob Ultra 6pk",
+      "Michelob Ultra 12pk",
+      "Michelob Ultra 18pk",
+      "Michelob Ultra 24pk",
+      // Heineken options
+      "Heineken 4pk",
+      "Heineken 6pk",
+      "Heineken 12pk",
+      "Heineken 24pk",
+      // Dos Equis options
+      "Dos Equis 6pk",
+      "Dos Equis 12pk",
+      "Dos Equis 24pk",
+    ];
+
     // Add incident type specific questions based on data analysis
     if (incidentType === "beer-run") {
       return [
@@ -415,11 +443,15 @@ const GuidedDetailsForm = ({
           type: "quickSelect",
           placeholder: "e.g. 2 cases of beer",
           options: [
-            "Case of Modelo",
-            "Corona beer",
+            // Most common beer options for beer runs
+            "Modelo 12pk",
+            "Corona 12pk",
+            "Michelob Ultra 12pk",
+            "Heineken 6pk",
+            "Dos Equis 12pk",
             "Multiple beer cases",
-            "18-pack",
           ],
+          dropdownOptions: beerOptions,
           icon: <ShoppingCart className="h-4 w-4 text-blue-400" />,
         },
         {
@@ -472,15 +504,19 @@ const GuidedDetailsForm = ({
         ...baseQuestions,
         {
           id: "itemsStolen",
-          label: "What items were taken?",
+          label: "What beer was taken?",
           type: "quickSelect",
           placeholder: "e.g. 2 cases of Modelo",
           options: [
-            "Case of beer",
-            "Pack of Modelo",
-            "Corona beer",
+            // Most common beer options for mr-pants incidents
+            "Modelo 12pk",
+            "Modelo 18pk",
+            "Corona 12pk",
+            "Corona 18pk",
             "Multiple beer cases",
+            "30pk of beer",
           ],
+          dropdownOptions: beerOptions,
           icon: <ShoppingCart className="h-4 w-4 text-blue-400" />,
         },
         {
@@ -524,7 +560,7 @@ const GuidedDetailsForm = ({
           id: "additionalDetails",
           label: "Any other details?",
           type: "textarea",
-          placeholder: "Additional information like weapon type...",
+          placeholder: "Additional information...",
           rows: 2,
         },
       ];
@@ -829,13 +865,216 @@ const GuidedDetailsForm = ({
                 ))}
               </div>
 
+              {/* Beer dropdown for selecting more options */}
+              {question.dropdownOptions && question.id === "itemsStolen" && (
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-1"
+                >
+                  {/* Custom Beer Dropdown Implementation */}
+                  <div className="relative">
+                    <label
+                      htmlFor={`guided-${question.id}-custom-dropdown`}
+                      className="text-xs text-blue-400 block mb-1 flex items-center"
+                    >
+                      <ShoppingCart className="h-3 w-3 mr-1" />
+                      More beer options:
+                    </label>
+
+                    {/* Custom dropdown button */}
+                    <div className="relative">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        id={`guided-${question.id}-custom-dropdown`}
+                        onClick={() => {
+                          // Toggle dropdown visibility state
+                          setGuidedDetails((prev) => ({
+                            ...prev,
+                            dropdownOpen: !prev.dropdownOpen,
+                          }));
+                        }}
+                        className="w-full flex items-center justify-between bg-slate-800 border-blue-500/30 text-white text-sm py-2 px-3 hover:bg-slate-700 transition-all duration-200 shadow-md h-10"
+                      >
+                        <span className="truncate text-left">
+                          {guidedDetails.selectedBeerText ||
+                            "Select a beer type & size..."}
+                        </span>
+                        <div className="text-blue-400 ml-2">
+                          <svg
+                            className={`h-4 w-4 fill-current transition-transform duration-200 ${
+                              guidedDetails.dropdownOpen
+                                ? "transform rotate-180"
+                                : ""
+                            }`}
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      </Button>
+
+                      {/* Custom dropdown options */}
+                      {guidedDetails.dropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute z-50 w-full mt-1 max-h-60 overflow-auto rounded-md bg-slate-800 border border-blue-500/30 shadow-lg"
+                          style={{
+                            scrollbarWidth: "thin",
+                            scrollbarColor: "#4f46e580 #1e293b",
+                          }}
+                        >
+                          <div className="py-1">
+                            {/* Beer brand categories */}
+                            <div className="px-3 py-1.5 text-xs font-semibold text-indigo-300 bg-indigo-900/30 border-b border-indigo-700/50">
+                              Modelo
+                            </div>
+                            {question.dropdownOptions
+                              .filter((option) => option.includes("Modelo"))
+                              .map((option, index) => (
+                                <div
+                                  key={`modelo-${index}`}
+                                  className="px-3 py-2 text-sm text-white hover:bg-indigo-600/20 cursor-pointer flex items-center"
+                                  onClick={() => {
+                                    handleGuidedChange(question.id, option);
+                                    setGuidedDetails((prev) => ({
+                                      ...prev,
+                                      dropdownOpen: false,
+                                      selectedBeerText: option,
+                                    }));
+                                  }}
+                                >
+                                  {option}
+                                </div>
+                              ))}
+
+                            <div className="px-3 py-1.5 text-xs font-semibold text-amber-300 bg-amber-900/30 border-b border-amber-700/50 mt-1">
+                              Corona
+                            </div>
+                            {question.dropdownOptions
+                              .filter((option) => option.includes("Corona"))
+                              .map((option, index) => (
+                                <div
+                                  key={`corona-${index}`}
+                                  className="px-3 py-2 text-sm text-white hover:bg-amber-600/20 cursor-pointer flex items-center"
+                                  onClick={() => {
+                                    handleGuidedChange(question.id, option);
+                                    setGuidedDetails((prev) => ({
+                                      ...prev,
+                                      dropdownOpen: false,
+                                      selectedBeerText: option,
+                                    }));
+                                  }}
+                                >
+                                  {option}
+                                </div>
+                              ))}
+
+                            <div className="px-3 py-1.5 text-xs font-semibold text-blue-300 bg-blue-900/30 border-b border-blue-700/50 mt-1">
+                              Michelob Ultra
+                            </div>
+                            {question.dropdownOptions
+                              .filter((option) => option.includes("Michelob"))
+                              .map((option, index) => (
+                                <div
+                                  key={`michelob-${index}`}
+                                  className="px-3 py-2 text-sm text-white hover:bg-blue-600/20 cursor-pointer flex items-center"
+                                  onClick={() => {
+                                    handleGuidedChange(question.id, option);
+                                    setGuidedDetails((prev) => ({
+                                      ...prev,
+                                      dropdownOpen: false,
+                                      selectedBeerText: option,
+                                    }));
+                                  }}
+                                >
+                                  {option}
+                                </div>
+                              ))}
+
+                            <div className="px-3 py-1.5 text-xs font-semibold text-green-300 bg-green-900/30 border-b border-green-700/50 mt-1">
+                              Heineken
+                            </div>
+                            {question.dropdownOptions
+                              .filter((option) => option.includes("Heineken"))
+                              .map((option, index) => (
+                                <div
+                                  key={`heineken-${index}`}
+                                  className="px-3 py-2 text-sm text-white hover:bg-green-600/20 cursor-pointer flex items-center"
+                                  onClick={() => {
+                                    handleGuidedChange(question.id, option);
+                                    setGuidedDetails((prev) => ({
+                                      ...prev,
+                                      dropdownOpen: false,
+                                      selectedBeerText: option,
+                                    }));
+                                  }}
+                                >
+                                  {option}
+                                </div>
+                              ))}
+
+                            <div className="px-3 py-1.5 text-xs font-semibold text-yellow-300 bg-yellow-900/30 border-b border-yellow-700/50 mt-1">
+                              Dos Equis
+                            </div>
+                            {question.dropdownOptions
+                              .filter((option) => option.includes("Dos Equis"))
+                              .map((option, index) => (
+                                <div
+                                  key={`dosequis-${index}`}
+                                  className="px-3 py-2 text-sm text-white hover:bg-yellow-600/20 cursor-pointer flex items-center"
+                                  onClick={() => {
+                                    handleGuidedChange(question.id, option);
+                                    setGuidedDetails((prev) => ({
+                                      ...prev,
+                                      dropdownOpen: false,
+                                      selectedBeerText: option,
+                                    }));
+                                  }}
+                                >
+                                  {option}
+                                </div>
+                              ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
+
+                    {/* Click outside handler */}
+                    {guidedDetails.dropdownOpen && (
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => {
+                          setGuidedDetails((prev) => ({
+                            ...prev,
+                            dropdownOpen: false,
+                          }));
+                        }}
+                      />
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
               {/* Custom input option with improved styling */}
               <div className="mt-1">
                 <Input
                   id={`guided-${question.id}`}
                   value={
                     // Only show value if it's not one of the predefined options
-                    question.options.includes(guidedDetails[question.id])
+                    question.options.includes(guidedDetails[question.id]) ||
+                    (question.dropdownOptions &&
+                      question.dropdownOptions.includes(
+                        guidedDetails[question.id]
+                      ))
                       ? ""
                       : guidedDetails[question.id]
                   }
