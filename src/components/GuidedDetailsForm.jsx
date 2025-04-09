@@ -420,7 +420,7 @@ const GuidedDetailsForm = ({
       "Michelob Ultra",
       "Heineken",
       "Dos Equis",
-      "Multiple brands",
+      "Other Brands",
     ];
 
     const beerSizes = ["4pk", "6pk", "12pk", "18pk", "24pk", "30pk"];
