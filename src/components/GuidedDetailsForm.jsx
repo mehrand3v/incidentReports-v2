@@ -40,6 +40,8 @@ const GuidedDetailsForm = ({
     suspectDescription: "",
     itemsStolen: "",
     additionalDetails: "",
+    dropdownOpen: false,
+    selectedBeerText: "",
   });
 
   // Final combined text
@@ -71,6 +73,8 @@ const GuidedDetailsForm = ({
       suspectDescription: "",
       itemsStolen: "",
       additionalDetails: "",
+      dropdownOpen: false,
+      selectedBeerText: "",
     });
     setFilledFields({
       whenHappened: true, // Pre-fill this field
@@ -338,11 +342,37 @@ const GuidedDetailsForm = ({
   };
 
   // Handle guided form changes with field tracking
-  const handleGuidedChange = (field, val) => {
-    setGuidedDetails((prev) => ({
-      ...prev,
-      [field]: val,
-    }));
+  const handleGuidedChange = (field, val, append = false) => {
+    setGuidedDetails((prev) => {
+      // For suspect description, check if we're selecting from predefined options
+      if (field === "suspectDescription") {
+        const questionOptions =
+          getQuestionsForIncidentType().find(
+            (q) => q.id === "suspectDescription"
+          )?.options || [];
+
+        // If this is a predefined option, treat it specially
+        if (questionOptions.includes(val)) {
+          return {
+            ...prev,
+            [field]: val, // Just use the option value directly
+          };
+        }
+      }
+
+      // If append flag is true, append to existing value instead of replacing
+      if (append && prev[field]) {
+        return {
+          ...prev,
+          [field]: `${prev[field]}, ${val}`, // Add comma separator for readability
+        };
+      } else {
+        return {
+          ...prev,
+          [field]: val,
+        };
+      }
+    });
 
     // Track that this field has been filled
     if (val) {
@@ -847,22 +877,63 @@ const GuidedDetailsForm = ({
 
               {/* Quick select options in a grid with improved styling */}
               <div className="grid grid-cols-2 gap-2">
-                {question.options.map((option, index) => (
-                  <Button
-                    key={index}
-                    type="button"
-                    variant="outline"
-                    className={cn(
-                      "w-full border-slate-600 text-gray-300 hover:bg-slate-700 shadow-sm",
-                      "text-xs py-1.5 transition-all duration-200",
-                      guidedDetails[question.id] === option &&
-                        "bg-gradient-to-r from-blue-700 to-indigo-600 text-white border-blue-600 hover:from-blue-600 hover:to-indigo-500 shadow-md"
-                    )}
-                    onClick={() => handleGuidedChange(question.id, option)}
-                  >
-                    {option}
-                  </Button>
-                ))}
+                {question.options.map((option, index) => {
+                  // Different color schemes based on the question and index
+                  let colorScheme;
+
+                  if (question.id === "suspectDescription") {
+                    // Colors for person descriptions
+                    const suspectColors = [
+                      "from-red-700 to-red-600 border-red-600 hover:from-red-600 hover:to-red-500", // First option
+                      "from-blue-700 to-blue-600 border-blue-600 hover:from-blue-600 hover:to-blue-500", // Second option
+                      "from-green-700 to-green-600 border-green-600 hover:from-green-600 hover:to-green-500", // Third option
+                      "from-purple-700 to-purple-600 border-purple-600 hover:from-purple-600 hover:to-purple-500", // Fourth option
+                    ];
+                    colorScheme = suspectColors[index % suspectColors.length];
+                  } else if (question.id === "itemsStolen") {
+                    // Colors for stolen items
+                    const itemColors = [
+                      "from-amber-700 to-amber-600 border-amber-600 hover:from-amber-600 hover:to-amber-500", // First option
+                      "from-emerald-700 to-emerald-600 border-emerald-600 hover:from-emerald-600 hover:to-emerald-500", // Second option
+                      "from-sky-700 to-sky-600 border-sky-600 hover:from-sky-600 hover:to-sky-500", // Third option
+                      "from-fuchsia-700 to-fuchsia-600 border-fuchsia-600 hover:from-fuchsia-600 hover:to-fuchsia-500", // Fourth option
+                      "from-orange-700 to-orange-600 border-orange-600 hover:from-orange-600 hover:to-orange-500", // Fifth option
+                      "from-cyan-700 to-cyan-600 border-cyan-600 hover:from-cyan-600 hover:to-cyan-500", // Sixth option
+                    ];
+                    colorScheme = itemColors[index % itemColors.length];
+                  } else {
+                    // Default color scheme
+                    const defaultColors = [
+                      "from-blue-700 to-indigo-600 border-blue-600 hover:from-blue-600 hover:to-indigo-500", // Default
+                      "from-purple-700 to-indigo-600 border-purple-600 hover:from-purple-600 hover:to-indigo-500",
+                      "from-indigo-700 to-blue-600 border-indigo-600 hover:from-indigo-600 hover:to-blue-500",
+                      "from-violet-700 to-purple-600 border-violet-600 hover:from-violet-600 hover:to-purple-500",
+                    ];
+                    colorScheme = defaultColors[index % defaultColors.length];
+                  }
+
+                  // Check if this option is selected
+                  const isSelected =
+                    guidedDetails[question.id].startsWith(option);
+
+                  return (
+                    <Button
+                      key={index}
+                      type="button"
+                      variant="outline"
+                      className={cn(
+                        "w-full shadow-sm text-xs py-1.5 transition-all duration-200",
+                        // Apply different color schemes based on button index
+                        !isSelected
+                          ? "border-slate-600 text-gray-300 hover:bg-slate-700"
+                          : `bg-gradient-to-r ${colorScheme} text-white shadow-md`
+                      )}
+                      onClick={() => handleGuidedChange(question.id, option)}
+                    >
+                      {option}
+                    </Button>
+                  );
+                })}
               </div>
 
               {/* Beer dropdown for selecting more options */}
@@ -876,10 +947,10 @@ const GuidedDetailsForm = ({
                   <div className="relative">
                     <label
                       htmlFor={`guided-${question.id}-custom-dropdown`}
-                      className="text-xs text-blue-400 block mb-1 flex items-center"
+                      className="text-sm font-medium text-yellow-300 block mb-2 flex items-center bg-gradient-to-r from-amber-900/40 to-amber-800/40 p-2 rounded-md border-l-2 border-yellow-500"
                     >
-                      <ShoppingCart className="h-3 w-3 mr-1" />
-                      More beer options:
+                      <ShoppingCart className="h-4 w-4 mr-2 text-yellow-400" />
+                      More Beer Options
                     </label>
 
                     {/* Custom dropdown button */}
@@ -895,13 +966,13 @@ const GuidedDetailsForm = ({
                             dropdownOpen: !prev.dropdownOpen,
                           }));
                         }}
-                        className="w-full flex items-center justify-between bg-slate-800 border-blue-500/30 text-white text-sm py-2 px-3 hover:bg-slate-700 transition-all duration-200 shadow-md h-10"
+                        className="w-full flex items-center justify-between bg-slate-800 border-yellow-500/50 text-white text-sm py-2 px-3 hover:bg-slate-700 transition-all duration-200 shadow-md h-10"
                       >
                         <span className="truncate text-left">
                           {guidedDetails.selectedBeerText ||
                             "Select a beer type & size..."}
                         </span>
-                        <div className="text-blue-400 ml-2">
+                        <div className="text-yellow-400 ml-2">
                           <svg
                             className={`h-4 w-4 fill-current transition-transform duration-200 ${
                               guidedDetails.dropdownOpen
@@ -1066,22 +1137,66 @@ const GuidedDetailsForm = ({
 
               {/* Custom input option with improved styling */}
               <div className="mt-1">
+                <Label
+                  htmlFor={`guided-${question.id}-custom`}
+                  className="text-xs text-slate-300 block mb-1"
+                >
+                  {question.id === "suspectDescription"
+                    ? "Add more details:"
+                    : "Or enter custom:"}
+                </Label>
                 <Input
-                  id={`guided-${question.id}`}
+                  id={`guided-${question.id}-custom`}
                   value={
-                    // Only show value if it's not one of the predefined options
-                    question.options.includes(guidedDetails[question.id]) ||
-                    (question.dropdownOptions &&
-                      question.dropdownOptions.includes(
-                        guidedDetails[question.id]
-                      ))
+                    // For suspect description, don't clear the field when options are selected
+                    question.id === "suspectDescription"
+                      ? // Only show the custom part if there's content after the selected option
+                        question.options.some((opt) =>
+                          guidedDetails[question.id].startsWith(opt)
+                        )
+                        ? guidedDetails[question.id].replace(/^[^,]*,\s*/, "") // Show only text after the first comma
+                        : guidedDetails[question.id] // Show full value if no option is selected
+                      : // For other fields, behave as before
+                      question.options.includes(guidedDetails[question.id]) ||
+                        (question.dropdownOptions &&
+                          question.dropdownOptions.includes(
+                            guidedDetails[question.id]
+                          ))
                       ? ""
                       : guidedDetails[question.id]
                   }
-                  onChange={(e) =>
-                    handleGuidedChange(question.id, e.target.value)
+                  onChange={(e) => {
+                    // For suspect description, append the text without replacing the selected option
+                    if (question.id === "suspectDescription") {
+                      const selectedOption = question.options.find((opt) =>
+                        guidedDetails[question.id].startsWith(opt)
+                      );
+
+                      if (selectedOption) {
+                        // If an option is already selected, update only the text after it
+                        handleGuidedChange(
+                          question.id,
+                          e.target.value
+                            ? `${selectedOption}, ${e.target.value}`
+                            : selectedOption
+                        );
+                      } else {
+                        // If no option is selected, just update with the new text
+                        handleGuidedChange(question.id, e.target.value);
+                      }
+                    } else {
+                      // For other fields, behave as before
+                      handleGuidedChange(question.id, e.target.value);
+                    }
+                  }}
+                  placeholder={
+                    question.id === "suspectDescription" &&
+                    question.options.some((opt) =>
+                      guidedDetails[question.id].startsWith(opt)
+                    )
+                      ? "Add more details about the person..."
+                      : question.placeholder
                   }
-                  placeholder={question.placeholder}
                   className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
                 />
               </div>
