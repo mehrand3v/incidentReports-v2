@@ -10,6 +10,7 @@ import {
   updateIncident,
   searchByCaseNumber,
 } from "../services/incident";
+import { convertFirestoreTimestamps } from "../utils/timestampUtils";
 import { getDocuments } from "../services/db"; // Add this import
 import { Timestamp, where, orderBy } from "firebase/firestore";
 import { useAuth } from "./useAuth";
@@ -76,36 +77,24 @@ export const useIncidents = (initialFilters = {}) => {
        const data = await getDocuments("incident-reports", constraints);
 
        // Sort incidents by timestamp in descending order (newest first)
-       const sortedData = [...data].sort((a, b) => {
-         // Get valid timestamps or 0 if invalid
-         const getValidDate = (timestamp) => {
-           try {
-             // Handle Firestore Timestamp objects
-             if (timestamp && typeof timestamp.toDate === "function") {
-               return timestamp.toDate().getTime();
-             }
+const sortedData = [...data].sort((a, b) => {
+  // Get valid timestamps or 0 if invalid
+  const getValidDate = (timestamp) => {
+    try {
+      // Handle all timestamp types using our utility
+      const dateA = convertFirestoreTimestamps({
+        timestamp: timestamp,
+      }).timestamp;
+      return dateA instanceof Date ? dateA.getTime() : 0;
+    } catch (e) {
+      console.error("Error parsing date:", e, timestamp);
+      return 0;
+    }
+  };
 
-             // Handle Date objects
-             if (timestamp instanceof Date) {
-               return timestamp.getTime();
-             }
-
-             // Try to parse as string
-             if (timestamp) {
-               const parsed = new Date(timestamp);
-               return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
-             }
-
-             return 0;
-           } catch (e) {
-             console.error("Error parsing date:", e, timestamp);
-             return 0;
-           }
-         };
-
-         // Sort newest first
-         return getValidDate(b.timestamp) - getValidDate(a.timestamp);
-       });
+  // Sort newest first
+  return getValidDate(b.timestamp) - getValidDate(a.timestamp);
+});
 
        // Apply client-side filtering for searchText if provided
        let filteredData = sortedData;

@@ -17,7 +17,7 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { generateCaseNumber } from "../utils/caseNumberGenerator";
-
+import { convertFirestoreTimestamps } from "../utils/timestampUtils";
 // Collection name
 const COLLECTION_NAME = "incident-reports";
 
@@ -101,15 +101,13 @@ export const getIncidents = async (filters = {}) => {
     // Get the documents
     const querySnapshot = await getDocs(q);
 
-    // Format the results
+    // Format the results with consistent timestamp handling
     const incidents = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       incidents.push({
         id: doc.id,
-        ...data,
-        // Convert Firestore timestamp to JS Date
-        timestamp: data.timestamp ? data.timestamp.toDate() : null,
+        ...convertFirestoreTimestamps(data),
       });
     });
 
@@ -130,9 +128,7 @@ export const getIncidentById = async (id) => {
       const data = docSnap.data();
       return {
         id: docSnap.id,
-        ...data,
-        // Convert Firestore timestamp to JS Date
-        timestamp: data.timestamp ? data.timestamp.toDate() : null,
+        ...convertFirestoreTimestamps(data),
       };
     } else {
       return null; // Document not found
@@ -236,8 +232,7 @@ export const searchByCaseNumber = async (caseNumber) => {
 
     return {
       id: doc.id,
-      ...data,
-      timestamp: data.timestamp ? data.timestamp.toDate() : null,
+      ...convertFirestoreTimestamps(data),
     };
   } catch (error) {
     console.error(

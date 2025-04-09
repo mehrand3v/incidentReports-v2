@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import TimestampDisplay from "../shared/TimestampDisplay";
 import {
   Pagination,
   PaginationContent,
@@ -68,7 +69,7 @@ const IncidentTable = ({
   // State for details modal
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  
+
   // State for row hover and animation
   const [hoveredRow, setHoveredRow] = useState(null);
 
@@ -216,10 +217,7 @@ const IncidentTable = ({
 
   return (
     <div className="relative overflow-hidden rounded-lg border border-slate-700 bg-gradient-to-b from-slate-800 to-slate-800/90 shadow-lg">
-      <div
-        className="overflow-x-auto"
-        style={{ tableLayout: "fixed" }}
-      >
+      <div className="overflow-x-auto" style={{ tableLayout: "fixed" }}>
         <Table className="w-full text-xs text-left text-gray-300 border-collapse border-spacing-0 p-0 m-0">
           <colgroup>
             <col style={{ width: columnWidths.date }} />
@@ -276,7 +274,7 @@ const IncidentTable = ({
               <TableRow
                 key={incident.id}
                 className={`border-slate-700 h-8 transition-colors duration-200 hover:bg-slate-700/60 relative ${
-                  hoveredRow === incident.id ? 'bg-slate-700/40' : ''
+                  hoveredRow === incident.id ? "bg-slate-700/40" : ""
                 }`}
                 onMouseEnter={() => handleRowHover(incident.id)}
                 onMouseLeave={() => handleRowHover(null)}
@@ -286,7 +284,12 @@ const IncidentTable = ({
                     windowWidth >= 1440 ? "pl-2" : ""
                   }`}
                 >
-                  {formatDate(incident.timestamp)}
+                  <TimestampDisplay
+                    timestamp={incident.timestamp}
+                    dateStyle="short"
+                    timeStyle="short"
+                    className="text-gray-300 whitespace-nowrap text-xs"
+                  />
                 </TableCell>
                 <TableCell
                   className={`px-1.5 py-1 font-mono text-amber-300 text-xs ${
@@ -542,205 +545,214 @@ const IncidentTable = ({
             </PaginationContent>
           </Pagination>
           <div className="text-center text-xs text-slate-500 mt-2">
-            Showing {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, incidents.length)} of {incidents.length} incidents
+            Showing {(currentPage - 1) * pageSize + 1} -{" "}
+            {Math.min(currentPage * pageSize, incidents.length)} of{" "}
+            {incidents.length} incidents
           </div>
         </div>
       )}
 
-   
-{/* Modify the Details Dialog section */}
-{/* Modify the Details Dialog section */}
-<Dialog open={isDetailsOpen} onOpenChange={handleCloseDetails}>
-  <DialogContent className="bg-gradient-to-b from-slate-800 to-slate-800/95 border-slate-700 text-white max-w-5xl shadow-2xl">
-    <DialogHeader className="relative">
-      <DialogTitle className="text-blue-400 text-lg sm:text-xl flex items-center">
-        <Eye className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-blue-400" />
-        Incident Details
-      </DialogTitle>
-      <DialogDescription className="text-gray-400 flex items-center space-x-2">
-        <CalendarClock className="h-4 w-4 text-indigo-400" />
-        <span>{formatDate(selectedIncident?.timestamp)}</span>
-      </DialogDescription>
-    </DialogHeader>
+      {/* Modify the Details Dialog section */}
+      {/* Modify the Details Dialog section */}
+      <Dialog open={isDetailsOpen} onOpenChange={handleCloseDetails}>
+        <DialogContent className="bg-gradient-to-b from-slate-800 to-slate-800/95 border-slate-700 text-white max-w-5xl shadow-2xl">
+          <DialogHeader className="relative">
+            <DialogTitle className="text-blue-400 text-lg sm:text-xl flex items-center">
+              <Eye className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-blue-400" />
+              Incident Details
+            </DialogTitle>
+            <DialogDescription className="text-gray-400 flex items-center space-x-2">
+              <CalendarClock className="h-4 w-4 text-indigo-400" />
+              <span>
+                <TimestampDisplay timestamp={selectedIncident?.timestamp} />
+              </span>
+            </DialogDescription>
+          </DialogHeader>
 
-    {selectedIncident && (
-      <div className="space-y-3 sm:space-y-4">
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
-          <div className="bg-slate-700/50 p-2 sm:p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm">
-            <h4 className="text-gray-400 text-xs sm:text-sm flex items-center justify-center">
-              <ShieldAlert className="h-3.5 w-3.5 mr-1.5 text-purple-400" />
-              Incident Type
-            </h4>
-            <div className="flex flex-wrap gap-1 justify-center mt-2">
-              {Array.isArray(selectedIncident.incidentTypes) ? (
-                selectedIncident.incidentTypes.map((type) => (
-                  <span
-                    key={type}
-                    className={`inline-block rounded px-1.5 py-0.5 sm:px-2 sm:py-1 text-2xs sm:text-xs font-medium ${
-                      type === "shoplifting"
-                        ? "bg-gradient-to-r from-purple-700 to-purple-600 text-white"
-                        : type === "robbery"
-                        ? "bg-gradient-to-r from-red-700 to-red-600 text-white"
-                        : type === "beer-run"
-                        ? "bg-gradient-to-r from-orange-800 to-orange-700 text-white"
-                        : type === "property-damage"
-                        ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
-                        : type === "injury"
-                        ? "bg-gradient-to-r from-rose-600 to-rose-500 text-white"
-                        : type === "mr-pants"
-                        ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white"
-                        : type === "skinny-hispanic"
-                        ? "bg-gradient-to-r from-teal-600 to-teal-500 text-white"
-                        : "bg-gradient-to-r from-gray-600 to-gray-500 text-white"
-                    }`}
+          {selectedIncident && (
+            <div className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                <div className="bg-slate-700/50 p-2 sm:p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm">
+                  <h4 className="text-gray-400 text-xs sm:text-sm flex items-center justify-center">
+                    <ShieldAlert className="h-3.5 w-3.5 mr-1.5 text-purple-400" />
+                    Incident Type
+                  </h4>
+                  <div className="flex flex-wrap gap-1 justify-center mt-2">
+                    {Array.isArray(selectedIncident.incidentTypes) ? (
+                      selectedIncident.incidentTypes.map((type) => (
+                        <span
+                          key={type}
+                          className={`inline-block rounded px-1.5 py-0.5 sm:px-2 sm:py-1 text-2xs sm:text-xs font-medium ${
+                            type === "shoplifting"
+                              ? "bg-gradient-to-r from-purple-700 to-purple-600 text-white"
+                              : type === "robbery"
+                              ? "bg-gradient-to-r from-red-700 to-red-600 text-white"
+                              : type === "beer-run"
+                              ? "bg-gradient-to-r from-orange-800 to-orange-700 text-white"
+                              : type === "property-damage"
+                              ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
+                              : type === "injury"
+                              ? "bg-gradient-to-r from-rose-600 to-rose-500 text-white"
+                              : type === "mr-pants"
+                              ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white"
+                              : type === "skinny-hispanic"
+                              ? "bg-gradient-to-r from-teal-600 to-teal-500 text-white"
+                              : "bg-gradient-to-r from-gray-600 to-gray-500 text-white"
+                          }`}
+                        >
+                          {type.replace(/-/g, " ")}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="bg-gradient-to-r from-gray-600 to-gray-500 text-white rounded px-1.5 py-0.5 sm:px-2 sm:py-1 text-2xs sm:text-xs font-medium">
+                        {selectedIncident.incidentTypes || "N/A"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-slate-700/50 p-2 sm:p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm">
+                  <h4 className="text-gray-400 text-xs sm:text-sm flex items-center justify-center">
+                    <Crosshair className="h-3.5 w-3.5 mr-1.5 text-green-400" />
+                    Status
+                  </h4>
+                  <div className="flex justify-center mt-2">
+                    {selectedIncident.status === "complete" ||
+                    selectedIncident.status === "resolved" ? (
+                      <div className="inline-flex items-center rounded-full px-2 py-0.5 sm:px-2.5 sm:py-1 text-2xs sm:text-xs font-medium bg-gradient-to-r from-green-700 to-green-600 text-white">
+                        <CheckCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
+                        Complete
+                      </div>
+                    ) : (
+                      <div className="inline-flex items-center rounded-full px-2 py-0.5 sm:px-2.5 sm:py-1 text-2xs sm:text-xs font-medium bg-gradient-to-r from-amber-700 to-amber-600 text-white">
+                        <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
+                        Pending
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-slate-700/50 p-2 sm:p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm">
+                  <h4 className="text-gray-400 text-xs sm:text-sm flex items-center justify-center">
+                    <Store className="h-3.5 w-3.5 mr-1.5 text-amber-400" />
+                    Store #
+                  </h4>
+                  <p className="text-amber-300 font-medium font-mono text-xs sm:text-base text-center">
+                    {formatStoreNumber(selectedIncident.storeNumber)}
+                  </p>
+                </div>
+
+                <div className="bg-slate-700/50 p-2 sm:p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm col-span-3">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-gray-400 text-xs sm:text-sm flex items-center">
+                      <AlignLeft className="h-3.5 w-3.5 mr-1.5 text-teal-400" />
+                      Incident Details
+                    </h4>
+                    <div className="flex items-center text-xs text-gray-400">
+                      <CalendarClock className="h-3.5 w-3.5 mr-1.5 text-indigo-400" />
+                      <TimestampDisplay
+                        timestamp={selectedIncident?.timestamp}
+                      />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-r from-slate-700/80 to-slate-700/60 p-2 sm:p-4 rounded-lg border border-slate-600/50 min-h-24 whitespace-pre-wrap shadow-inner text-xs sm:text-base">
+                    {selectedIncident.details ||
+                      "No additional details provided."}
+                  </div>
+                </div>
+
+                <div className="bg-slate-700/50 p-2 sm:p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm col-span-3">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-gray-400 text-xs sm:text-sm flex items-center">
+                      <FileText className="h-3.5 w-3.5 mr-1.5 text-blue-400" />
+                      Police Report
+                    </h4>
+                    <h4 className="text-gray-400 text-xs sm:text-sm flex items-center">
+                      <FileCheck className="h-3.5 w-3.5 mr-1.5 text-green-400" />
+                      Case #
+                    </h4>
+                  </div>
+                  <div className="flex justify-between items-center mt-1">
+                    <div className="text-left">
+                      {selectedIncident.policeReport ? (
+                        <span className="text-blue-300 font-mono text-xs sm:text-base">
+                          {selectedIncident.policeReport}
+                        </span>
+                      ) : (
+                        <span className="text-red-400 flex items-center text-xs sm:text-base">
+                          <AlertCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
+                          Not provided
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <span className="text-green-400 font-mono text-xs sm:text-base">
+                        {selectedIncident?.caseNumber || "N/A"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <DialogFooter className="flex items-center justify-between pt-2 sm:pt-4 border-t border-slate-700/50">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    className="text-xs sm:text-sm border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white transition-colors duration-300 px-3 py-1.5 cursor-pointer"
+                    onClick={() => {
+                      const newStatus =
+                        selectedIncident.status === "complete"
+                          ? "pending"
+                          : "complete";
+                      onUpdateStatus &&
+                        onUpdateStatus(selectedIncident.id, newStatus);
+                      handleCloseDetails();
+                    }}
                   >
-                    {type.replace(/-/g, " ")}
-                  </span>
-                ))
-              ) : (
-                <span className="bg-gradient-to-r from-gray-600 to-gray-500 text-white rounded px-1.5 py-0.5 sm:px-2 sm:py-1 text-2xs sm:text-xs font-medium">
-                  {selectedIncident.incidentTypes || "N/A"}
-                </span>
-              )}
-            </div>
-          </div>
+                    {selectedIncident.status === "complete" ? (
+                      <>
+                        <Clock className="h-4 w-4 mr-2 text-amber-500" />
+                        Mark as Pending
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                        Mark as Complete
+                      </>
+                    )}
+                  </Button>
 
-          <div className="bg-slate-700/50 p-2 sm:p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm">
-            <h4 className="text-gray-400 text-xs sm:text-sm flex items-center justify-center">
-              <Crosshair className="h-3.5 w-3.5 mr-1.5 text-green-400" />
-              Status
-            </h4>
-            <div className="flex justify-center mt-2">
-              {selectedIncident.status === "complete" || selectedIncident.status === "resolved" ? (
-                <div className="inline-flex items-center rounded-full px-2 py-0.5 sm:px-2.5 sm:py-1 text-2xs sm:text-xs font-medium bg-gradient-to-r from-green-700 to-green-600 text-white">
-                  <CheckCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
-                  Complete
+                  <Button
+                    className="text-xs sm:text-sm bg-blue-700 hover:bg-blue-600 text-white transition-colors duration-300 px-3 py-1.5 cursor-pointer"
+                    onClick={() => {
+                      onEditPoliceReport &&
+                        onEditPoliceReport(selectedIncident);
+                      handleCloseDetails();
+                    }}
+                  >
+                    <Pencil className="h-4 w-4 mr-2 text-blue-300" />
+                    Edit Police Report
+                  </Button>
                 </div>
-              ) : (
-                <div className="inline-flex items-center rounded-full px-2 py-0.5 sm:px-2.5 sm:py-1 text-2xs sm:text-xs font-medium bg-gradient-to-r from-amber-700 to-amber-600 text-white">
-                  <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
-                  Pending
-                </div>
-              )}
-            </div>
-          </div>
 
-          <div className="bg-slate-700/50 p-2 sm:p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm">
-            <h4 className="text-gray-400 text-xs sm:text-sm flex items-center justify-center">
-              <Store className="h-3.5 w-3.5 mr-1.5 text-amber-400" />
-              Store #
-            </h4>
-            <p className="text-amber-300 font-medium font-mono text-xs sm:text-base text-center">
-              {formatStoreNumber(selectedIncident.storeNumber)}
-            </p>
-          </div>
-
-          <div className="bg-slate-700/50 p-2 sm:p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm col-span-3">
-            <div className="flex justify-between items-center">
-              <h4 className="text-gray-400 text-xs sm:text-sm flex items-center">
-                <AlignLeft className="h-3.5 w-3.5 mr-1.5 text-teal-400" />
-                Incident Details
-              </h4>
-              <div className="flex items-center text-xs text-gray-400">
-                <CalendarClock className="h-3.5 w-3.5 mr-1.5 text-indigo-400" />
-                {formatDate(selectedIncident?.timestamp)}
-              </div>
-            </div>
-            <div className="bg-gradient-to-r from-slate-700/80 to-slate-700/60 p-2 sm:p-4 rounded-lg border border-slate-600/50 min-h-24 whitespace-pre-wrap shadow-inner text-xs sm:text-base">
-              {selectedIncident.details || "No additional details provided."}
-            </div>
-          </div>
-
-          <div className="bg-slate-700/50 p-2 sm:p-3 rounded-lg border border-slate-600/50 space-y-1 shadow-sm col-span-3">
-            <div className="flex justify-between items-center">
-              <h4 className="text-gray-400 text-xs sm:text-sm flex items-center">
-                <FileText className="h-3.5 w-3.5 mr-1.5 text-blue-400" />
-                Police Report
-              </h4>
-              <h4 className="text-gray-400 text-xs sm:text-sm flex items-center">
-                <FileCheck className="h-3.5 w-3.5 mr-1.5 text-green-400" />
-                Case #
-              </h4>
-            </div>
-            <div className="flex justify-between items-center mt-1">
-              <div className="text-left">
-                {selectedIncident.policeReport ? (
-                  <span className="text-blue-300 font-mono text-xs sm:text-base">{selectedIncident.policeReport}</span>
-                ) : (
-                  <span className="text-red-400 flex items-center text-xs sm:text-base">
-                    <AlertCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
-                    Not provided
-                  </span>
+                {isSuperAdmin && (
+                  <Button
+                    variant="destructive"
+                    className="text-xs sm:text-sm bg-gradient-to-r from-red-800 to-red-700 hover:from-red-700 hover:to-red-600 text-white transition-colors duration-300 px-3 py-1.5 cursor-pointer"
+                    onClick={() => {
+                      onDeleteIncident && onDeleteIncident(selectedIncident);
+                      handleCloseDetails();
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2 text-red-300" />
+                    Delete Incident
+                  </Button>
                 )}
-              </div>
-              <div className="text-right">
-                <span className="text-green-400 font-mono text-xs sm:text-base">
-                  {selectedIncident?.caseNumber || 'N/A'}
-                </span>
-              </div>
+              </DialogFooter>
             </div>
-          </div>
-        </div>
-
-        <DialogFooter className="flex items-center justify-between pt-2 sm:pt-4 border-t border-slate-700/50">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              className="text-xs sm:text-sm border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white transition-colors duration-300 px-3 py-1.5 cursor-pointer"
-              onClick={() => {
-                const newStatus =
-                  selectedIncident.status === "complete"
-                    ? "pending"
-                    : "complete";
-                onUpdateStatus &&
-                  onUpdateStatus(selectedIncident.id, newStatus);
-                handleCloseDetails();
-              }}
-            >
-              {selectedIncident.status === "complete" ? (
-                <>
-                  <Clock className="h-4 w-4 mr-2 text-amber-500" />
-                  Mark as Pending
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                  Mark as Complete
-                </>
-              )}
-            </Button>
-
-            <Button
-              className="text-xs sm:text-sm bg-blue-700 hover:bg-blue-600 text-white transition-colors duration-300 px-3 py-1.5 cursor-pointer"
-              onClick={() => {
-                onEditPoliceReport &&
-                  onEditPoliceReport(selectedIncident);
-                handleCloseDetails();
-              }}
-            >
-              <Pencil className="h-4 w-4 mr-2 text-blue-300" />
-              Edit Police Report
-            </Button>
-          </div>
-
-          {isSuperAdmin && (
-            <Button
-              variant="destructive"
-              className="text-xs sm:text-sm bg-gradient-to-r from-red-800 to-red-700 hover:from-red-700 hover:to-red-600 text-white transition-colors duration-300 px-3 py-1.5 cursor-pointer"
-              onClick={() => {
-                onDeleteIncident && onDeleteIncident(selectedIncident);
-                handleCloseDetails();
-              }}
-            >
-              <Trash2 className="h-4 w-4 mr-2 text-red-300" />
-              Delete Incident
-            </Button>
           )}
-        </DialogFooter>
-      </div>
-    )}
-  </DialogContent>
-</Dialog>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

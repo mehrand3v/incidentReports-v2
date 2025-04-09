@@ -1,3 +1,4 @@
+
 // src/components/admin/DeleteDialog.jsx
 import React, { useState } from "react";
 import {
@@ -13,6 +14,8 @@ import {
 import { Trash2 } from "lucide-react";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import ErrorAlert from "../shared/ErrorAlert";
+import { formatTimestamp } from "../../utils/timestampUtils";
+import TimestampDisplay from "../shared/TimestampDisplay";
 
 const DeleteDialog = ({
   isOpen,
@@ -43,34 +46,10 @@ const DeleteDialog = ({
     }
   };
 
-  // Safe date formatting function
-  const safeFormatDate = (timestamp) => {
-    try {
-      if (!timestamp) return "No date available";
-
-      // Handle Firestore Timestamp
-      if (timestamp && typeof timestamp.toDate === "function") {
-        return timestamp.toDate().toLocaleString();
-      }
-
-      // Handle Date object
-      if (timestamp instanceof Date) {
-        return timestamp.toLocaleString();
-      }
-
-      // Try parsing as string
-      const date = new Date(timestamp);
-      return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
-    } catch (e) {
-      console.error("Error formatting date", e);
-      return "Invalid Date";
-    }
-  };
-
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="bg-slate-800 border-slate-700 text-white">
-        <AlertDialogHeader>
+      <AlertDialogContent className="bg-slate-900 border-slate-700 text-white max-w-sm rounded-lg shadow-xl overflow-hidden p-0">
+        <AlertDialogHeader className="bg-gradient-to-br from-slate-800 to-slate-900 p-5">
           <AlertDialogTitle className="text-red-400 flex items-center">
             <Trash2 className="h-5 w-5 mr-2" />
             {title}
@@ -84,12 +63,12 @@ const DeleteDialog = ({
           <ErrorAlert
             message={error}
             onDismiss={() => setError("")}
-            className="mb-4"
+            className="mb-4 mx-5"
           />
         )}
 
         {incident && (
-          <div className="my-4 bg-slate-700 p-4 rounded-lg border border-slate-600">
+          <div className="my-4 bg-slate-700 p-4 rounded-lg border border-slate-600 mx-5">
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="text-gray-400">Case Number:</div>
               <div className="text-white font-mono">{incident.caseNumber}</div>
@@ -106,23 +85,29 @@ const DeleteDialog = ({
 
               <div className="text-gray-400">Date:</div>
               <div className="text-white">
-                {safeFormatDate(incident.timestamp)}
+                <TimestampDisplay timestamp={incident.timestamp} />
               </div>
             </div>
           </div>
         )}
 
-        <AlertDialogFooter>
-          <AlertDialogCancel className="bg-transparent border-slate-600 text-gray-300 hover:bg-slate-700 hover:text-white">
+        <AlertDialogFooter className="flex p-4 border-t border-slate-800 bg-slate-900/70">
+          <AlertDialogCancel
+            className="bg-transparent hover:bg-slate-800 text-gray-300 border-slate-700 hover:text-white transition-colors"
+            disabled={isDeleting}
+          >
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            className="bg-red-700 hover:bg-red-600 text-white"
+            className="bg-red-600 hover:bg-red-700 text-white border-0 transition-colors"
             onClick={handleDelete}
             disabled={isDeleting}
           >
             {isDeleting ? (
-              <LoadingSpinner size="small" text="Deleting..." />
+              <div className="flex items-center">
+                <LoadingSpinner size="small" className="mr-2" />
+                <span>Deleting...</span>
+              </div>
             ) : (
               "Delete"
             )}

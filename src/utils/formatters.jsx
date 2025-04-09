@@ -1,7 +1,7 @@
 // src/utils/formatters.js
 import { format, formatDistanceToNow } from "date-fns";
 import { ALL_INCIDENT_TYPES } from "../constants/incidentTypes";
-
+import { formatTimestamp } from "./timestampUtils";
 /**
  * Format a date using date-fns
  * @param {Date|string|number} date - Date to format
@@ -9,39 +9,31 @@ import { ALL_INCIDENT_TYPES } from "../constants/incidentTypes";
  * @returns {string} Formatted date string or 'N/A' if invalid
  */
 // src/utils/formatters.js
-export const formatDate = (date, formatString = 'MM/dd/yyyy h:mm a') => {
-  if (!date) return 'N/A';
+export const formatDate = (date, formatString = "MM/dd/yyyy h:mm a") => {
+  if (!date) return "N/A";
 
-  try {
-    // Handle Firestore timestamp objects
-    if (date && typeof date === 'object' && date.toDate) {
-      return format(date.toDate(), formatString);
-    }
+  // Handle custom format strings for date-fns compatibility
+  // If using a date-fns format string, convert to appropriate options
+  const options = {};
 
-    // Handle date objects
-    if (date instanceof Date) {
-      return format(date, formatString);
-    }
-
-    // If it's a number (timestamp in milliseconds)
-    if (typeof date === 'number') {
-      return format(new Date(date), formatString);
-    }
-
-    // If it's a string, attempt to parse it
-    if (typeof date === 'string') {
-      // Check if it's a valid date string
-      const parsedDate = new Date(date);
-      if (!isNaN(parsedDate.getTime())) {
-        return format(parsedDate, formatString);
-      }
-    }
-
-    return 'Invalid Date';
-  } catch (error) {
-    console.error("Error formatting date:", error);
-    return 'Invalid Date';
+  // Default formatting
+  if (formatString === "MM/dd/yyyy h:mm a") {
+    options.dateStyle = "short";
+    options.timeStyle = "short";
+  } else if (formatString === "MM/dd/yyyy") {
+    options.dateStyle = "short";
+    options.timeStyle = undefined;
+  } else if (formatString === "h:mm a") {
+    options.dateStyle = undefined;
+    options.timeStyle = "short";
+  } else {
+    // For more complex format strings, we could add more mappings
+    // or just use a date library like date-fns directly
+    options.dateStyle = "medium";
+    options.timeStyle = "short";
   }
+
+  return formatTimestamp(date, options);
 };
 
 /**
