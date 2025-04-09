@@ -1054,16 +1054,6 @@ const GuidedDetailsForm = ({
 
   return (
     <div className="space-y-3 relative">
-      {/* Incident type badge when available */}
-      {incidentType && (
-        <div className="absolute -top-4 right-0 bg-slate-700 px-2.5 py-1 rounded-full shadow-md border border-slate-600 text-xs text-gray-300 flex items-center">
-          <Shield className="h-3 w-3 mr-1 text-indigo-400" />
-          {incidentType
-            .replace("-", " ")
-            .replace(/\b\w/g, (l) => l.toUpperCase())}
-        </div>
-      )}
-
       {renderToggle()}
       <AnimatePresence mode="wait">
         {useGuided ? renderGuidedForm() : renderFreeForm()}
