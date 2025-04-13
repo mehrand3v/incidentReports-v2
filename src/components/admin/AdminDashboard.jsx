@@ -67,7 +67,7 @@ const AdminDashboard = () => {
 
   // Tab and toggle states
   const [activeTab, setActiveTab] = useState("incidents");
-  const [statsVisible, setStatsVisible] = useState(true);
+  const [statsVisible, setStatsVisible] = useState(false);
   const [filtersVisible, setFiltersVisible] = useState(false);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
 
