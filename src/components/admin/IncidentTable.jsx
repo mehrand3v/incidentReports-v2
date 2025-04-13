@@ -227,207 +227,216 @@ const IncidentTable = ({
     <div className="relative overflow-hidden rounded-lg border border-slate-700 bg-gradient-to-b from-slate-800 to-slate-800/90 shadow-lg">
       <div className="overflow-x-auto" style={{ tableLayout: "fixed" }}>
         <Table className="w-full text-xs text-left text-gray-300 border-collapse border-spacing-0 p-0 m-0">
-          <colgroup>
-            <col style={{ width: columnWidths.date }} />
-            <col style={{ width: columnWidths.store }} />
-            <col style={{ width: columnWidths.incident }} />
-            <col style={{ width: columnWidths.details }} />
-            <col style={{ width: columnWidths.status }} />
-            <col style={{ width: columnWidths.police }} />
-            <col style={{ width: columnWidths.case }} />
-            <col style={{ width: columnWidths.actions }} />
-          </colgroup>
-          <TableHeader className="bg-gradient-to-r from-slate-900 to-slate-800 sticky top-0 z-10">
-            <TableRow className="h-8 border-b border-slate-700">
-              <TableHead
-                className={`px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium ${
-                  windowWidth >= 1440 ? "pl-2" : ""
-                }`}
-              >
-                Date
-              </TableHead>
-              <TableHead
-                className={`px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium ${
-                  windowWidth >= 1440 ? "pl-2" : ""
-                }`}
-              >
-                Store #
-              </TableHead>
-              <TableHead
-                className={`px-1.5 py-2 text-gray-200 uppercase text-2xs font-medium ${
-                  windowWidth >= 1440 ? "pl-2" : ""
-                }`}
-              >
-                Incident
-              </TableHead>
-              <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs font-medium">
-                Details
-              </TableHead>
-              <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
-                Status
-              </TableHead>
-              <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
-                Police #
-              </TableHead>
-              <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
-                Case #
-              </TableHead>
-              <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs text-center font-medium">
-                Actions
-              </TableHead>
-            </TableRow>
-          </TableHeader>
+        <colgroup>
+  <col style={{ width: columnWidths.date }} />
+  <col style={{ width: columnWidths.store }} />
+  <col style={{ width: columnWidths.incident }} />
+  {windowWidth >= 768 && <col style={{ width: columnWidths.details }} />}
+  <col style={{ width: columnWidths.status }} />
+  {windowWidth >= 768 && <col style={{ width: columnWidths.police }} />}
+  {windowWidth >= 768 && <col style={{ width: columnWidths.case }} />}
+  <col style={{ width: columnWidths.actions }} />
+</colgroup>
+<TableHeader className="bg-gradient-to-r from-slate-900 to-slate-800 sticky top-0 z-10">
+  <TableRow className="h-8 border-b border-slate-700">
+    <TableHead className={`px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium ${windowWidth >= 1440 ? "pl-2" : ""}`}>
+      Date
+    </TableHead>
+    <TableHead className={`px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium ${windowWidth >= 1440 ? "pl-2" : ""}`}>
+      Store #
+    </TableHead>
+    <TableHead className={`px-1.5 py-2 text-gray-200 uppercase text-2xs font-medium ${windowWidth >= 1440 ? "pl-2" : ""}`}>
+      Incident
+    </TableHead>
+    {windowWidth >= 768 && (
+      <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs font-medium">
+        Details
+      </TableHead>
+    )}
+    <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
+      Status
+    </TableHead>
+    {windowWidth >= 768 && (
+      <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
+        Police #
+      </TableHead>
+    )}
+    {windowWidth >= 768 && (
+      <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs whitespace-nowrap font-medium">
+        Case #
+      </TableHead>
+    )}
+    <TableHead className="px-1.5 py-2 text-gray-200 uppercase text-2xs text-center font-medium">
+      Actions
+    </TableHead>
+  </TableRow>
+</TableHeader>
           <TableBody>
-            {paginatedIncidents.map((incident) => (
-              <TableRow
-                key={incident.id}
-                className={`border-slate-700 h-8 transition-colors duration-200 hover:bg-slate-700/60 relative ${
-                  hoveredRow === incident.id ? "bg-slate-700/40" : ""
-                }`}
-                onMouseEnter={() => handleRowHover(incident.id)}
-                onMouseLeave={() => handleRowHover(null)}
-              >
-                <TableCell
-                  className={`px-1.5 py-1 text-gray-300 whitespace-nowrap text-xs ${
-                    windowWidth >= 1440 ? "pl-2" : ""
-                  }`}
-                >
-                  <TimestampDisplay
-                    timestamp={incident.timestamp}
-                    dateStyle="short"
-                    timeStyle="short"
-                    className="text-gray-300 whitespace-nowrap text-xs"
-                  />
-                </TableCell>
-                <TableCell
-                  className={`px-1.5 py-1 font-mono text-amber-300 text-xs ${
-                    windowWidth >= 1440 ? "pl-2" : ""
-                  }`}
-                >
-                  {formatStoreNumber(incident.storeNumber)}
-                </TableCell>
-                <TableCell
-                  className={`px-1.5 py-1 text-gray-300 ${
-                    windowWidth >= 1440 ? "pl-2" : ""
-                  }`}
-                >
-                  <div className="flex flex-wrap gap-0.5">
-                    {Array.isArray(incident.incidentTypes) ? (
-                      incident.incidentTypes.map((type) => (
-                        <span
-                          key={type}
-                          className={`inline-block rounded px-0.5 py-0.5 text-xs font-medium ${
-                            type === "shoplifting"
-                              ? "bg-gradient-to-r from-purple-700 to-purple-600 text-white"
-                              : type === "robbery"
-                              ? "bg-gradient-to-r from-red-700 to-red-600 text-white"
-                              : type === "beer-run"
-                              ? "bg-gradient-to-r from-orange-800 to-orange-700 text-white"
-                              : type === "property-damage"
-                              ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
-                              : type === "injury"
-                              ? "bg-gradient-to-r from-rose-600 to-rose-500 text-white"
-                              : type === "mr-pants"
-                              ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white"
-                              : type === "skinny-hispanic"
-                              ? "bg-gradient-to-r from-teal-600 to-teal-500 text-white"
-                              : "bg-gradient-to-r from-gray-600 to-gray-500 text-white"
-                          }`}
-                        >
-                          {type.replace(/-/g, " ")}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="inline-block rounded px-0.5 py-0.5 text-xs font-medium bg-gradient-to-r from-gray-600 to-gray-500 text-white">
-                        {incident.incidentTypes || "N/A"}
-                      </span>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="px-1.5 py-1 text-gray-300">
-                  <Button
-                    variant="link"
-                    className="text-blue-400 p-0 h-auto hover:text-blue-300 hover:underline text-left w-full cursor-pointer justify-start text-xs mx-0.5 transition-colors duration-200"
-                    onClick={() => handleViewDetails(incident)}
-                  >
-                    <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium pr-1">
-                      {incident.details
-                        ? incident.details.length > getDetailsLength()
-                          ? `${incident.details.substring(
-                              0,
-                              getDetailsLength()
-                            )}...`
-                          : incident.details
-                        : "No details provided"}
-                    </div>
-                  </Button>
-                </TableCell>
-                <TableCell className="px-1.5 py-1">
-                  {getStatusBadge(incident.status)}
-                </TableCell>
-                <TableCell className="px-1.5 py-1 whitespace-nowrap text-xs">
-                  {incident.policeReport ? (
-                    <span className="text-blue-300 font-medium">
-                      {incident.policeReport}
-                    </span>
-                  ) : (
-                    <span className="text-red-400 font-medium flex items-center">
-                      <AlertCircle className="h-3 w-3 mr-1" />
-                      N/A
-                    </span>
-                  )}
-                </TableCell>
+          {paginatedIncidents.map((incident) => (
+  <TableRow
+    key={incident.id}
+    className={`border-slate-700 h-8 transition-colors duration-200 hover:bg-slate-700/60 relative ${
+      hoveredRow === incident.id ? "bg-slate-700/40" : ""
+    }`}
+    onMouseEnter={() => handleRowHover(incident.id)}
+    onMouseLeave={() => handleRowHover(null)}
+    onClick={() => windowWidth < 768 ? handleViewDetails(incident) : null}
+    style={windowWidth < 768 ? { cursor: 'pointer' } : {}}
+  >
+    <TableCell
+      className={`px-1.5 py-1 text-gray-300 whitespace-nowrap text-xs ${
+        windowWidth >= 1440 ? "pl-2" : ""
+      }`}
+    >
+      <TimestampDisplay
+        timestamp={incident.timestamp}
+        dateStyle="short"
+        timeStyle="short"
+        className="text-gray-300 whitespace-nowrap text-xs"
+      />
+    </TableCell>
+    <TableCell
+      className={`px-1.5 py-1 font-mono text-amber-300 text-xs ${
+        windowWidth >= 1440 ? "pl-2" : ""
+      }`}
+    >
+      {formatStoreNumber(incident.storeNumber)}
+    </TableCell>
+    <TableCell
+      className={`px-1.5 py-1 text-gray-300 ${
+        windowWidth >= 1440 ? "pl-2" : ""
+      }`}
+    >
+      <div className="flex flex-wrap gap-0.5">
+        {Array.isArray(incident.incidentTypes) ? (
+          incident.incidentTypes.map((type) => (
+            <span
+              key={type}
+              className={`inline-block rounded px-0.5 py-0.5 text-xs font-medium ${
+                type === "shoplifting"
+                  ? "bg-gradient-to-r from-purple-700 to-purple-600 text-white"
+                  : type === "robbery"
+                  ? "bg-gradient-to-r from-red-700 to-red-600 text-white"
+                  : type === "beer-run"
+                  ? "bg-gradient-to-r from-orange-800 to-orange-700 text-white"
+                  : type === "property-damage"
+                  ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
+                  : type === "injury"
+                  ? "bg-gradient-to-r from-rose-600 to-rose-500 text-white"
+                  : type === "mr-pants"
+                  ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white"
+                  : type === "skinny-hispanic"
+                  ? "bg-gradient-to-r from-teal-600 to-teal-500 text-white"
+                  : "bg-gradient-to-r from-gray-600 to-gray-500 text-white"
+              }`}
+            >
+              {type.replace(/-/g, " ")}
+            </span>
+          ))
+        ) : (
+          <span className="inline-block rounded px-0.5 py-0.5 text-xs font-medium bg-gradient-to-r from-gray-600 to-gray-500 text-white">
+            {incident.incidentTypes || "N/A"}
+          </span>
+        )}
+      </div>
+    </TableCell>
+    
+    {/* Conditionally render Details column */}
+    {windowWidth >= 768 && (
+      <TableCell className="px-1.5 py-1 text-gray-300">
+        <Button
+          variant="link"
+          className="text-blue-400 p-0 h-auto hover:text-blue-300 hover:underline text-left w-full cursor-pointer justify-start text-xs mx-0.5 transition-colors duration-200"
+          onClick={() => handleViewDetails(incident)}
+        >
+          <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium pr-1">
+            {incident.details
+              ? incident.details.length > getDetailsLength()
+                ? `${incident.details.substring(
+                    0,
+                    getDetailsLength()
+                  )}...`
+                : incident.details
+              : "No details provided"}
+          </div>
+        </Button>
+      </TableCell>
+    )}
+    
+    <TableCell className="px-1.5 py-1">
+      {getStatusBadge(incident.status)}
+    </TableCell>
+    
+    {/* Conditionally render Police # column */}
+    {windowWidth >= 768 && (
+      <TableCell className="px-1.5 py-1 whitespace-nowrap text-xs">
+        {incident.policeReport ? (
+          <span className="text-blue-300 font-medium">
+            {incident.policeReport}
+          </span>
+        ) : (
+          <span className="text-red-400 font-medium flex items-center">
+            <AlertCircle className="h-3 w-3 mr-1" />
+            N/A
+          </span>
+        )}
+      </TableCell>
+    )}
+    
+    {/* Conditionally render Case # column */}
+    {windowWidth >= 768 && (
+      <TableCell className="px-1.5 py-1 font-mono whitespace-nowrap text-xs">
+        {incident.caseNumber ? (
+          <span className="text-green-400 font-semibold">
+            {incident.caseNumber}
+          </span>
+        ) : (
+          <span className="text-red-400 font-medium">N/A</span>
+        )}
+      </TableCell>
+    )}
+    
+    <TableCell className="px-1.5 py-1">
+      <div className="flex items-center justify-center space-x-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 w-6 p-0 text-gray-400 hover:text-white hover:bg-slate-600 cursor-pointer rounded-full transition-colors duration-200"
+          onClick={() => handleViewDetails(incident)}
+          title="View details"
+        >
+          <Eye className="h-3.5 w-3.5" />
+        </Button>
 
-                <TableCell className="px-1.5 py-1 font-mono whitespace-nowrap text-xs">
-                  {incident.caseNumber ? (
-                    <span className="text-green-400 font-semibold">
-                      {incident.caseNumber}
-                    </span>
-                  ) : (
-                    <span className="text-red-400 font-medium">N/A</span>
-                  )}
-                </TableCell>
-                <TableCell className="px-1.5 py-1">
-                  <div className="flex items-center justify-center space-x-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 text-gray-400 hover:text-white hover:bg-slate-600 cursor-pointer rounded-full transition-colors duration-200"
-                      onClick={() => handleViewDetails(incident)}
-                      title="View details"
-                    >
-                      <Eye className="h-3.5 w-3.5" />
-                    </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 w-6 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/50 cursor-pointer rounded-full transition-colors duration-200"
+          onClick={() =>
+            onEditPoliceReport && onEditPoliceReport(incident)
+          }
+          title="Edit police report number"
+        >
+          <Pencil className="h-3.5 w-3.5" />
+        </Button>
 
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-900/50 cursor-pointer rounded-full transition-colors duration-200"
-                      onClick={() =>
-                        onEditPoliceReport && onEditPoliceReport(incident)
-                      }
-                      title="Edit police report number"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-
-                    {isSuperAdmin && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 text-red-400 hover:text-red-300 hover:bg-red-900/50 cursor-pointer rounded-full transition-colors duration-200"
-                        onClick={() =>
-                          onDeleteIncident && onDeleteIncident(incident)
-                        }
-                        title="Delete incident"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+        {isSuperAdmin && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 text-red-400 hover:text-red-300 hover:bg-red-900/50 cursor-pointer rounded-full transition-colors duration-200"
+            onClick={() =>
+              onDeleteIncident && onDeleteIncident(incident)
+            }
+            title="Delete incident"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </div>
+    </TableCell>
+  </TableRow>
+))}
           </TableBody>
         </Table>
       </div>
