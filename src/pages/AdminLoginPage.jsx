@@ -1,6 +1,6 @@
 // src/pages/AdminLoginPage.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 import {
   Shield,
@@ -415,6 +415,18 @@ const [redirecting, setRedirecting] = useState(false);
               </Button>
             </CardFooter>
           </Card>
+
+          <div className="px-6 py-4 bg-slate-700/30 border-t border-slate-700 mt-4 text-center">
+            <p className="text-gray-400 text-sm">
+              Need store-specific access?{' '}
+              <Link
+                to="/register"
+                className="text-blue-400 hover:text-blue-300 hover:underline font-medium"
+              >
+                Register here
+              </Link>
+            </p>
+          </div>
 
           <div className="mt-6 text-center">
             <div className="flex items-center justify-center text-amber-400">

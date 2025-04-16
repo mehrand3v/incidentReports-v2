@@ -11,7 +11,8 @@ import {
   BarChart,
   Search,
   HelpCircle,
-  ChevronDown
+  ChevronDown,
+  UserPlus
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { logCustomEvent } from "../../services/analytics";
@@ -163,16 +164,28 @@ const Navbar = () => {
                   Reports
                 </Link>
                 {isSuperAdmin && (
-                  <Link 
-                    to="/admin/settings" 
-                    className={cn(
-                      linkStyles.desktop,
-                      isActive('/admin/settings') && linkStyles.active
-                    )}
-                  >
-                    <Shield className="h-4 w-4 mr-2 text-purple-400" />
-                    Settings
-                  </Link>
+                  <>
+                    <Link 
+                      to="/admin/settings" 
+                      className={cn(
+                        linkStyles.desktop,
+                        isActive('/admin/settings') && linkStyles.active
+                      )}
+                    >
+                      <Shield className="h-4 w-4 mr-2 text-purple-400" />
+                      Settings
+                    </Link>
+                    <Link 
+                      to="/admin/pending-users" 
+                      className={cn(
+                        linkStyles.desktop,
+                        isActive('/admin/pending-users') && linkStyles.active
+                      )}
+                    >
+                      <UserPlus className="h-4 w-4 mr-2 text-amber-400" />
+                      Registrations
+                    </Link>
+                  </>
                 )}
               </>
             )}
@@ -315,17 +328,30 @@ const Navbar = () => {
                   Reports
                 </Link>
                 {isSuperAdmin && (
-                  <Link
-                    to="/admin/settings"
-                    className={cn(
-                      linkStyles.mobile,
-                      isActive('/admin/settings') && 'bg-blue-700/50'
-                    )}
-                    onClick={closeMenu}
-                  >
-                    <Shield className="h-5 w-5 mr-3 text-purple-400" />
-                    Settings
-                  </Link>
+                  <>
+                    <Link
+                      to="/admin/settings"
+                      className={cn(
+                        linkStyles.mobile,
+                        isActive('/admin/settings') && 'bg-blue-700/50'
+                      )}
+                      onClick={closeMenu}
+                    >
+                      <Shield className="h-5 w-5 mr-3 text-purple-400" />
+                      Settings
+                    </Link>
+                    <Link
+                      to="/admin/pending-users"
+                      className={cn(
+                        linkStyles.mobile,
+                        isActive('/admin/pending-users') && 'bg-blue-700/50'
+                      )}
+                      onClick={closeMenu}
+                    >
+                      <UserPlus className="h-5 w-5 mr-3 text-amber-400" />
+                      Registrations
+                    </Link>
+                  </>
                 )}
               </>
             )}

@@ -10,6 +10,7 @@ import LoadingSpinner from "./LoadingSpinner";
 const ProtectedRoute = ({
   children,
   requireAuth = true,
+  requireAdmin = false,
   requireSuperAdmin = false,
 }) => {
   const {
@@ -107,15 +108,17 @@ const ProtectedRoute = ({
     return children;
   }
 
-  // Authentication check - Redirect to login if not authenticated
+  // Authentication check - Redirect to appropriate login page
   if (requireAuth && !isAuthenticated && authChecked) {
     console.log("Not authenticated, redirecting to login");
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    // Redirect to admin login for admin routes, store login for store routes
+    const loginPath = requireAdmin ? "/login" : "/";
+    return <Navigate to={loginPath} replace state={{ from: location }} />;
   }
 
-  // Admin role check - Redirect to login if admin access is required but user is not an admin
-  if (requireAuth && !isAdmin && !userHasOverrideAccess && authChecked) {
-    console.log("Not admin, redirecting to login");
+  // Admin role check - Redirect to admin login if admin access is required
+  if (requireAuth && requireAdmin && !isAdmin && !userHasOverrideAccess && authChecked) {
+    console.log("Not admin, redirecting to admin login");
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 

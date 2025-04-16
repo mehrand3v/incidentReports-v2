@@ -6,13 +6,16 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext"; // Changed from "./context/" to "./contexts/"
 import "./styles/globals.css";
 import ErrorBoundary from "./components/shared/ErrorBoundary";
+import { Toaster } from 'sonner';
+
 const App = () => {
   return (
     <ErrorBoundary>
-    <AuthProvider>
-      <NotificationProvider>
-        <RouterProvider router={router} />
-      </NotificationProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <RouterProvider router={router} />
+          <Toaster richColors />
+        </NotificationProvider>
       </AuthProvider>
     </ErrorBoundary>
   );

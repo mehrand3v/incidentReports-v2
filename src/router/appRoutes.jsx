@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { Navigate } from "react-router-dom";
 import LoadingSpinner from "../components/shared/LoadingSpinner";
 import RouteErrorBoundary from "../components/shared/RouteErrorBoundary"; // Import the error boundary
+import ProtectedRoute from "../components/shared/ProtectedRoute";
 
 // Layout components
 import AdminLayout from "../components/admin/AdminLayout";
@@ -13,6 +14,10 @@ const AdminDashboardPage = lazy(() => import("../pages/AdminDashboardPage"));
 const AdminReportsPage = lazy(() => import("../pages/AdminReportsPage"));
 const AdminSettingsPage = lazy(() => import("../pages/AdminSettingsPage"));
 const QRCodeGeneratorPage = lazy(() => import("../pages/QRCodeGeneratorPage"));
+const StoreLoginPage = lazy(() => import("../pages/StoreLoginPage"));
+const StoreUserRegistration = lazy(() => import("../components/auth/StoreUserRegistration"));
+const RegistrationSuccessPage = lazy(() => import("../pages/RegistrationSuccessPage"));
+const PendingUsersApproval = lazy(() => import("../components/admin/PendingUsersApproval"));
 
 const EmployeeReportPage = lazy(() => import("../pages/EmployeeReportPage"));
 const ReportStatusPage = lazy(() => import("../pages/ReportStatusPage"));
@@ -31,19 +36,75 @@ const LazyComponent = ({ Component }) => (
 
 // Protected route wrapper
 const AdminRoute = ({ children, requireSuperAdmin = false }) => {
-  return <>{children}</>;
+  return (
+    <ProtectedRoute requireAuth requireAdmin requireSuperAdmin={requireSuperAdmin}>
+      {children}
+    </ProtectedRoute>
+  );
+};
+
+// Store user route wrapper
+const StoreUserRoute = ({ children }) => {
+  return (
+    <ProtectedRoute requireAuth>
+      {children}
+    </ProtectedRoute>
+  );
 };
 
 const routes = [
+  // Public routes
+  {
+    path: "/",
+    element: <LazyComponent Component={StoreLoginPage} />,
+    errorElement: <RouteErrorBoundary />,
+  },
   {
     path: "/login",
     element: <LazyComponent Component={AdminLoginPage} />,
     errorElement: <RouteErrorBoundary />,
   },
   {
+    path: "/register",
+    element: <LazyComponent Component={StoreUserRegistration} />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/registration-success",
+    element: <LazyComponent Component={RegistrationSuccessPage} />,
+    errorElement: <RouteErrorBoundary />,
+  },
+
+  // Store user routes
+  {
+    path: "/dashboard",
+    element: (
+      <StoreUserRoute>
+        <EmployeeLayout />
+      </StoreUserRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+    children: [
+      {
+        index: true,
+        element: <LazyComponent Component={EmployeeReportPage} />,
+      },
+      {
+        path: "report",
+        element: <LazyComponent Component={EmployeeReportPage} />,
+      },
+      {
+        path: "check-status",
+        element: <LazyComponent Component={ReportStatusPage} />,
+      },
+    ],
+  },
+
+  // Admin routes
+  {
     path: "/admin",
     element: <AdminLayout />,
-    errorElement: <RouteErrorBoundary />, // Error handling for entire admin section
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
         index: true,
@@ -56,7 +117,6 @@ const routes = [
             <LazyComponent Component={AdminDashboardPage} />
           </AdminRoute>
         ),
-        errorElement: <RouteErrorBoundary />,
       },
       {
         path: "reports",
@@ -65,7 +125,6 @@ const routes = [
             <LazyComponent Component={AdminReportsPage} />
           </AdminRoute>
         ),
-        errorElement: <RouteErrorBoundary />,
       },
       {
         path: "settings",
@@ -74,7 +133,6 @@ const routes = [
             <LazyComponent Component={AdminSettingsPage} />
           </AdminRoute>
         ),
-        errorElement: <RouteErrorBoundary />,
       },
       {
         path: "qr-generator",
@@ -83,10 +141,19 @@ const routes = [
             <LazyComponent Component={QRCodeGeneratorPage} />
           </AdminRoute>
         ),
-        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: "pending-users",
+        element: (
+          <AdminRoute>
+            <LazyComponent Component={PendingUsersApproval} />
+          </AdminRoute>
+        ),
       },
     ],
   },
+
+  // Help and support routes
   {
     path: "/help",
     element: <LazyComponent Component={HelpPage} />,
@@ -96,27 +163,6 @@ const routes = [
     path: "/privacy",
     element: <LazyComponent Component={PrivacyPage} />,
     errorElement: <RouteErrorBoundary />,
-  },
-  {
-    path: "/",
-    element: <EmployeeLayout />,
-    errorElement: <RouteErrorBoundary />, // Error handling for employee section
-    children: [
-      {
-        index: true,
-        element: <LazyComponent Component={EmployeeReportPage} />,
-      },
-      {
-        path: "report",
-        element: <LazyComponent Component={EmployeeReportPage} />,
-        errorElement: <RouteErrorBoundary />,
-      },
-      {
-        path: "check-status",
-        element: <LazyComponent Component={ReportStatusPage} />,
-        errorElement: <RouteErrorBoundary />,
-      },
-    ],
   },
   {
     path: "/unauthorized",
