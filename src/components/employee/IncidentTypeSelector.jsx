@@ -1,5 +1,5 @@
 // src/components/employee/IncidentTypeSelector.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ShoppingBag,
@@ -8,17 +8,25 @@ import {
   Hammer,
   Stethoscope,
   User,
+  Loader2,
+  AlertCircle,
+  Info,
+  Shield,
 } from "lucide-react";
-import { getAvailableIncidentTypes } from "../../constants/incidentTypes";
+import useCategories from "../../hooks/useCategories";
+import LoadingSpinner from "../shared/LoadingSpinner";
 
 // Map of icon names to Lucide components
 const iconMap = {
   ShoppingBag: ShoppingBag,
   AlertTriangle: AlertTriangle,
+  AlertCircle: AlertCircle,
   Beer: Beer,
   Hammer: Hammer,
   Stethoscope: Stethoscope,
   User: User,
+  Shield: Shield,
+  Info: Info,
 };
 
 const IncidentTypeSelector = ({
@@ -28,8 +36,8 @@ const IncidentTypeSelector = ({
   className = "",
   multiSelect = false,
 }) => {
-  // Get available incident types based on store number
-  const availableTypes = getAvailableIncidentTypes(storeNumber);
+  // Use our custom hook to get categories for this store
+  const { categories, loading, error, usingFallback } = useCategories(storeNumber);
 
   // Handle click on an incident type
   const handleTypeClick = (typeId) => {
@@ -60,11 +68,32 @@ const IncidentTypeSelector = ({
     );
   }
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className={`text-center py-4 ${className}`}>
+        <LoadingSpinner size="small" text="Loading categories..." />
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error && !usingFallback) {
+    return (
+      <div className={`text-center py-4 ${className}`}>
+        <p className="text-red-400 flex items-center justify-center gap-2">
+          <AlertCircle className="h-4 w-4" />
+          {error}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ${className}`}
     >
-      {availableTypes.map((type) => {
+      {categories.map((type) => {
         // Get the icon component
         const IconComponent = iconMap[type.icon] || AlertTriangle;
 
@@ -113,6 +142,14 @@ const IncidentTypeSelector = ({
           </Card>
         );
       })}
+
+      {/* Show fallback notice if using hardcoded categories */}
+      {usingFallback && (
+        <div className="col-span-full text-center text-xs text-amber-500 flex items-center justify-center gap-1 mt-1">
+          <Info className="h-3 w-3" />
+          <span>Using default category options</span>
+        </div>
+      )}
     </div>
   );
 };
