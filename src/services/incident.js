@@ -27,6 +27,30 @@ export const createIncident = async (incidentData) => {
     // Generate a unique case number
     const caseNumber = await generateCaseNumber();
 
+    // Validate incident types
+    const validIncidentTypes = [
+      'shoplifting',
+      'robbery',
+      'beer-run',
+      'property-damage',
+      'injury',
+      'mr-pants',
+      'skinny-hispanic',
+      'candyman',
+      'light-skin',
+      'old-hispanic',
+      'old-tall-black'
+    ];
+
+    // Ensure incidentTypes is an array and contains valid types
+    const incidentTypes = Array.isArray(incidentData.incidentTypes)
+      ? incidentData.incidentTypes.filter(type => validIncidentTypes.includes(type))
+      : [incidentData.incidentTypes].filter(type => validIncidentTypes.includes(type));
+
+    if (incidentTypes.length === 0) {
+      throw new Error('No valid incident types provided');
+    }
+
     // Prepare the data to be stored
     const preparedData = {
       ...incidentData,
@@ -38,10 +62,16 @@ export const createIncident = async (incidentData) => {
         typeof incidentData.storeNumber === "string"
           ? parseInt(incidentData.storeNumber, 10)
           : incidentData.storeNumber,
-      // Ensure incidentTypes is always an array
-      incidentTypes: Array.isArray(incidentData.incidentTypes)
-        ? incidentData.incidentTypes
-        : [incidentData.incidentTypes],
+      // Use validated incident types
+      incidentTypes,
+      // Add metadata for analytics
+      metadata: {
+        createdAt: serverTimestamp(),
+        incidentTypeCount: incidentTypes.length,
+        hasSpecialType: incidentTypes.some(type =>
+          ['mr-pants', 'skinny-hispanic', 'candyman', 'light-skin', 'old-hispanic', 'old-tall-black'].includes(type)
+        )
+      }
     };
 
     // Add the document to the collection

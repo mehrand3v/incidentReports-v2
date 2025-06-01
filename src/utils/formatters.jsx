@@ -168,13 +168,21 @@ export const formatPoliceReport = (reportNumber) => {
 // In src/utils/formatters.js, add this function:
 export const renderIncidentTypeBadge = (incidentType) => {
   const typeColors = {
-    'shoplifting': 'bg-purple-700 text-white',
-    'robbery': 'bg-red-700 text-white',
+    // Standard incident types
+    'shoplifting': 'bg-purple-600 text-white',
+    'robbery': 'bg-red-600 text-white',
     'beer-run': 'bg-amber-600 text-white',
-    'property-damage': 'bg-blue-600 text-white',
+    'property-damage': 'bg-orange-600 text-white',
     'injury': 'bg-rose-600 text-white',
-    'mr-pants': 'bg-indigo-600 text-white',
-    'skinny-hispanic': 'bg-teal-600 text-white',
+
+    // Special incident types
+    'mr-pants': 'bg-green-600 text-white',
+    'skinny-hispanic': 'bg-sky-600 text-white',
+    'candyman': 'bg-emerald-600 text-white',
+    'light-skin': 'bg-cyan-600 text-white',
+    'old-hispanic': 'bg-violet-600 text-white',
+    'old-tall-black': 'bg-fuchsia-600 text-white',
+
     // default color for any other types
     'default': 'bg-gray-600 text-white'
   };
@@ -184,7 +192,7 @@ export const renderIncidentTypeBadge = (incidentType) => {
   // Format a single incident type
   if (typeof incidentType === 'string') {
     return (
-      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getTypeColor(incidentType)}`}>
+      <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${getTypeColor(incidentType)}`}>
         {formatIncidentTypeLabel(incidentType)}
       </span>
     );
@@ -197,7 +205,7 @@ export const renderIncidentTypeBadge = (incidentType) => {
         {incidentType.map(type => (
           <span
             key={type}
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getTypeColor(type)}`}
+            className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${getTypeColor(type)}`}
           >
             {formatIncidentTypeLabel(type)}
           </span>
@@ -212,13 +220,20 @@ export const renderIncidentTypeBadge = (incidentType) => {
 // Helper to format incident type labels
 export const formatIncidentTypeLabel = (type) => {
   const labels = {
+    // Standard incident types
     'shoplifting': 'Shoplifting',
     'robbery': 'Robbery',
     'beer-run': 'Beer Run',
     'property-damage': 'Property Damage',
     'injury': 'Injury',
+
+    // Special incident types
     'mr-pants': 'Mr. Pants',
-    'skinny-hispanic': 'Skinny Hispanic'
+    'skinny-hispanic': 'Skinny Hispanic',
+    'candyman': 'Candyman',
+    'light-skin': 'Light Skin',
+    'old-hispanic': 'Old Hispanic',
+    'old-tall-black': 'Old Tall Black Man'
   };
 
   return labels[type] || type;

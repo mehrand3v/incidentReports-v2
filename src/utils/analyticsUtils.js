@@ -30,6 +30,10 @@ export const processIncidentAnalytics = (incidents = []) => {
       byStore: {},
       byMonth: {},
       recentTrends: [],
+      specialTypes: {
+        total: 0,
+        byType: {}
+      }
     };
   }
 
@@ -50,6 +54,23 @@ export const processIncidentAnalytics = (incidents = []) => {
         : ["Unspecified"]
     );
     const byType = _.countBy(allTypes);
+
+    // Process special types
+    const specialTypes = {
+      total: 0,
+      byType: {}
+    };
+
+    incidents.forEach(incident => {
+      if (incident.incidentTypes) {
+        incident.incidentTypes.forEach(type => {
+          if (['mr-pants', 'skinny-hispanic', 'candyman', 'light-skin', 'old-hispanic', 'old-tall-black'].includes(type)) {
+            specialTypes.total++;
+            specialTypes.byType[type] = (specialTypes.byType[type] || 0) + 1;
+          }
+        });
+      }
+    });
 
     // Group by store
     const byStore = _.countBy(incidents, "storeNumber");
@@ -85,33 +106,29 @@ export const processIncidentAnalytics = (incidents = []) => {
     // Get last 6 months of data
     const recentMonths = sortedMonths.slice(-6);
 
-    // Format for trend analysis
+    // Calculate trends
     const recentTrends = recentMonths.map((month) => {
       const monthIncidents = groupedByMonth[month];
-      const normalizedMonthIncidents = monthIncidents.map(normalizeStatus);
-
-      const [year, monthNum] = month.split("-");
-      const monthNames = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-      const displayMonth = `${monthNames[parseInt(monthNum, 10) - 1]} ${year}`;
-
       return {
-        month: displayMonth,
-        rawMonth: month,
-        count: monthIncidents.length,
-        byStatus: _.countBy(normalizedMonthIncidents, "normalizedStatus"),
+        month,
+        total: monthIncidents.length,
+        byType: _.countBy(
+          monthIncidents.flatMap((inc) => inc.incidentTypes || ["Unspecified"])
+        ),
+        specialTypes: {
+          total: monthIncidents.filter(inc =>
+            inc.incidentTypes?.some(type =>
+              ['mr-pants', 'skinny-hispanic', 'candyman', 'light-skin', 'old-hispanic', 'old-tall-black'].includes(type)
+            )
+          ).length,
+          byType: _.countBy(
+            monthIncidents.flatMap(inc =>
+              (inc.incidentTypes || []).filter(type =>
+                ['mr-pants', 'skinny-hispanic', 'candyman', 'light-skin', 'old-hispanic', 'old-tall-black'].includes(type)
+              )
+            )
+          )
+        }
       };
     });
 
@@ -122,17 +139,21 @@ export const processIncidentAnalytics = (incidents = []) => {
       byStore,
       byMonth,
       recentTrends,
+      specialTypes
     };
   } catch (error) {
     console.error("Error processing incident analytics:", error);
     return {
-      totalCount: incidents.length,
+      totalCount: 0,
       byStatus: {},
       byType: {},
       byStore: {},
       byMonth: {},
       recentTrends: [],
-      error: error.message,
+      specialTypes: {
+        total: 0,
+        byType: {}
+      }
     };
   }
 };

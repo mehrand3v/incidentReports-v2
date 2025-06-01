@@ -24,6 +24,7 @@ import {
 } from "../../utils/validators";
 import { createIncident } from "../../services/incident";
 import { logCustomEvent } from "../../services/analytics";
+import GuidedDetailsForm from "./GuidedDetailsForm";
 
 
 const IncidentReportForm = () => {
@@ -218,15 +219,12 @@ const IncidentReportForm = () => {
 
               {/* Details */}
               <div className="space-y-2">
-                <Label htmlFor="details" className="text-gray-200 font-medium">
-                  Additional Details (Optional)
-                </Label>
-                <Textarea
-                  id="details"
-                  value={details}
+                <Label className="text-gray-200 font-medium">Details</Label>
+                <GuidedDetailsForm
+                  incidentType={incidentTypes[0]} // Since we're using single select
+                  formData={details}
                   onChange={(e) => setDetails(e.target.value)}
-                  placeholder="Enter any additional details about the incident"
-                  className="bg-slate-700 border-slate-600 text-white placeholder:text-gray-400 focus:border-blue-500 min-h-32"
+                  errors={errors}
                 />
               </div>
             </div>

@@ -80,7 +80,17 @@ const IncidentWizard = () => {
         icon = Skull;
         break;
       case "User":
-        icon = type.id === "skinny-hispanic" ? PersonStanding : User;
+        icon = type.id === "skinny-hispanic"
+          ? PersonStanding
+          : type.id === "candyman"
+          ? User
+          : type.id === "light-skin"
+          ? User
+          : type.id === "old-hispanic"
+          ? User
+          : type.id === "old-tall-black"
+          ? User
+          : User;
         break;
       default:
         icon = AlertTriangle;
@@ -106,6 +116,14 @@ const IncidentWizard = () => {
           ? "bg-green-600"
           : type.id === "skinny-hispanic"
           ? "bg-sky-600"
+          : type.id === "candyman"
+          ? "bg-emerald-600"
+          : type.id === "light-skin"
+          ? "bg-cyan-600"
+          : type.id === "old-hispanic"
+          ? "bg-violet-600"
+          : type.id === "old-tall-black"
+          ? "bg-fuchsia-600"
           : "bg-gray-600",
       hoverBg:
         type.id === "shoplifting"
@@ -122,6 +140,14 @@ const IncidentWizard = () => {
           ? "hover:bg-green-700"
           : type.id === "skinny-hispanic"
           ? "hover:bg-sky-700"
+          : type.id === "candyman"
+          ? "hover:bg-emerald-700"
+          : type.id === "light-skin"
+          ? "hover:bg-cyan-700"
+          : type.id === "old-hispanic"
+          ? "hover:bg-violet-700"
+          : type.id === "old-tall-black"
+          ? "hover:bg-fuchsia-700"
           : "hover:bg-gray-700",
       iconColor:
         type.id === "shoplifting"
@@ -138,6 +164,14 @@ const IncidentWizard = () => {
           ? "text-green-500"
           : type.id === "skinny-hispanic"
           ? "text-sky-500"
+          : type.id === "candyman"
+          ? "text-emerald-500"
+          : type.id === "light-skin"
+          ? "text-cyan-500"
+          : type.id === "old-hispanic"
+          ? "text-violet-500"
+          : type.id === "old-tall-black"
+          ? "text-fuchsia-500"
           : "text-gray-500",
     };
   });
@@ -313,9 +347,9 @@ const IncidentWizard = () => {
             <Label htmlFor="details" className="text-sm font-medium text-white">
               Incident Details
             </Label>
-            
+
             {/* Replace the standard textarea with our new GuidedDetailsForm */}
-            <GuidedDetailsForm 
+            <GuidedDetailsForm
               incidentType={selectedIncidentType}
               value={details}
               onChange={(value) => {
@@ -328,7 +362,7 @@ const IncidentWizard = () => {
                 setIsGuidedMode(isGuided);
               }}
             />
-            
+
             {error && !details.trim() && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
@@ -401,7 +435,7 @@ const IncidentWizard = () => {
               )}
             </div>
           </div>
-          
+
           <div className="bg-blue-900/20 border border-blue-800/30 rounded-lg p-2 text-xs">
             <p className="text-blue-300 flex items-start">
               <AlertTriangle className="h-3 w-3 mt-0.5 mr-1 flex-shrink-0" />
@@ -430,10 +464,10 @@ const IncidentWizard = () => {
 
       // Log what we're about to submit
       console.log("Submitting incident data:", incidentData);
-      
+
       // Validate required fields
       if (!incidentData.storeNumber || !incidentData.incidentTypes || !incidentData.incidentTypes[0]) {
-        console.error("Missing required fields:", { 
+        console.error("Missing required fields:", {
           hasStoreNumber: !!incidentData.storeNumber,
           hasIncidentTypes: !!incidentData.incidentTypes && incidentData.incidentTypes.length > 0
         });
@@ -441,7 +475,7 @@ const IncidentWizard = () => {
       }
 
       let result;
-      
+
       try {
         // Submit the incident using the service function
         console.log("Calling createIncident service function...");
@@ -449,12 +483,12 @@ const IncidentWizard = () => {
         console.log("Received result from createIncident:", result);
       } catch (serviceError) {
         console.error("Service function failed:", serviceError);
-        
+
         // Check if the createIncident function is defined
         if (typeof createIncident !== 'function') {
           console.error("createIncident is not a function!");
         }
-        
+
         // If the service fails, generate a fallback result
         // This is just for development/testing and should be removed in production
         console.warn("Using fallback case number generation");
@@ -463,7 +497,7 @@ const IncidentWizard = () => {
         const month = (now.getMonth() + 1).toString().padStart(2, '0');
         const day = now.getDate().toString().padStart(2, '0');
         const timestamp = now.getTime().toString().slice(-4);
-        
+
         result = {
           id: "local-" + Math.random().toString(36).substr(2, 9),
           caseNumber: `HSE${year}${month}${day}${timestamp}`
@@ -501,7 +535,7 @@ const IncidentWizard = () => {
         <h2 className="text-lg font-bold text-white mb-2">Success!</h2>
         <p className="text-green-300">Your incident report has been submitted</p>
         <p className="text-white font-bold mt-2">Case #: {submissionResult.caseNumber}</p>
-        <Button 
+        <Button
           onClick={() => {
             setCurrentStep(0);
             setStoreNumber("");
@@ -564,7 +598,7 @@ const IncidentWizard = () => {
           {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mt-20 -mr-20"></div>
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -mb-10 -ml-10"></div>
-          
+
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-lg font-bold text-white relative z-10">
@@ -574,7 +608,7 @@ const IncidentWizard = () => {
                 {steps[currentStep].title} - {steps[currentStep].description}
               </p>
             </div>
-            
+
             {/* Compact step indicators */}
             <div className="flex space-x-1.5 relative z-10">
               {steps.map((_, index) => (

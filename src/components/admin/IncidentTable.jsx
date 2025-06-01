@@ -55,6 +55,7 @@ import {
   formatDetails,
   formatIncidentTypes,
   renderIncidentTypeBadge,
+  formatIncidentTypeLabel,
 } from "../../utils/formatters";
 import LoadingSpinner from "../shared/LoadingSpinner";
 
@@ -191,6 +192,36 @@ const IncidentTable = ({
     setHoveredRow(id);
   };
 
+  // Update the badge styling in the table
+  const getTypeColor = (type) => {
+    switch (type) {
+      case 'shoplifting':
+        return 'bg-purple-600 text-white';
+      case 'robbery':
+        return 'bg-red-600 text-white';
+      case 'beer-run':
+        return 'bg-amber-600 text-white';
+      case 'property-damage':
+        return 'bg-orange-600 text-white';
+      case 'injury':
+        return 'bg-rose-600 text-white';
+      case 'mr-pants':
+        return 'bg-green-600 text-white';
+      case 'skinny-hispanic':
+        return 'bg-sky-600 text-white';
+      case 'candyman':
+        return 'bg-emerald-600 text-white';
+      case 'light-skin':
+        return 'bg-cyan-600 text-white';
+      case 'old-hispanic':
+        return 'bg-violet-600 text-white';
+      case 'old-tall-black':
+        return 'bg-fuchsia-600 text-white';
+      default:
+        return 'bg-gray-600 text-white';
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -312,35 +343,19 @@ const IncidentTable = ({
           incident.incidentTypes.map((type) => (
             <span
               key={type}
-              className={`inline-block rounded px-0.5 py-0.5 text-xs font-medium ${
-                type === "shoplifting"
-                  ? "bg-gradient-to-r from-purple-700 to-purple-600 text-white"
-                  : type === "robbery"
-                  ? "bg-gradient-to-r from-red-700 to-red-600 text-white"
-                  : type === "beer-run"
-                  ? "bg-gradient-to-r from-orange-800 to-orange-700 text-white"
-                  : type === "property-damage"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
-                  : type === "injury"
-                  ? "bg-gradient-to-r from-rose-600 to-rose-500 text-white"
-                  : type === "mr-pants"
-                  ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white"
-                  : type === "skinny-hispanic"
-                  ? "bg-gradient-to-r from-teal-600 to-teal-500 text-white"
-                  : "bg-gradient-to-r from-gray-600 to-gray-500 text-white"
-              }`}
+              className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${getTypeColor(type)}`}
             >
-              {type.replace(/-/g, " ")}
+              {formatIncidentTypeLabel(type)}
             </span>
           ))
         ) : (
-          <span className="inline-block rounded px-0.5 py-0.5 text-xs font-medium bg-gradient-to-r from-gray-600 to-gray-500 text-white">
+          <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${getTypeColor(incident.incidentTypes)}`}>
             {incident.incidentTypes || "N/A"}
           </span>
         )}
       </div>
     </TableCell>
-    
+
     {/* Conditionally render Details column */}
     {windowWidth >= 768 && (
       <TableCell className="px-1.5 py-1 text-gray-300">
@@ -362,11 +377,11 @@ const IncidentTable = ({
         </Button>
       </TableCell>
     )}
-    
+
     <TableCell className="px-1.5 py-1">
       {getStatusBadge(incident.status)}
     </TableCell>
-    
+
     {/* Conditionally render Police # column */}
     {windowWidth >= 768 && (
       <TableCell className="px-1.5 py-1 whitespace-nowrap text-xs">
@@ -382,7 +397,7 @@ const IncidentTable = ({
         )}
       </TableCell>
     )}
-    
+
     {/* Conditionally render Case # column */}
     {windowWidth >= 768 && (
       <TableCell className="px-1.5 py-1 font-mono whitespace-nowrap text-xs">
@@ -395,7 +410,7 @@ const IncidentTable = ({
         )}
       </TableCell>
     )}
-    
+
     <TableCell className="px-1.5 py-1">
       <div className="flex items-center justify-center space-x-1">
         <Button
@@ -605,29 +620,13 @@ const IncidentTable = ({
                       selectedIncident.incidentTypes.map((type) => (
                         <span
                           key={type}
-                          className={`inline-block rounded px-1.5 py-0.5 sm:px-2 sm:py-1 md:px-2.5 md:py-1.5 text-2xs sm:text-xs md:text-sm font-medium ${
-                            type === "shoplifting"
-                              ? "bg-gradient-to-r from-purple-700 to-purple-600 text-white"
-                              : type === "robbery"
-                              ? "bg-gradient-to-r from-red-700 to-red-600 text-white"
-                              : type === "beer-run"
-                              ? "bg-gradient-to-r from-orange-800 to-orange-700 text-white"
-                              : type === "property-damage"
-                              ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
-                              : type === "injury"
-                              ? "bg-gradient-to-r from-rose-600 to-rose-500 text-white"
-                              : type === "mr-pants"
-                              ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white"
-                              : type === "skinny-hispanic"
-                              ? "bg-gradient-to-r from-teal-600 to-teal-500 text-white"
-                              : "bg-gradient-to-r from-gray-600 to-gray-500 text-white"
-                          }`}
+                          className={`inline-block rounded px-1.5 py-0.5 sm:px-2 sm:py-1 md:px-2.5 md:py-1.5 text-2xs sm:text-xs md:text-sm font-medium ${getTypeColor(type)}`}
                         >
-                          {type.replace(/-/g, " ")}
+                          {formatIncidentTypeLabel(type)}
                         </span>
                       ))
                     ) : (
-                      <span className="bg-gradient-to-r from-gray-600 to-gray-500 text-white rounded px-1.5 py-0.5 sm:px-2 sm:py-1 md:px-2.5 md:py-1.5 text-2xs sm:text-xs md:text-sm font-medium">
+                      <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${getTypeColor(selectedIncident.incidentTypes)}`}>
                         {selectedIncident.incidentTypes || "N/A"}
                       </span>
                     )}
