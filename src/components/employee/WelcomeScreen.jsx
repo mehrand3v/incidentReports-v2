@@ -18,6 +18,8 @@ import grenadeLauncherImage from '../../assets/grenade-launcher.png';
 import rifleImage from '../../assets/rifle.png';
 import handcuffsImage from '../../assets/handcuffs.png';
 import gunImage from '../../assets/gun.png';
+import bulletsImage from '../../assets/bullets.png';
+import knifeImage from '../../assets/combat-knife.png';
 
 const funMessages = [
   "Time to be a hero! 🦸‍♂️",
@@ -397,19 +399,37 @@ const WelcomeScreen = ({ onContinue }) => {
           </motion.div>
         </motion.div>
 
-        {/* Decorative elements */}
+        {/* Combat Knife icon */}
         <motion.div
-          className="absolute top-1/2 -left-12 w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 opacity-50"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.5, 0.7, 0.5]
+          className="absolute top-1/2 -left-12 bg-gradient-to-r from-sky-500 to-blue-500 rounded-full p-2"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 1.2 }}
+          style={{
+            boxShadow: '0 0 10px rgba(14, 165, 233, 0.5)'
           }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
+        >
+          <motion.div
+            animate={{
+              rotate: [0, -5, 5, 0],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <img
+              src={knifeImage}
+              alt="Combat Knife"
+              className="w-6 h-6 object-contain"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
+          </motion.div>
+        </motion.div>
+
+        {/* Decorative element - keeping only one */}
         <motion.div
           className="absolute top-1/2 -right-12 w-8 h-8 rounded-full bg-gradient-to-r from-fuchsia-500 to-pink-500 opacity-50"
           animate={{
