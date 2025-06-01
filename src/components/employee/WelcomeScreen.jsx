@@ -13,7 +13,11 @@ import {
   Rocket,
   Sparkles
 } from 'lucide-react';
-import azeemHackerImage from '../../assets/azeem hacker.jpg';
+import circleImage from '../../assets/circle.png';
+import grenadeLauncherImage from '../../assets/grenade-launcher.png';
+import rifleImage from '../../assets/rifle.png';
+import handcuffsImage from '../../assets/handcuffs.png';
+import gunImage from '../../assets/gun.png';
 
 const funMessages = [
   "Time to be a hero! 🦸‍♂️",
@@ -166,7 +170,7 @@ const WelcomeScreen = ({ onContinue }) => {
     setShowResponse(true);
     setTimeout(() => {
       onContinue();
-    }, 1000);
+    }, 3000);
   };
 
   return (
@@ -246,8 +250,8 @@ const WelcomeScreen = ({ onContinue }) => {
           {...selectedAnimation}
         >
           <motion.img
-            src={azeemHackerImage}
-            alt="Azeem Hacker"
+            src={circleImage}
+            alt="Circle"
             className="w-full h-full object-cover object-center scale-110"
             style={{
               transform: 'translateY(5%)'
@@ -273,7 +277,7 @@ const WelcomeScreen = ({ onContinue }) => {
           />
         </motion.div>
 
-        {/* Surveillance-themed floating icons */}
+        {/* Grenade Launcher icon */}
         <motion.div
           className="absolute -top-4 -right-4 bg-gradient-to-r from-red-500 to-orange-500 rounded-full p-2"
           initial={{ scale: 0 }}
@@ -294,11 +298,16 @@ const WelcomeScreen = ({ onContinue }) => {
               ease: "easeInOut"
             }}
           >
-            <Camera className="w-6 h-6 text-white" />
+            <img
+              src={grenadeLauncherImage}
+              alt="Grenade Launcher"
+              className="w-6 h-6 object-contain"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
           </motion.div>
         </motion.div>
 
-        {/* Magnifying glass icon */}
+        {/* Rifle icon */}
         <motion.div
           className="absolute -top-4 -left-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full p-2"
           initial={{ scale: 0 }}
@@ -319,18 +328,23 @@ const WelcomeScreen = ({ onContinue }) => {
               ease: "easeInOut"
             }}
           >
-            <Search className="w-6 h-6 text-white" />
+            <img
+              src={rifleImage}
+              alt="Rifle"
+              className="w-6 h-6 object-contain"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
           </motion.div>
         </motion.div>
 
-        {/* Alert icon */}
+        {/* Gun icon */}
         <motion.div
-          className="absolute -bottom-4 -right-4 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full p-2"
+          className="absolute -bottom-4 -right-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full p-2"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.9 }}
           style={{
-            boxShadow: '0 0 10px rgba(245, 158, 11, 0.5)'
+            boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)'
           }}
         >
           <motion.div
@@ -344,11 +358,16 @@ const WelcomeScreen = ({ onContinue }) => {
               ease: "easeInOut"
             }}
           >
-            <AlertCircle className="w-6 h-6 text-white" />
+            <img
+              src={gunImage}
+              alt="Gun"
+              className="w-6 h-6 object-contain"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
           </motion.div>
         </motion.div>
 
-        {/* Eye icon */}
+        {/* Handcuffs icon */}
         <motion.div
           className="absolute -bottom-4 -left-4 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full p-2"
           initial={{ scale: 0 }}
@@ -369,7 +388,12 @@ const WelcomeScreen = ({ onContinue }) => {
               ease: "easeInOut"
             }}
           >
-            <Eye className="w-6 h-6 text-white" />
+            <img
+              src={handcuffsImage}
+              alt="Handcuffs"
+              className="w-6 h-6 object-contain"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
           </motion.div>
         </motion.div>
 
