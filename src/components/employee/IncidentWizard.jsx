@@ -21,7 +21,8 @@ import { isValidStoreNumber } from "../../utils/validators";
 import { getAvailableIncidentTypes } from "../../constants/incidentTypes";
 import { createIncident } from "../../services/incident";
 import { logCustomEvent } from "../../services/analytics";
-import GuidedDetailsForm from "@/components/GuidedDetailsForm"; // Import the new component
+import GuidedDetailsForm from "@/components/GuidedDetailsForm";
+import WelcomeScreen from "./WelcomeScreen";
 
 const IncidentWizard = () => {
   // Get store number from URL if provided by QR code
@@ -35,6 +36,7 @@ const IncidentWizard = () => {
   }, []);
 
   // State
+  const [showWelcome, setShowWelcome] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const [storeNumber, setStoreNumber] = useState("");
   const [selectedIncidentType, setSelectedIncidentType] = useState("");
@@ -42,7 +44,18 @@ const IncidentWizard = () => {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState(null);
-  const [isGuidedMode, setIsGuidedMode] = useState(true); // Track guided mode state
+  const [isGuidedMode, setIsGuidedMode] = useState(true);
+
+  // Reset state when starting a new report
+  const resetState = () => {
+    setShowWelcome(true);
+    setCurrentStep(0);
+    setStoreNumber("");
+    setSelectedIncidentType("");
+    setDetails("");
+    setError("");
+    setSubmissionResult(null);
+  };
 
   // Clear error when inputs change
   useEffect(() => {
@@ -525,6 +538,17 @@ const IncidentWizard = () => {
     }
   };
 
+  // If showing welcome screen
+  if (showWelcome) {
+    return (
+      <div className="w-full max-w-md mx-auto px-2 sm:px-0">
+        <div className="bg-slate-800 rounded-xl overflow-hidden shadow-lg border border-slate-700 p-6">
+          <WelcomeScreen onContinue={() => setShowWelcome(false)} />
+        </div>
+      </div>
+    );
+  }
+
   // If submission was successful, show success display
   if (submissionResult) {
     return (
@@ -536,14 +560,7 @@ const IncidentWizard = () => {
         <p className="text-green-300">Your incident report has been submitted</p>
         <p className="text-white font-bold mt-2">Case #: {submissionResult.caseNumber}</p>
         <Button
-          onClick={() => {
-            setCurrentStep(0);
-            setStoreNumber("");
-            setSelectedIncidentType("");
-            setDetails("");
-            setError("");
-            setSubmissionResult(null);
-          }}
+          onClick={resetState}
           className="mt-4 bg-green-700 hover:bg-green-600"
         >
           Report Another Incident

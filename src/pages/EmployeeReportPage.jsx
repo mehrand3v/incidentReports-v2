@@ -7,15 +7,18 @@ import ImportantInfoModal from "../components/shared/ImportantInfoModal";
 
 const EmployeeReportPage = () => {
   const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [key, setKey] = useState(0); // Add a key state to force re-render
 
   // Log page view on component mount
   useEffect(() => {
     logPageView("Employee Report Page");
+    // Increment key to force IncidentWizard to re-mount
+    setKey(prev => prev + 1);
   }, []);
 
   return (
     <div className="py-1">
-      <IncidentWizard />
+      <IncidentWizard key={key} />
 
       <div className="mt-2 text-center">
         <button
