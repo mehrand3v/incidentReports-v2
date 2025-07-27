@@ -11,7 +11,9 @@ import {
   AlertCircle,
   Zap,
   Rocket,
-  Sparkles
+  Sparkles,
+  Calendar,
+  Star
 } from 'lucide-react';
 import circleImage from '../../assets/circle.png';
 import grenadeLauncherImage from '../../assets/grenade-launcher.png';
@@ -159,6 +161,128 @@ const TypewriterText = ({ text }) => {
   );
 };
 
+const EventNotice = () => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8, y: -20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ delay: 0.3, type: "spring", bounce: 0.6 }}
+      className="relative mb-8"
+    >
+      {/* Glowing background effect */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-red-500/20 rounded-xl blur-lg"
+        animate={{
+          scale: [1, 1.05, 1],
+          opacity: [0.2, 0.3, 0.2]
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+      
+      {/* Main event notice */}
+      <div className="relative bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-2 border-yellow-500/50 rounded-xl p-4 backdrop-blur-sm">
+        <div className="flex items-center justify-center space-x-3">
+          {/* Animated calendar icon */}
+          <motion.div
+            animate={{
+              rotate: [0, 10, -10, 0],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="text-yellow-400"
+          >
+            <Calendar className="w-6 h-6" />
+          </motion.div>
+          
+          {/* Event text */}
+          <motion.div
+            className="text-center"
+            animate={{
+              textShadow: [
+                '0 0 10px rgba(251, 191, 36, 0.5)',
+                '0 0 20px rgba(251, 191, 36, 0.8)',
+                '0 0 10px rgba(251, 191, 36, 0.5)'
+              ]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <div className="text-yellow-300 font-bold text-lg font-mono">
+              🎉 SPECIAL EVENT 🎉
+            </div>
+            <motion.div 
+              className="text-orange-300 font-semibold text-base font-mono"
+              animate={{
+                x: [0, 10, -10, 0],
+                y: [0, -5, 5, 0]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              Mukhtar's Day - January 9th
+            </motion.div>
+          </motion.div>
+          
+          {/* Animated star icon */}
+          <motion.div
+            animate={{
+              rotate: [0, 360],
+              scale: [1, 1.2, 1]
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+            className="text-yellow-400"
+          >
+            <Star className="w-6 h-6 fill-current" />
+          </motion.div>
+        </div>
+        
+        {/* Floating particles around the notice */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-yellow-400 rounded-full"
+              initial={{
+                x: Math.random() * 100 + '%',
+                y: Math.random() * 100 + '%',
+                scale: 0
+              }}
+              animate={{
+                y: [null, '-20px', null],
+                scale: [0, 1, 0],
+                opacity: [0, 1, 0]
+              }}
+              transition={{
+                duration: 2 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 2
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 const WelcomeScreen = ({ onContinue }) => {
   const [showResponse, setShowResponse] = useState(false);
   const [selectedMessage] = useState(() =>
@@ -207,6 +331,9 @@ const WelcomeScreen = ({ onContinue }) => {
           />
         ))}
       </div>
+
+      {/* Event Notice */}
+      <EventNotice />
 
       <motion.div
         initial={{ y: -20, opacity: 0 }}
@@ -429,7 +556,7 @@ const WelcomeScreen = ({ onContinue }) => {
           </motion.div>
         </motion.div>
 
-        {/* Decorative element - keeping only one */}
+        {/* Decorative element */}
         <motion.div
           className="absolute top-1/2 -right-12 w-8 h-8 rounded-full bg-gradient-to-r from-fuchsia-500 to-pink-500 opacity-50"
           animate={{
