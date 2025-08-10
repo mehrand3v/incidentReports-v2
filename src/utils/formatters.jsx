@@ -177,6 +177,7 @@ export const renderIncidentTypeBadge = (incidentType) => {
 
     // Special incident types
     'mr-pants': 'bg-green-600 text-white',
+    'mr-dolly': 'bg-green-700 text-white',
     'skinny-hispanic': 'bg-sky-600 text-white',
     'candyman': 'bg-emerald-600 text-white',
     'light-skin': 'bg-cyan-600 text-white',
@@ -229,6 +230,7 @@ export const formatIncidentTypeLabel = (type) => {
 
     // Special incident types
     'mr-pants': 'Mr. Pants',
+    'mr-dolly': 'Mr. Dolly',
     'skinny-hispanic': 'Skinny Hispanic',
     'candyman': 'Candyman',
     'light-skin': 'Light Skin',

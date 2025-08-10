@@ -64,7 +64,7 @@ export const processIncidentAnalytics = (incidents = []) => {
     incidents.forEach(incident => {
       if (incident.incidentTypes) {
         incident.incidentTypes.forEach(type => {
-          if (['mr-pants', 'skinny-hispanic', 'candyman', 'light-skin', 'old-hispanic', 'old-tall-black'].includes(type)) {
+          if (['mr-pants', 'mr-dolly', 'skinny-hispanic', 'candyman', 'light-skin', 'old-hispanic', 'old-tall-black'].includes(type)) {
             specialTypes.total++;
             specialTypes.byType[type] = (specialTypes.byType[type] || 0) + 1;
           }
@@ -118,13 +118,13 @@ export const processIncidentAnalytics = (incidents = []) => {
         specialTypes: {
           total: monthIncidents.filter(inc =>
             inc.incidentTypes?.some(type =>
-              ['mr-pants', 'skinny-hispanic', 'candyman', 'light-skin', 'old-hispanic', 'old-tall-black'].includes(type)
+              ['mr-pants', 'mr-dolly', 'skinny-hispanic', 'candyman', 'light-skin', 'old-hispanic', 'old-tall-black'].includes(type)
             )
           ).length,
           byType: _.countBy(
             monthIncidents.flatMap(inc =>
               (inc.incidentTypes || []).filter(type =>
-                ['mr-pants', 'skinny-hispanic', 'candyman', 'light-skin', 'old-hispanic', 'old-tall-black'].includes(type)
+                ['mr-pants', 'mr-dolly', 'skinny-hispanic', 'candyman', 'light-skin', 'old-hispanic', 'old-tall-black'].includes(type)
               )
             )
           )

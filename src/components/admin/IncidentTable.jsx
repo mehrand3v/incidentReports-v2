@@ -207,6 +207,8 @@ const IncidentTable = ({
         return 'bg-rose-600 text-white';
       case 'mr-pants':
         return 'bg-green-600 text-white';
+      case 'mr-dolly':
+        return 'bg-green-700 text-white';
       case 'skinny-hispanic':
         return 'bg-sky-600 text-white';
       case 'candyman':

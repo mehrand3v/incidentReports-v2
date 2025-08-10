@@ -170,6 +170,7 @@ const GuidedDetailsForm = ({
       "beer-run": [" took ", " grabbed ", " left with ", " walked out with "],
       shoplifting: [" stole ", " took ", " concealed ", " shoplifted "],
       "mr-pants": [" took ", " removed ", " exited with ", " left with "],
+      "mr-dolly": [" used a dolly and took ", " loaded on a dolly ", " exited with a dolly carrying ", " left with a dolly and "],
       default: [" took ", " stole ", " obtained ", " removed "],
     };
 
@@ -507,7 +508,7 @@ const GuidedDetailsForm = ({
           rows: 2,
         },
       ];
-    } else if (incidentType === "mr-pants") {
+    } else if (incidentType === "mr-pants" || incidentType === "mr-dolly") {
       return [
         ...baseQuestions,
         {

@@ -35,6 +35,7 @@ export const createIncident = async (incidentData) => {
       'property-damage',
       'injury',
       'mr-pants',
+      'mr-dolly',
       'skinny-hispanic',
       'candyman',
       'light-skin',
@@ -69,7 +70,7 @@ export const createIncident = async (incidentData) => {
         createdAt: serverTimestamp(),
         incidentTypeCount: incidentTypes.length,
         hasSpecialType: incidentTypes.some(type =>
-          ['mr-pants', 'skinny-hispanic', 'candyman', 'light-skin', 'old-hispanic', 'old-tall-black'].includes(type)
+          ['mr-pants', 'mr-dolly', 'skinny-hispanic', 'candyman', 'light-skin', 'old-hispanic', 'old-tall-black'].includes(type)
         )
       }
     };

@@ -156,6 +156,38 @@ export const SPECIAL_INCIDENT_TYPES = [
     },
   },
   {
+    id: "mr-dolly",
+    label: "Mr. Dolly",
+    description: "Known individual",
+    icon: "User",
+    restrictedToStores: ["2742091"],
+    formConfig: {
+      fields: [
+        {
+          id: "lastSeen",
+          label: "Last Seen",
+          type: "datetime",
+          required: true,
+          placeholder: "When was the individual last seen?",
+        },
+        {
+          id: "behavior",
+          label: "Behavior",
+          type: "textarea",
+          required: true,
+          placeholder: "Describe the individual's behavior (e.g., used a dolly, items taken)",
+        },
+        {
+          id: "location",
+          label: "Location",
+          type: "text",
+          required: false,
+          placeholder: "Where was the individual seen?",
+        },
+      ],
+    },
+  },
+  {
     id: "skinny-hispanic",
     label: "Skinny Hispanic",
     description: "Known individual",
